@@ -1,0 +1,18 @@
+
+
+objects on moving background (finish)
+move down center of gun shoot maybe (check alignment)
+
+
+----------------------------------
+low priority:
+
+armor
+fire thrower
+biolance as final weapon
+more destructible obj
+
+bug color of gun in colored areas
+bug outside with window level 4
+bug -> test_behind when looking up in high ceiling room (small bug)
+bug -> bug with normal in slanted wall toward inside (not reproducible easily)

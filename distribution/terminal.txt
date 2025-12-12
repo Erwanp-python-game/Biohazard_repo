@@ -1,0 +1,89 @@
+(base) PS D:\python_game\Biohazard> pip install -U jax
+Requirement already satisfied: jax in c:\users\erwan\anaconda3\lib\site-packages (0.4.1)
+Collecting jax
+  Downloading jax-0.4.13.tar.gz (1.3 MB)
+     |████████████████████████████████| 1.3 MB 3.3 MB/s
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+    Preparing wheel metadata ... done
+Collecting scipy>=1.7
+  Downloading scipy-1.10.1-cp38-cp38-win_amd64.whl (42.2 MB)
+     |████████████████████████████████| 42.2 MB ...
+Collecting importlib-metadata>=4.6
+  Downloading importlib_metadata-8.5.0-py3-none-any.whl (26 kB)
+Requirement already satisfied: opt-einsum in c:\users\erwan\anaconda3\lib\site-packages (from jax) (3.3.0)
+Collecting numpy>=1.21
+  Downloading numpy-1.24.4-cp38-cp38-win_amd64.whl (14.9 MB)
+     |████████████████████████████████| 14.9 MB 6.8 MB/s
+Collecting ml-dtypes>=0.1.0
+  Downloading ml_dtypes-0.2.0-cp38-cp38-win_amd64.whl (938 kB)
+     |████████████████████████████████| 938 kB 6.4 MB/s
+Collecting zipp>=3.20
+  Downloading zipp-3.20.2-py3-none-any.whl (9.2 kB)
+Building wheels for collected packages: jax
+  Building wheel for jax (PEP 517) ... done
+  Created wheel for jax: filename=jax-0.4.13-py3-none-any.whl size=1518827 sha256=285379280a42f7cb078e0f504286281f52c1f1f4df5f62860caafc61a28435a6
+  Stored in directory: c:\users\erwan\appdata\local\pip\cache\wheels\46\d9\15\d2800d4089dc4c77299ac7513c6aa1036f5491edbd2bf6ba16
+Successfully built jax
+Installing collected packages: zipp, numpy, scipy, ml-dtypes, importlib-metadata, jax
+  Attempting uninstall: zipp
+    Found existing installation: zipp 3.4.1
+    Uninstalling zipp-3.4.1:
+      Successfully uninstalled zipp-3.4.1
+  Attempting uninstall: numpy
+    Found existing installation: numpy 1.20.1
+    Uninstalling numpy-1.20.1:
+      Successfully uninstalled numpy-1.20.1
+  Attempting uninstall: scipy
+    Found existing installation: scipy 1.6.2
+    Uninstalling scipy-1.6.2:
+      Successfully uninstalled scipy-1.6.2
+    Found existing installation: importlib-metadata 3.10.0
+    Uninstalling importlib-metadata-3.10.0:
+      Successfully uninstalled importlib-metadata-3.10.0
+  Attempting uninstall: jax
+    Found existing installation: jax 0.4.1
+    Uninstalling jax-0.4.1:
+      Successfully uninstalled jax-0.4.1
+Successfully installed importlib-metadata-8.5.0 jax-0.4.13 ml-dtypes-0.2.0 numpy-1.24.4 scipy-1.10.1 zipp-3.20.2
+Au caractère Ligne:1 : 1
++ numpy --version
++ ~~~~~
+    + CategoryInfo          : ObjectNotFound: (numpy:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+(base) PS D:\python_game\Biohazard>
+(base) PS D:\python_game\Biohazard>
+import : Le terme «import» n'est pas reconnu comme nom d'applet de commande, fonction, fichier de script ou programme exécutable. Vérifiez l'orthographe du nom, ou si un chemin    
+d'accès existe, vérifiez que le chemin d'accès est correct et réessayez.
+Au caractère Ligne:1 : 1
++ import numpy
++ ~~~~~~
+    + CategoryInfo          : ObjectNotFound: (import:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+nom, ou si un chemin d'accès existe, vérifiez que le chemin d'accès est correct et réessayez.
+Au caractère Ligne:1 : 7
+ 
+Python 3.8.8 (default, Apr 13 2021, 15:08:03) [MSC v.1916 64 bit (AMD64)] :: Anaconda, Inc. on win32
+>>>
+>>> import numpy
+>>> print(numpy.__version__)
+1.24.4
+>>>
+>>> exit
+Use exit() or Ctrl-Z plus Return to exit
+>>> exit()
+(base) PS D:\python_game\Biohazard> pip install numpy==1.20.1
+Collecting numpy==1.20.1
+  Downloading numpy-1.20.1-cp38-cp38-win_amd64.whl (13.7 MB)
+     |████████████████████████████████| 13.7 MB 1.3 MB/s
+Installing collected packages: numpy
+  Attempting uninstall: numpy
+    Found existing installation: numpy 1.24.4
+    Uninstalling numpy-1.24.4:
+      Successfully uninstalled numpy-1.24.4
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+jax 0.4.13 requires numpy>=1.21, but you have numpy 1.20.1 which is incompatible.
+Successfully installed numpy-1.20.1
+(base) PS D:\python_game\Biohazard> 

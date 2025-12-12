@@ -1,0 +1,20 @@
+{2:"Scientist: Ah hi. I guess General Fischer sent you. Hum, not what I expected but the ten previous ones died so anyway. Your turn I guess. Ok, here we are at the Biotechnology and Genetics Federal Lab. Three days ago an experiment went very wrong. And now there are some 'bugs' running all over the place. We need you to enter and reach the room where everything started to report the situation. Try to stay alive please. I'll keep in touch by radio.",
+
+3:"Scientist: The next door is locked, go to the east aisle you'll find a magnetic card in the technical rooms.",
+'V1':"Scientist: Ah! One these horrors! Shoot it, these ones aren't that strong!",
+'G1':"Me: Hahaha! Yes!",
+
+4:"Me: The magnetic card! Let's take it and go back to the entrance!",
+
+'V2':"Scientist: These ones spit acid at your face, beware!",
+'G2':"  ",
+
+5:"Scientist: Move to the north to find the deepest and secured lab rooms. They are behind a big blue door.",
+
+6:"Me: Hum, the door is blocked by rubbles.#Scientist: Ok, then you need to reach the storage area, it's another way to the lower levels. The access is east of this spot.",
+
+7:"Me: Ok now let's go through this storage area...                     "
+
+
+}# inverser sens vitesse *1.25 changer hauteur -5 radio etendre compre 34 100
+#me : inverser sens vitesse *1.25 changer hauteur -2,5

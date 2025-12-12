@@ -1,0 +1,16 @@
+{1:"General Fisher: You are here to take the test to enter the Special Intervention Group!# Follow the instructions and keep your mouth shut!# Cross this door and see you later if you can make it!",
+
+2:"Loudspeaker: Before going further find ammunition and the magnetic card to opend the red door.",
+
+3:"Me: Ha! Here is the ammo, let's take it.",
+
+4:"Me: Ha! A red card ... for the red door!",
+
+5:"General Fisher: You FAILED! You were too slow, you #useless idiot! Go back home!",
+
+'V1':"Loudspeaker: Please destroy these dummies as fast as you can with your combat knife.",
+'G1':"Loudspeaker: Well done. Continue to the next door",
+
+'V2':"Loudspeaker: Please destroy these dummies as fast as you can with your gun.",
+'G2':"Loudspeaker: Well done. Continue to the next door"
+}

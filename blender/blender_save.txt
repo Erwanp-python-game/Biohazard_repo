@@ -1,0 +1,7 @@
+def render(output_dir, output_file_pattern_string = 'render.jpg', subject = bpy.context.object):
+  import os
+  bpy.context.scene.render.filepath = os.path.join(output_dir, (output_file_pattern_string))
+  bpy.ops.render.render(write_still = True)
+
+
+render('/Users/erwan/desktop/python_game/Biohazard/image/test_blend', 'boss0att1.jpg')

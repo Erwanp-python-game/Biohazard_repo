@@ -1,0 +1,20 @@
+2. Compilation and BLAS/LAPACK Libraries
+
+    NumPy’s performance heavily depends on the underlying BLAS/LAPACK libraries it’s linked against (like MKL, OpenBLAS, etc.).
+
+    If your original environment used Intel MKL (which comes with Anaconda by default), but now your new environment somehow uses a different or no optimized BLAS, performance can drop drastically.
+
+    Check if NumPy is using MKL by running inside Python:
+
+import numpy
+numpy.show_config()
+
+Look for references to MKL, OpenBLAS, or other BLAS libraries.
+
+Create a new conda environment with MKL:
+
+conda create -n myenv python=3.8 numpy=1.20.1 scipy mkl
+conda activate myenv
+
+This ensures numpy uses MKL.
+

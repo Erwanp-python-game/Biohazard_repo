@@ -1,0 +1,27 @@
+retourner les normales des membres après copie (pas obligé)
+réduire le nombre de polygones si pb avec texture paint qui n'affiche pas de map UV
+crtl j pour join
+
+articulations
+
+edit mode
+select vertices of articulation point
+maj+s
+cursor to selected
+object mode
+object/set origin/cursor
+select membre exterieur
+maj +select membre intérieur
+ctrl+p
+set parent to object keep tranform
+
+picture
+set in position
+join all
+Object ->origin to 3D cursor
+Object ->apply all transforms
+
+maj click pour move
+s scale
+r rotate
+g grab

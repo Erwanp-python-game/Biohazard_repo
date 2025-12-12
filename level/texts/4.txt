@@ -1,0 +1,8 @@
+{1:"Scientist: Ok you're in the administration building, you need to search for the archives to find on what Dr Flipz was working, it seems important. It should be an underground room ",
+3:"Me: What is this paper, maybe the colored dots mean something...",
+2:"Me: Oh this looks like the code of a door, but there are weird colors.",
+4:"Scientist: We got the results of the DNA on the lizardman you killed in the lab, it's ... part lizard and part human. This is getting weird.",
+5:"Scientist: Ok this door is locked with a code, I don't know it, try to explore as much as you can, maybe you'll find the code. ",
+6:"Me: Here are the archives, mission complete!",
+'V1':"Me: Ugly one!",
+'G1':"Me: It spawns small ones when dying!"}

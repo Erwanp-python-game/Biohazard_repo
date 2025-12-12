@@ -1,0 +1,11 @@
+{1:"Scientist: So now you need to reach the lower experimental rooms, for this take the lift at your right in this room."
+,2:"Me: Shit, it's pitch black here! I need a light. #Scientist: OK, power's out, you should go back to floor 0, go to the east side, at the end you'll find a lift to floor 1 and then search for a flashlight."
+,3:"Me: This must be the lift to floor 1."
+,4:"Me: Hmm looks like someone had some trouble here. #Scientist: Ah yes I think it's number 6... or 7, we sent him two days ago, congrats you did better than him!"
+,5:"Me: Where do I find this stupid light!#Scientist: Aaah, Johnson the intern must have stored in the west aisle before being eaten."
+,6:"Me: Yes! The flashlight let's go back to floor -1."
+,7:"Scientist: Ok now go toward the east and you will find the experimental rooms."
+,8:"Me: Ok I'm there.#Scientist: Hurry, we need to understand what happened there, be careful."
+,'V1':"Me: AAAAAH!"
+,'G1':"Me: Looks like more than one experiment went wrong! I wonder what happened there..."
+}

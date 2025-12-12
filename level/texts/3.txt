@@ -1,0 +1,9 @@
+{1:"Scientist: Ok you are in the center of the lab, try to find the cause of all this mess. You're on your own. ",
+2:"Me: Wow that's a nice shotgun, let's kill some bugs ! ",
+3:"Me: Looks like a torn piece of paper, I'll put it with my docs",
+4:"Me: Looks like a torn piece of paper, I'll put it with my docs",
+5:"Scientist: Ok this door is locked with a code, I don't know it, try to explore as much as you can, maybe you'll find the code. ",
+6:"Me: Ok here is the administration building, let's go ! ",
+'V99':"Me: What is that, looks like a lizard in lab suit",
+'G99':"Me: I found a card of a scientist on him, Dr. Flipz. Maybe he ate him.#Scientist: that's weird, he was a very discrete colleague and he is now missing... you should go to the administration building to the north east, maybe we can learn more about Dr. Flipz's work",
+}

@@ -1,0 +1,1407 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="960mm"
+   height="480mm"
+   viewBox="0 0 960 480"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="dessin-10.svg"
+   inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\3.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1355">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1351" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1353" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1347">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1343" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1345" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1339">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1335" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1337" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1331">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1327" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1329" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1323">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1319" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1321" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1315">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1311" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1313" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1305">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1301" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1303" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1297">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1293" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1295" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1268">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1264" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1266" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1228">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1224" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1226" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1220">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop1216" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop1218" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4567">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop4563" />
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:0;"
+         offset="1"
+         id="stop4565" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4505"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#fff0f0;stop-opacity:1;"
+         offset="0"
+         id="stop4503" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4373"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop4371" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2137">
+      <stop
+         style="stop-color:#211834;stop-opacity:1;"
+         offset="0"
+         id="stop2133" />
+      <stop
+         style="stop-color:#211834;stop-opacity:0;"
+         offset="1"
+         id="stop2135" />
+    </linearGradient>
+    <filter
+       inkscape:label="Burst"
+       inkscape:menu="Textures"
+       inkscape:menu-tooltip="Burst balloon texture crumpled and with holes"
+       x="-0.2"
+       y="-0.2"
+       width="1.4"
+       height="1.4"
+       style="color-interpolation-filters:sRGB;"
+       id="filter1505">
+      <feTurbulence
+         seed="132"
+         type="fractalNoise"
+         baseFrequency="0.001"
+         numOctaves="8"
+         result="result8"
+         id="feTurbulence1481" />
+      <feColorMatrix
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 4 -0.7 "
+         result="result5"
+         id="feColorMatrix1483" />
+      <feComposite
+         result="result11"
+         in2="result5"
+         operator="in"
+         in="SourceGraphic"
+         id="feComposite1485" />
+      <feDisplacementMap
+         result="result4"
+         scale="50"
+         yChannelSelector="G"
+         xChannelSelector="R"
+         in="result11"
+         in2="result8"
+         id="feDisplacementMap1487" />
+      <feComposite
+         result="result7"
+         in2="SourceAlpha"
+         operator="arithmetic"
+         in="result4"
+         k2="1.3"
+         id="feComposite1489" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="result7"
+         values="1 0 0 -1 0 1 0 1 -1 0 1 0 0 -1 0 -0.8 -1 0 4 -2.5 "
+         id="feColorMatrix1491" />
+      <feGaussianBlur
+         stdDeviation="0.5"
+         result="result10"
+         id="feGaussianBlur1493" />
+      <feDiffuseLighting
+         surfaceScale="15"
+         diffuseConstant="0.4"
+         result="result6"
+         lighting-color="rgb(255,255,255)"
+         in="result10"
+         id="feDiffuseLighting1497">
+        <feDistantLight
+           azimuth="235"
+           elevation="25"
+           id="feDistantLight1495" />
+      </feDiffuseLighting>
+      <feComposite
+         operator="in"
+         result="result2"
+         in="result6"
+         in2="result7"
+         id="feComposite1499" />
+      <feComposite
+         in2="result7"
+         operator="arithmetic"
+         k2="0.8"
+         k3="0.8"
+         result="result12"
+         id="feComposite1501" />
+      <feBlend
+         in2="result12"
+         mode="lighten"
+         id="feBlend1503" />
+    </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2137"
+       id="linearGradient2139"
+       x1="478.98978"
+       y1="-3.1965439"
+       x2="481.1279"
+       y2="486.44122"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(3.7662109e-5,-6.1096032e-5)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569"
+       cx="407.31878"
+       cy="192.43407"
+       fx="407.31878"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(1,0,0,0.94915256,-7.4083278,5.5514464)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-6"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(1.2372881,0,0,1.1525424,-119.83837,96.018654)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-6-2"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(1.2372881,0,0,1.1525424,-1052.1496,94.96031)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-3"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(1,0,0,0.94915256,-939.71959,4.4931013)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-6-7"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(1.0433805,0,0,0.97191616,-164.23417,129.0325)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-8"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(0.84328018,0,0,0.80040154,-69.424144,52.743315)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-6-7-4"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(1.0433805,0,0,0.97191616,-270.61501,129.03248)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-8-6"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(0.84328018,0,0,0.80040154,-175.80498,52.743293)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-6-7-2"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(1.0433805,0,0,0.97191616,-1111.8849,131.17624)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-8-1"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(0.84328018,0,0,0.80040154,-1017.0748,54.886963)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-6-7-4-5"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(1.0433805,0,0,0.97191616,-1218.2657,131.17622)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4567"
+       id="radialGradient4569-8-6-9"
+       cx="407.31879"
+       cy="192.43407"
+       fx="407.31879"
+       fy="192.43407"
+       r="63.075619"
+       gradientTransform="matrix(0.84328018,0,0,0.80040154,-1123.4557,54.886943)"
+       gradientUnits="userSpaceOnUse" />
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1183">
+      <path
+         id="path1185"
+         style="fill:#fff0f0;fill-opacity:1;stroke:#dca548;stroke-width:3.49131;stroke-opacity:1"
+         d="m 247.73878,-168.72002 -71.94155,-1.41062 -1.41063,88.868979 88.86899,1.410621 z"
+         sodipodi:nodetypes="ccccc" />
+    </clipPath>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1220"
+       id="linearGradient1222"
+       x1="540.16925"
+       y1="239.14877"
+       x2="534.63373"
+       y2="151.26854"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-4.2333335)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1228"
+       id="linearGradient1230"
+       x1="392.14194"
+       y1="240.19937"
+       x2="401.54318"
+       y2="149.55638"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1228"
+       id="linearGradient1259"
+       x1="384.36069"
+       y1="372.20251"
+       x2="390.98135"
+       y2="263.72653"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-4.2333335)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1268"
+       id="linearGradient1270"
+       x1="547.9505"
+       y1="371.14417"
+       x2="545.95343"
+       y2="262.38715"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-4.2333335)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1297"
+       id="linearGradient1299"
+       x1="676.88208"
+       y1="253.62289"
+       x2="672.21411"
+       y2="176.98691"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-4.2333335)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1305"
+       id="linearGradient1309"
+       x1="783.26294"
+       y1="253.62289"
+       x2="781.85486"
+       y2="176.78835"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-4.2333335)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1315"
+       id="linearGradient1317"
+       x1="686.70374"
+       y1="364.73999"
+       x2="681.12067"
+       y2="273.26434"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-4.2333335)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1323"
+       id="linearGradient1325"
+       x1="376.59955"
+       y1="371.92145"
+       x2="383.22021"
+       y2="263.44547"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1331"
+       id="linearGradient1333"
+       x1="270.76859"
+       y1="251.47926"
+       x2="275.43655"
+       y2="174.84328"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-4.2333335)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1339"
+       id="linearGradient1341"
+       x1="164.38777"
+       y1="251.47923"
+       x2="169.05574"
+       y2="174.84325"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-4.2333335)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1347"
+       id="linearGradient1349"
+       x1="257.04791"
+       y1="362.35934"
+       x2="266.53"
+       y2="271.1207"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-4.2333335)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1355"
+       id="linearGradient1357"
+       x1="148.02126"
+       y1="362.35931"
+       x2="157.50334"
+       y2="271.12067"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,-4.2333335)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.24748737"
+     inkscape:cx="1757.3375"
+     inkscape:cy="964.25389"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     showguides="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:guide-bbox="true">
+    <sodipodi:guide
+       position="546.29892,716.26627"
+       orientation="0,-1"
+       id="guide4417" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#ff9696;fill-opacity:1;stroke:none;stroke-width:5.965;stroke-miterlimit:4;stroke-dasharray:17.895, 17.895;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2256"
+       width="965.3775"
+       height="481.10654"
+       x="-5.3026233"
+       y="3.4928055e-07"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="365.62469"
+       y="226.64456"
+       id="text1989"><tspan
+         sodipodi:role="line"
+         id="tspan1987"
+         x="365.62469"
+         y="226.64456"
+         style="stroke-width:0.264583" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="126.15121"
+       y="112.2532"
+       id="text1993"><tspan
+         sodipodi:role="line"
+         id="tspan1991"
+         x="126.15121"
+         y="112.2532"
+         style="stroke-width:0.264583" /></text>
+    <rect
+       style="fill:#211834;fill-opacity:1;stroke:none;stroke-width:5.965;stroke-miterlimit:4;stroke-dasharray:17.895, 17.895;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2256-4"
+       width="965.3775"
+       height="481.10654"
+       x="-5.3025894"
+       y="3.4928058e-07"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1359-0"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:6.64699"
+       d="m 955.75584,121.70517 c 0,11.80871 -18.46872,37.46658 -31.04395,45.20519 -12.57523,7.7386 -67.36549,-5.6493 -86.55464,-5.6493 -19.18915,0 -63.28863,11.24975 -75.86386,3.51114 -12.57523,-7.7386 -43.87289,-20.56754 -43.87289,-32.37625 0,-11.80871 34.50489,-34.259345 47.08013,-41.997948 12.57523,-7.738603 42.77668,1.372987 61.96584,1.372987 19.18916,0 49.39061,-2.697122 61.96584,5.041481 12.57523,7.7386 66.32353,13.08399 66.32353,24.8927 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2088-9-0"
+       style="fill:#eab662;fill-opacity:1;stroke:none;stroke-width:2.47635"
+       d="M 837.5425,157.20302 436.4821,144.79939 431.2862,481.13368 H 882.44379 Z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2088-9"
+       style="fill:#eab662;fill-opacity:1;stroke:none;stroke-width:2.47635"
+       d="M 110.10848,155.05928 495.82909,143.74105 539.57253,481.63577 67.475056,480.87982 Z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient4569-6-7-2);fill-opacity:1;stroke:none;stroke-width:6.87057;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-9-2-4"
+       width="131.62373"
+       height="122.60841"
+       x="-752.70868"
+       y="256.90167"
+       transform="scale(-1,1)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect1059"
+       style="fill:#cd9034;fill-opacity:1;stroke-width:10.9248"
+       d="M 94.983109,136.89253 H 858.46315 l -20.92065,20.31049 -727.43402,-2.14374 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#eab662;fill-opacity:1;stroke-width:11.669"
+       id="rect1154"
+       width="764.39087"
+       height="13.898018"
+       x="94.983109"
+       y="122.99459"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#d78f1d;fill-opacity:1;stroke-width:6.64699"
+       id="rect1193"
+       width="244.81889"
+       height="16.036171"
+       x="74.835464"
+       y="398.80905"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#d78f1d;fill-opacity:1;stroke-width:6.64699"
+       id="rect1193-7"
+       width="244.81889"
+       height="16.036171"
+       x="626.2218"
+       y="389.44604"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect1059-0"
+       style="fill:#cd9034;fill-opacity:1;stroke-width:10.9248"
+       d="m 329.11779,110.16558 h 285.56003 l -20.92065,20.31049 -249.514,-2.14374 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2088"
+       style="fill:#f1ce95;fill-opacity:1;stroke:none;stroke-width:2.64599"
+       d="m 344.24317,128.33233 h 251.23336 l 54.52299,353.86486 -354.93394,-0.62626 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#eab662;fill-opacity:1;stroke-width:7.14411"
+       id="rect1154-4"
+       width="286.51294"
+       height="13.898018"
+       x="329.1178"
+       y="96.267586"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1359"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:6.64699"
+       d="m 236.26626,41.694045 c 0,11.80871 -18.46872,37.466584 -31.04395,45.205187 -12.57523,7.738603 -67.36549,-5.649299 -86.55464,-5.649299 -19.189151,0 -63.288631,11.249747 -75.863861,3.511143 -12.57523,-7.738603 -43.8728899,-20.56754 -43.8728899,-32.37625 0,-11.80871 34.5048899,-34.25935 47.0801299,-41.997953 12.57523,-7.7386028 42.77668,1.372987 61.965841,1.372987 19.18916,0 49.39061,-2.6971222 61.96584,5.041481 12.57523,7.738604 66.32353,13.083994 66.32353,24.892704 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1382"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:6.64699"
+       d="m 885.19669,38.486809 c 0,9.151752 -40.25648,13.160796 -63.85922,19.158214 -23.60274,5.997418 -78.66026,10.775976 -114.67683,10.775975 -36.01657,-10e-7 -78.24515,5.912222 -101.84789,-0.0852 -23.60274,-5.997417 -93.7934,-18.559085 -93.7934,-27.710836 1e-5,-9.151751 81.95052,-14.229872 105.55326,-20.22729 C 640.17535,14.400258 685.61117,9.6217 721.62773,9.6217 c 36.01657,0 88.93594,-5.9122234 112.53868,0.085194 23.60274,5.9974178 51.03027,19.6281638 51.03028,28.7799148 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#linearGradient2139);fill-opacity:1;stroke:none;stroke-width:5.965;stroke-miterlimit:4;stroke-dasharray:17.895, 17.895;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2256-4-5"
+       width="965.3775"
+       height="481.10654"
+       x="-5.3025894"
+       y="3.4928064e-07"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#d4d4d4;fill-opacity:1;stroke-width:7.14411"
+       id="path1385"
+       cx="304.15271"
+       cy="47.573971"
+       rx="40.090431"
+       ry="35.814117"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#211834;fill-opacity:1;stroke-width:6.64699"
+       id="path1387"
+       cx="333.01782"
+       cy="48.643055"
+       rx="47.573978"
+       ry="40.090431"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2141-6-4-8"
+       style="fill:url(#linearGradient1317);fill-opacity:1;stroke:#dca548;stroke-width:3.51779;stroke-opacity:1"
+       d="m 718.44145,269.92381 -75.20601,-1.79787 7.27069,90.20892 83.58556,1.04192 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.03478;stroke-opacity:1"
+       id="rect2144-4-4-2"
+       width="3.9061933"
+       height="91.645866"
+       x="-667.37225"
+       y="309.86325"
+       transform="matrix(-0.99815749,0.06067644,0.06092025,0.99814264,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.966787;stroke-opacity:1"
+       id="rect2144-9-0-10-1"
+       width="3.8983686"
+       height="80.157578"
+       x="307.37646"
+       y="645.42889"
+       transform="matrix(0,1,1,0,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient4569-6);fill-opacity:1;stroke:none;stroke-width:8.14743;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-9"
+       width="156.08542"
+       height="145.39464"
+       x="306.08942"
+       y="245.10988"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient4569-8-1);fill-opacity:1;stroke:none;stroke-width:5.60527;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-96-5"
+       width="106.38084"
+       height="100.97165"
+       x="-726.78174"
+       y="158.42551"
+       transform="scale(-1,1)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2141-6"
+       style="fill:url(#linearGradient1259);fill-opacity:1;stroke:#dca548;stroke-width:4.17156;stroke-opacity:1"
+       d="m 346.72468,260.55192 86.04516,-1.68377 1.68717,106.0774 -106.2911,1.68377 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.22709;stroke-opacity:1"
+       id="rect2144-4"
+       width="4.6321416"
+       height="108.67783"
+       x="401.43152"
+       y="235.29169"
+       transform="matrix(0.99815749,0.06067644,-0.06092025,0.99814264,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.14646;stroke-opacity:1"
+       id="rect2144-9-0"
+       width="4.6228628"
+       height="95.054504"
+       x="304.965"
+       y="-433.3063"
+       transform="rotate(90)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient4569);fill-opacity:1;stroke:none;stroke-width:6.64699;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558"
+       width="126.15124"
+       height="119.73677"
+       x="336.83472"
+       y="128.33243"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2141-5-0"
+       style="fill:url(#linearGradient1299);fill-opacity:1;stroke:#dca548;stroke-width:2.94415;stroke-opacity:1"
+       d="m 703.41768,173.50154 -64.06867,-0.4336 2.21223,74.1855 74.94146,1.18955 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.86604;stroke-opacity:1"
+       id="rect2144-2-0"
+       width="3.2659554"
+       height="76.778023"
+       x="-663.73334"
+       y="213.30347"
+       transform="matrix(-0.99815008,0.06079823,0.06079823,0.99815008,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.809132;stroke-opacity:1"
+       id="rect2144-9-5-1"
+       width="3.2659554"
+       height="67.018997"
+       x="204.87857"
+       y="642.37256"
+       transform="matrix(0,1,1,0,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       id="g4551"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       transform="translate(0,-4.2333335)">
+      <path
+         id="rect2141"
+         style="fill:url(#linearGradient1230);fill-opacity:1;stroke:#dca548;stroke-width:3.49131;stroke-opacity:1"
+         d="m 364.54055,150.44337 71.94155,-1.41062 1.41063,88.86898 -88.86899,1.41062 z"
+         sodipodi:nodetypes="ccccc" />
+      <rect
+         style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.02699;stroke-opacity:1"
+         id="rect2144"
+         width="3.8729186"
+         height="91.046875"
+         x="406.0202"
+         y="124.8666"
+         transform="rotate(3.4856312)" />
+      <rect
+         style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.959506;stroke-opacity:1"
+         id="rect2144-9"
+         width="3.8729186"
+         height="79.474174"
+         x="187.65158"
+         y="-436.93066"
+         transform="rotate(90)" />
+    </g>
+    <rect
+       style="fill:url(#radialGradient4569-6-2);fill-opacity:1;stroke:none;stroke-width:8.14743;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-9-8"
+       width="156.08542"
+       height="145.39464"
+       x="-626.2218"
+       y="244.05153"
+       transform="scale(-1,1)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient4569-6-7-4-5);fill-opacity:1;stroke:none;stroke-width:6.87057;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-9-2-5-3"
+       width="131.62373"
+       height="122.60841"
+       x="-859.08948"
+       y="256.90164"
+       transform="scale(-1,1)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2141-6-0"
+       style="fill:url(#linearGradient1270);fill-opacity:1;stroke:#dca548;stroke-width:4.17156;stroke-opacity:1"
+       d="m 585.58651,259.49358 -86.04516,-1.68377 -1.68717,106.0774 106.2911,1.68377 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.22709;stroke-opacity:1"
+       id="rect2144-4-7"
+       width="4.6321416"
+       height="108.67783"
+       x="-529.21252"
+       y="290.80463"
+       transform="matrix(-0.99815749,0.06067644,0.06092025,0.99814264,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.14646;stroke-opacity:1"
+       id="rect2144-9-0-1"
+       width="4.6228628"
+       height="95.054504"
+       x="303.90665"
+       y="499.00488"
+       transform="matrix(0,1,1,0,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       id="g4556-0-2-6"
+       transform="matrix(-0.84328018,0,0,0.84328018,1117.2084,46.635633)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
+      <path
+         id="rect2141-6-4-1-3"
+         style="fill:url(#linearGradient1325);fill-opacity:1;stroke:#dca548;stroke-width:4.17156;stroke-opacity:1"
+         d="m 346.72468,264.78528 81.74223,-1.68377 -7.54619,106.52562 -92.75481,1.23555 z"
+         sodipodi:nodetypes="ccccc" />
+      <rect
+         style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.22709;stroke-opacity:1"
+         id="rect2144-4-4-9-1"
+         width="4.6321416"
+         height="108.67783"
+         x="398.55762"
+         y="239.70764"
+         transform="matrix(0.99815749,0.06067644,-0.06092025,0.99814264,0,0)" />
+      <rect
+         style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.10263;stroke-opacity:1"
+         id="rect2144-9-0-10-2-2"
+         width="4.6228628"
+         height="87.925697"
+         x="309.19839"
+         y="-426.17749"
+         transform="rotate(90)" />
+    </g>
+    <rect
+       style="fill:url(#radialGradient4569-3);fill-opacity:1;stroke:none;stroke-width:6.64699;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-3"
+       width="126.15124"
+       height="119.73677"
+       x="-595.4765"
+       y="127.27409"
+       transform="scale(-1,1)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient4569-8-6-9);fill-opacity:1;stroke:none;stroke-width:5.60527;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-96-3-2"
+       width="106.38084"
+       height="100.97165"
+       x="-833.1626"
+       y="158.42548"
+       transform="scale(-1,1)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2141-7"
+       style="fill:url(#linearGradient1222);fill-opacity:1;stroke:#dca548;stroke-width:3.49131;stroke-opacity:1"
+       d="m 569.88729,146.90791 -71.94155,-1.41062 -1.41063,88.86898 88.86899,1.41062 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       id="g1121-2"
+       transform="translate(320.03186,313.87168)"
+       clip-path="url(#clipPath1183)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
+      <ellipse
+         style="fill:#000000;stroke-width:6.64699"
+         id="path1071-9"
+         cx="226.64456"
+         cy="-114.9259"
+         rx="18.174328"
+         ry="24.054256" />
+      <ellipse
+         style="fill:#000000;stroke-width:6.64699"
+         id="path1073-8"
+         cx="240.80821"
+         cy="37.427273"
+         rx="20.847023"
+         ry="15.501633"
+         transform="rotate(-40.746564)" />
+      <ellipse
+         style="fill:#000000;stroke-width:6.64699"
+         id="path1075-9"
+         cx="1.8047239"
+         cy="-237.14842"
+         rx="5.8799295"
+         ry="22.45064"
+         transform="rotate(63.634241)" />
+      <ellipse
+         style="fill:#000000;stroke-width:8.10761"
+         id="path1071-5-8"
+         cx="-140.30241"
+         cy="-229.51183"
+         rx="22.877819"
+         ry="28.429646"
+         transform="matrix(-0.17089647,0.98528899,-0.9808558,-0.19473548,0,0)" />
+    </g>
+    <g
+       id="g1121"
+       transform="matrix(-0.77213748,0,0,0.77213748,351.94075,21.073158)">
+      <ellipse
+         style="fill:#000000;stroke-width:6.64699"
+         id="path1071"
+         cx="226.64456"
+         cy="-114.9259"
+         rx="18.174328"
+         ry="24.054256" />
+      <ellipse
+         style="fill:#000000;stroke-width:6.64699"
+         id="path1073"
+         cx="240.80821"
+         cy="37.427273"
+         rx="20.847023"
+         ry="15.501633"
+         transform="rotate(-40.746564)" />
+      <ellipse
+         style="fill:#000000;stroke-width:6.64699"
+         id="path1075"
+         cx="1.8047239"
+         cy="-237.14842"
+         rx="5.8799295"
+         ry="22.45064"
+         transform="rotate(63.634241)" />
+      <ellipse
+         style="fill:#000000;stroke-width:8.10761"
+         id="path1071-5"
+         cx="-140.30241"
+         cy="-229.51183"
+         rx="22.877819"
+         ry="28.429646"
+         transform="matrix(-0.17089647,0.98528899,-0.9808558,-0.19473548,0,0)" />
+    </g>
+    <path
+       id="path1210"
+       style="fill:#000000;fill-opacity:1;stroke-width:6.64699"
+       d="m 526.21723,220.45652 c 4.69336,4.4894 20.52244,1.74464 17.86961,4.51799 -2.65282,2.77335 -22.78298,10.0146 -27.47634,5.5252 -4.69336,-4.48939 -6.34754,-10.37701 -3.69472,-13.15036 2.65283,-2.77335 8.60809,-1.38222 13.30145,3.10717 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.00991;stroke-opacity:1"
+       id="rect2144-6"
+       width="3.8724542"
+       height="88.054405"
+       x="-524.33734"
+       y="178.21843"
+       transform="matrix(-0.99826982,0.05879945,0.06286441,0.99802208,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#f60b0b;fill-opacity:1;stroke-width:6.64699"
+       id="path1254"
+       cx="456.10654"
+       cy="313.20529"
+       rx="8.0180855"
+       ry="4.2763124"
+       transform="rotate(-15.530332)"
+       inkscape:transform-center-x="40.624969"
+       inkscape:transform-center-y="-10.690781"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.959506;stroke-opacity:1"
+       id="rect2144-9-1"
+       width="3.8729186"
+       height="79.474174"
+       x="182.35995"
+       y="495.38052"
+       transform="matrix(0,1,1,0,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2141-5-5-0"
+       style="fill:url(#linearGradient1309);fill-opacity:1;stroke:#dca548;stroke-width:2.94415;stroke-opacity:1"
+       d="m 809.79858,173.50152 -64.06867,-1.56752 10.53151,76.12314 66.62218,0.38583 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.86604;stroke-opacity:1"
+       id="rect2144-2-1-7"
+       width="3.2659554"
+       height="76.778023"
+       x="-769.91742"
+       y="219.77122"
+       transform="matrix(-0.99815008,0.06079823,0.06079823,0.99815008,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.799531;stroke-opacity:1"
+       id="rect2144-9-5-7-5"
+       width="3.2659554"
+       height="65.437927"
+       x="204.87856"
+       y="750.33453"
+       transform="matrix(0,1,1,0,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient4569-6-7);fill-opacity:1;stroke:none;stroke-width:6.87057;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-9-2"
+       width="131.62373"
+       height="122.60841"
+       x="194.94228"
+       y="254.75813"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2141-6-4"
+       style="fill:url(#linearGradient1349);fill-opacity:1;stroke:#dca548;stroke-width:3.51779;stroke-opacity:1"
+       d="m 229.20921,267.78016 75.20601,-1.79787 -7.2707,90.20892 -83.58556,1.04192 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.03478;stroke-opacity:1"
+       id="rect2144-4-4"
+       width="3.9061933"
+       height="91.645866"
+       x="278.3877"
+       y="250.2235"
+       transform="matrix(0.99815749,0.06067644,-0.06092025,0.99814264,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.966787;stroke-opacity:1"
+       id="rect2144-9-0-10"
+       width="3.8983686"
+       height="80.157578"
+       x="305.23282"
+       y="-302.22177"
+       transform="rotate(90)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient4569-8);fill-opacity:1;stroke:none;stroke-width:5.60527;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-96"
+       width="106.38084"
+       height="100.97165"
+       x="220.86917"
+       y="156.28209"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2141-5"
+       style="fill:url(#linearGradient1333);fill-opacity:1;stroke:#dca548;stroke-width:2.94415;stroke-opacity:1"
+       d="m 244.23298,171.35789 64.06866,-0.43359 -2.21222,74.18549 -74.94146,1.18955 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.86604;stroke-opacity:1"
+       id="rect2144-2"
+       width="3.2659554"
+       height="76.778023"
+       x="282.03391"
+       y="153.54831"
+       transform="rotate(3.4856315)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.809132;stroke-opacity:1"
+       id="rect2144-9-5"
+       width="3.2659554"
+       height="67.018997"
+       x="202.73492"
+       y="-305.27814"
+       transform="rotate(90)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient4569-6-7-4);fill-opacity:1;stroke:none;stroke-width:6.87057;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-9-2-5"
+       width="131.62373"
+       height="122.60841"
+       x="88.561447"
+       y="254.7581"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2141-6-4-1"
+       style="fill:url(#linearGradient1357);fill-opacity:1;stroke:#dca548;stroke-width:3.51779;stroke-opacity:1"
+       d="m 122.82837,267.78014 68.9316,-1.41989 -6.36355,89.83094 -78.21829,1.04192 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       id="g1121-9"
+       transform="matrix(-0.77213748,0,0,0.77213748,327.19492,409.93944)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
+      <ellipse
+         style="fill:#000000;stroke-width:6.64699"
+         id="path1071-6"
+         cx="226.64456"
+         cy="-114.9259"
+         rx="18.174328"
+         ry="24.054256" />
+      <ellipse
+         style="fill:#000000;stroke-width:6.64699"
+         id="path1073-0"
+         cx="240.80821"
+         cy="37.427273"
+         rx="20.847023"
+         ry="15.501633"
+         transform="rotate(-40.746564)" />
+      <ellipse
+         style="fill:#000000;stroke-width:6.64699"
+         id="path1075-0"
+         cx="1.8047239"
+         cy="-237.14842"
+         rx="5.8799295"
+         ry="22.45064"
+         transform="rotate(63.634241)" />
+      <ellipse
+         style="fill:#000000;stroke-width:8.10761"
+         id="path1071-5-85"
+         cx="-140.30241"
+         cy="-229.51183"
+         rx="22.877819"
+         ry="28.429646"
+         transform="matrix(-0.17089647,0.98528899,-0.9808558,-0.19473548,0,0)" />
+    </g>
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:1.03478;stroke-opacity:1"
+       id="rect2144-4-4-9"
+       width="3.9061933"
+       height="91.645866"
+       x="169.56342"
+       y="256.83881"
+       transform="matrix(0.99815749,0.06067644,-0.06092025,0.99814264,0,0)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.929826;stroke-opacity:1"
+       id="rect2144-9-0-10-2"
+       width="3.8983686"
+       height="74.145996"
+       x="305.23279"
+       y="-189.82935"
+       transform="rotate(90)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient4569-8-6);fill-opacity:1;stroke:none;stroke-width:5.60527;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4558-96-3"
+       width="106.38084"
+       height="100.97165"
+       x="114.48834"
+       y="156.28206"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2141-5-5"
+       style="fill:url(#linearGradient1341);fill-opacity:1;stroke:#dca548;stroke-width:2.94415;stroke-opacity:1"
+       d="m 137.85214,171.35787 64.06867,-1.56752 -10.53151,76.12314 -66.62218,0.38583 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.86604;stroke-opacity:1"
+       id="rect2144-2-1"
+       width="3.2659554"
+       height="76.778023"
+       x="175.84987"
+       y="160.01605"
+       transform="rotate(3.4856315)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dca548;fill-opacity:1;stroke:#dca548;stroke-width:0.799531;stroke-opacity:1"
+       id="rect2144-9-5-7"
+       width="3.2659554"
+       height="65.437927"
+       x="202.73491"
+       y="-197.31622"
+       transform="rotate(90)"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect1188"
+       style="fill:#af7517;fill-opacity:1;stroke-width:6.64699"
+       d="m 418.00955,404.15446 h 98.35524 l 23.20774,77.48131 -143.07425,-0.12972 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#af7517;fill-opacity:1;stroke-width:6.64699"
+       id="path1191"
+       cx="467.54282"
+       cy="406.47147"
+       rx="48.474918"
+       ry="20.133627"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1213"
+       style="fill:#000000;fill-opacity:1;stroke-width:4.77925"
+       d="m 184.96303,337.45502 c 1.01833,1.92983 -6.24368,2.10924 -8.62082,3.93145 -2.37714,1.82221 -2.10837,8.34197 -3.12669,6.41213 -1.01833,-1.92981 -2.9381,-11.57843 -0.56097,-13.40064 2.37714,-1.82222 11.29017,1.12724 12.30848,3.05706 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="C:\Users\erwan\Desktop\python_game\Biohazard\image\level\4.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+  </g>
+</svg>

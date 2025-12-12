@@ -1,0 +1,28 @@
+1 create image for level title in "Biohazard\image\level"
+2 create level number n with level.py placing the trigger 1 near the starting point else no start message impossible to move
+3 create n.txt in "Biohazard\level\texts" with a text for the first trigger, ex: {1:"Hello"}
+4 set level_start[n] and level_end[n] to the trigger number you want to start and end the level (example 1 and 100 at the start) in line 925 of game.py
+5 fill levelD[n] in line 55 of game.py without changing the end of the list 2,0,0,5] (ammo and cards specific types)
+
+remark
+slanted walls are not meant to be see from both sides, when slanted only the normal face should be seen
+
+Editor controls:
+
+-key x for trigger placing
+-key a (or q in qwerty) for lift
+-select +/- group number then enter for group trigger
+-press scroll button on mouse -> print position of the mouse
+-select a wall and press * to set a code to a door
+-select a wall and press left ctrl to lock a door and create a key press t to change the color
+-press 0 front top numbers not keypad to place monsters/objects
+-press shift to choose between monsters/objects
+-press keypad numbers to change texture type or monster/object type
+-press enter to place roof
+-press space to switch front wall to door
+-press e to enter select mode
+-press l to place lights
+-to include in a group select then change with +/- group number and press enter
+-press c to change seconf face
+-press a to place lift
+-press g to place teleport

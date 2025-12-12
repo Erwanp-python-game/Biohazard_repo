@@ -1,0 +1,10 @@
+def rotate_and_render(output_dir, output_file_pattern_string = 'render%d.jpg', rotation_steps = 8, rotation_angle = 360.0, subject = bpy.context.object):
+  import os
+  original_rotation = subject.rotation_euler
+  for step in range(0, rotation_steps):
+    subject.rotation_euler[2] = radians(step * (rotation_angle / rotation_steps))
+    bpy.context.scene.render.filepath = os.path.join(output_dir, (output_file_pattern_string % step))
+    bpy.ops.render.render(write_still = True)
+  subject.rotation_euler = original_rotation
+
+rotate_and_render('D:/python_game/Biohazard/image/test_blend', 'm7wlk1a%d.jpg')
