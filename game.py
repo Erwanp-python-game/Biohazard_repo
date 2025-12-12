@@ -68,7 +68,7 @@ setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
 level = 5
-level_nameL = ['Level 0: Training', git 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
+level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves']
 level_arme = [1, 2, 2, 2, 3,5]  # last 3
 level_end = [5, 7, 8, 6, 6,10]
