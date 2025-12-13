@@ -70,7 +70,7 @@ destr = [0, 4, 6,11]
 level = 5
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves']
-level_arme = [1, 2, 2, 2, 3,5]  # last 3
+level_arme = [1, 2, 2, 2, 3,4]  # last 3
 level_end = [5, 7, 8, 6, 6,4]
 level_start = [1, 2, 1, 1, 1,1]
 for i in range(100 - len(level_arme)):
@@ -1372,10 +1372,10 @@ class boule(pygame.sprite.Sprite):
             s = pygame.mixer.Sound("son/aie.ogg")
             s.play()
             return True
-
+        #print(authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2],level_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2],level_w_transp[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2])
         if (authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 0 or (
                 level_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1 and
-                authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 2)) or (self.p[-1] - z) > 5 + \
+                authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 2 and level_w_transp[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2]==0)) or (self.p[-1] - z) > 5 + \
                 hmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] or (
                 self.p[-1] - z) < -5 or self.lifetime > 500:
 
@@ -2281,7 +2281,7 @@ def check_trigger():
 
 
 def load_level(level_name):
-    global SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     level = int(level_name)
     if level>=5:
         SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel2.png'))
@@ -2374,6 +2374,8 @@ def load_level(level_name):
     pickle.load(f)
     lifts = pickle.load(f)
     stairs = pickle.load(f)
+    level_w_transp= pickle.load(f)
+    level_w_transp=level_w_transp.T
 
     f.close()
     ratio = 2

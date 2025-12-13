@@ -69,6 +69,7 @@ window=(500,500)
 fenetre = pygame.display.set_mode((window[0]+350,window[1]))
 running=1
 level_w=np.full((window[0],window[1]),0.0)
+level_w_transp=np.full((window[0],window[1]),0.0)
 authorized=np.full((window[0],window[1]),0.0)
 col=np.full((window[0],window[1],3),0)
 seg=0
@@ -127,6 +128,7 @@ if name in os.listdir("level/"):
 	TrigN=pickle.load(f)
 	lifts=pickle.load(f)
 	stairs = pickle.load(f)
+	level_w_transp= pickle.load(f)
 	f.close()
 #h_liste=[]
 # Wl=[]
@@ -630,6 +632,10 @@ while running==1:
 				c=(xs[0]-ys[0])
 				col=np.where(np.expand_dims((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(xs[0],ys[0])+0)&(X[:,:,1]<=max(xs[1],ys[1])+0)&(X[:,:,1]>=min(xs[1],ys[1])-0)&(X[:,:,0]>=min(xs[0],ys[0])-0),-1) ,[0,0,0],col)
 				level_w=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(xs[0],ys[0])+0)&(X[:,:,1]<=max(xs[1],ys[1])+0)&(X[:,:,1]>=min(xs[1],ys[1])-0)&(X[:,:,0]>=min(xs[0],ys[0])-0) ,0,level_w)
+				level_w_transp = np.where((np.absolute(c * X[:, :, 1] - a * X[:, :, 0] - b) < 0.5 * (abs(a) + abs(c))) & (
+							X[:, :, 0] <= max(xs[0], ys[0]) + 0) & (X[:, :, 1] <= max(xs[1], ys[1]) + 0) & (
+											   X[:, :, 1] >= min(xs[1], ys[1]) - 0) & (
+											   X[:, :, 0] >= min(xs[0], ys[0]) - 0), 0, level_w_transp)
 				if door==0:
 					authorized=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(xs[0],ys[0])+0)&(X[:,:,1]<=max(xs[1],ys[1])+0)&(X[:,:,1]>=min(xs[1],ys[1])-0)&(X[:,:,0]>=min(xs[0],ys[0])-0) ,0,authorized)
 				
@@ -758,6 +764,8 @@ while running==1:
 		
 		if clic[0]==1:
 			level_w[mouse[0]//5+x,mouse[1]//5+y]=1
+			if (levelD[int(name)]['deco'][deco-1] in deco_door):
+				level_w_transp[mouse[0]//5+x,mouse[1]//5+y]=1
 			if door==0:
 				authorized[mouse[0]//5+x,mouse[1]//5+y]=1
 			col[mouse[0]//5+x,mouse[1]//5+y]=[0,255,0]
@@ -780,7 +788,8 @@ while running==1:
 				
 				col=np.where(np.expand_dims((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(X1[0],X2[0])+0)&(X[:,:,1]<=max(X1[1],X2[1])+0)&(X[:,:,1]>=min(X1[1],X2[1])-0)&(X[:,:,0]>=min(X1[0],X2[0])-0)&(level_w==0),-1) ,CC,col)
 				level_w=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(X1[0],X2[0])+0)&(X[:,:,1]<=max(X1[1],X2[1])+0)&(X[:,:,1]>=min(X1[1],X2[1])-0)&(X[:,:,0]>=min(X1[0],X2[0])-0)&(level_w==0) ,1,level_w)
-
+				if (levelD[int(name)]['deco'][deco - 1] in deco_door):
+					level_w_transp=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(X1[0],X2[0])+0)&(X[:,:,1]<=max(X1[1],X2[1])+0)&(X[:,:,1]>=min(X1[1],X2[1])-0)&(X[:,:,0]>=min(X1[0],X2[0])-0)&(level_w_transp==0) ,1,level_w_transp)
 				print(levelD[int(name)]['deco'][deco-1],deco_destruc,deco)
 				if door==0 and (levelD[int(name)]['deco'][deco-1] not in deco_destruc or deco==0) and (levelD[int(name)]['deco'][deco-1] not in deco_door or deco==0):
 					authorized=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(X1[0],X2[0])+0)&(X[:,:,1]<=max(X1[1],X2[1])+0)&(X[:,:,1]>=min(X1[1],X2[1])-0)&(X[:,:,0]>=min(X1[0],X2[0])-0)&(authorized==0) ,1,authorized)
@@ -1139,8 +1148,11 @@ for i in stairs[1::2]:
 	authorized_map=flood_fill_authorized(authorized_map,i)
 
 
+fig,ax=plt.subplots(1,3)
 authorized_map=authorized_map.T
-plt.imshow(authorized_map)
+ax[0].imshow(authorized_map)
+ax[1].imshow(level_w.T)
+ax[2].imshow(level_w_transp.T)
 plt.show()
 print(np.sum(authorized_map))
 
@@ -1183,4 +1195,5 @@ if saving!='n':
 	pickle.dump(TrigN,f)
 	pickle.dump(lifts,f)
 	pickle.dump(stairs, f)
+	pickle.dump(level_w_transp, f)
 	f.close()
