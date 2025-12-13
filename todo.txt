@@ -1,7 +1,7 @@
 
 
 objects on moving background (finish)
-move down center of gun shoot maybe (check alignment)
+
 
 
 
@@ -17,11 +17,7 @@ more destructible obj
 
 BUG
 
-
-floor not shown when multiple
-
-
+bug -> going through slanted walls sometime
 bug -> test_behind when looking up in high ceiling room (small bug)
-bug -> slanted walls inward disappearing too early (small bug)
-bug -> bug with normal in slanted wall toward inside (not reproducible easily)
+
 

@@ -370,7 +370,16 @@ class Wall():
         self.norm = np.linalg.norm(
             self.X_old[0][0][:-1] + V[0] * self.a_old[0][0][:-1] + V[1] * self.b_old[0][0][:-1] - R_c[:-1]) - min(self.window,
                                                                                                       1) * 0.001
-        self.norm3 = np.linalg.norm(self.X_middle[0][0] + V[0] * self.a_middle[0][0] + V[1] * self.b_middle[0][0] - R_c)
+        self.norm3 = np.linalg.norm(
+            self.X_middle[0][0] + V[0] * self.a_middle[0][0] + V[1] * self.b_middle[0][0] - (R_c))
+        if self.angle0>0:
+            N = np.stack((self.a_old[0][0], self.b_old[0][0], -self.n), axis=-1)
+            V = np.maximum(np.minimum(np.linalg.solve(N, -self.X_middle[0][0] + R_c)[:-1], 1), 0)
+            self.norm3 = np.linalg.norm(
+                (self.X_middle[0][0] + V[0] * self.a_old[0][0] + V[1] * self.b_old[0][0])[:-1] - (
+                            R_c[:-1] ))
+
+
         self.inter=V
 
     def calc_normfast(self):
@@ -392,8 +401,8 @@ class Wall():
 
         x_ = self.X_middle[0][0][0]
         y_ = self.X_middle[0][0][1]
-        a_ = self.b_middle[0][0][0]
-        b_ = self.b_middle[0][0][1]
+        a_ = self.b_old[0][0][0]
+        b_ = self.b_old[0][0][1]
 
 
 
@@ -1408,6 +1417,8 @@ class boule(pygame.sprite.Sprite):
                 depth[int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))]:
 
             colorT = light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2]
+            if light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2].sum() == 0:
+                colorT = np.array([1, 1, 1.])
             colorT = light_modif(colorT, level, c3)
 
             self.imb=self.im.copy()
@@ -2806,17 +2817,21 @@ while running == 1:
     recoil = 0
     No=np.array([0.,0])
     previous=0.5
+
     if trans.any() != np.array([0.0, 0.0]).any():
         No = np.array([0., 0.])
-        for i in wall[0:10]:
+        for i in wall[0:20]:
             if i not in h_wall:
+
                 if i.norm3 < 3:
+
                     if (i.door and i.closed) or not i.door:
                         #trans = i.normal(trans @ Rp) @ rot_plan(-ang[0])
                         if i.inter[1]<1 and i.inter[1]>0 or (previous in [0,1.] and i.inter[1]in [0,1.]):
                             if not(i.door_deco) or (i.door_deco and i.cross_wall(trans)):
                                 No+=i.normal()
                         previous=i.inter[1]
+
 
         trans=trans-(abs(np.dot(trans@ Rp, No)) * No)@ rot_plan(-ang[0])
 
@@ -2850,7 +2865,7 @@ while running == 1:
 
     # print(time.time()*1000-milliseconds[0])------until there same time small and big
 
-    [i.calc_norm() for i in wall[0:10]]
+    [i.calc_norm() for i in wall[0:20]]
     if c2 == 0:
         [i.calc_norm() for i in wall]
     [i.calc_norm() for i in thing[0:20] if i.type_M != 'BOSS']
@@ -3104,7 +3119,7 @@ while running == 1:
     y_d=x_d.copy()
     for i in thing:
         if i.type_M != 'BOSS':
-            if i.norm > np.percentile(depth, 95):
+            if i.norm > np.percentile(depth, 99):
                 break
             if i.test_behind():
                 render_C += 1
