@@ -2453,6 +2453,18 @@ def load_level(level_name):
     if 0 in groupD:
         groupD.remove(0)
 
+MG3=[]
+for c,i in enumerate(MG1):
+    temp_d={}
+    for k in i.keys():
+        arr=pygame.surfarray.pixels3d(i[k])
+        arr=arr.astype(float)
+        arr[np.any(arr!=0,axis=-1)]=np.minimum(25+arr[np.any(arr!=0,axis=-1)]*(230/255),255)
+        arr=arr.astype(int)
+        temp_d[k]=pygame.surfarray.make_surface(arr)
+    MG3.append(temp_d.copy())
+MG1=MG3
+
 SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel0.png'))
 LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape0.png'))
 LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
@@ -2613,7 +2625,7 @@ while running == 1:
                 else:
                     arme = (arme + 1) % TotAr
                     GUN_im = MG1[arme][0].copy()
-                    colorGUN = (1., 1., 1.)
+                    colorGUN = (255., 255., 255.)
             if event.button == 5:
                 if mouse_c == 0:
                     Sline = min(Sline + 1, 0)
@@ -2622,7 +2634,7 @@ while running == 1:
                 else:
                     arme = (arme - 1) % TotAr
                     GUN_im = MG1[arme][0].copy()
-                    colorGUN = (1., 1., 1.)
+                    colorGUN = (255., 255., 255.)
     clic = pygame.mouse.get_pressed()
     mouse = pygame.mouse.get_pos()
     if not ((mouse == m_stock).all()):
@@ -3053,11 +3065,14 @@ while running == 1:
                              1 - np.expand_dims(L0[0].Ut, -1))
             depth = depth * (1 - np.expand_dims(L0[0].Ut, -1)) + np.expand_dims(L0[0].Ut, -1) * L0[0].norm
 
-
+    #print(colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]),colorGUN , tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]))
     if colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]):
         colorGUN = tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2])
         GUN_im = MG1[arme][0].copy()
         if not (np.sum(colorGUN) == 0 and torch_on == 1):
+
+
+
             GUN_im.fill(colorGUN, special_flags=BLEND_RGB_MULT)
 
     IS_rendered=[]
