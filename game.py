@@ -339,12 +339,14 @@ class Wall():
             colo = (50, 50, 255)
         verrou.fill(colo, special_flags=BLEND_RGB_MULT)
         Imdeco.blit(verrou, (0, 0))
+        # IM = np.transpose(pygame.surfarray.pixels3d(Imdeco), (1, 0, 2))
+        # IM = np.where(np.expand_dims(((IM - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM)
+        # IM = np.where(np.expand_dims(((IM - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM)
+        # self.window = np.sum(IM <= -1)
+        #
+        # self.wall_im[0] = np.flip(np.minimum(IM + 1, 255), (0, 1))
         IM = np.transpose(pygame.surfarray.pixels3d(Imdeco), (1, 0, 2))
-        IM = np.where(np.expand_dims(((IM - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM)
-        IM = np.where(np.expand_dims(((IM - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM)
-        self.window = np.sum(IM <= -1)
-
-        self.wall_im[0] = np.flip(np.minimum(IM + 1, 255), (0, 1))
+        self.wall_im[0] = np.flip(np.minimum(IM, 255), (0, 1))
         return 0
 
     def texture(self, sc1, sc2):
@@ -432,6 +434,7 @@ class Wall():
                 self.Ig[0] < 1 and self.Ig[0] > 0 and self.Ig[1] > 1)) or self.door != 0:
 
             if self.door != 0 and self.closed == 0:
+
                 milliseconds.append(time.perf_counter()*1000)
                 i.time_behind = milliseconds[1] - milliseconds[0]
                 return True
@@ -1736,6 +1739,17 @@ def rescale_Gun():
                 MG1[k][j] = pygame.transform.smoothscale(
                     pygame.transform.scale(pygame.image.load('image/gun/' + i[j]), (2 * scrnL[0], 2 * scrnL[1])),
                     window)
+    MG3 = []
+    for c, i in enumerate(MG1):
+        temp_d = {}
+        for k in i.keys():
+            arr = pygame.surfarray.pixels3d(i[k])
+            arr = arr.astype(float)
+            arr[np.any(arr != 0, axis=-1)] = np.minimum(25 + arr[np.any(arr != 0, axis=-1)] * (230 / 255), 255)
+            arr = arr.astype(int)
+            temp_d[k] = pygame.surfarray.make_surface(arr)
+        MG3.append(temp_d.copy())
+    MG1 = MG3
     BLOOD = pygame.transform.scale(pygame.image.load('image/effects/blood.png'), window)
 
 
@@ -2646,7 +2660,7 @@ while running == 1:
     label_deltat.append('events')
 
     if key[K_KP_PLUS] == 1:
-        window = [int(window[0] * 1.2), int(window[1] * 1.2)]
+        window = [int(window[0] * 1.05), int(window[1] * 1.05)]
         m_stock = np.array([window[0] // 2, window[1] // 2])
         fenetre = pygame.display.set_mode((window[0], int(window[1] * 1.2)))
         rescale_Gun()
@@ -2657,7 +2671,7 @@ while running == 1:
         draw_AMMO()
         Ratio = window[0] / 960
     if key[K_KP_MINUS] == 1:
-        window = [int(window[0] * 0.8), int(window[1] * 0.8)]
+        window = [int(window[0] * 0.95), int(window[1] * 0.95)]
         m_stock = np.array([window[0] // 2, window[1] // 2])
         fenetre = pygame.display.set_mode((window[0], int(window[1] * 1.2)))
         rescale_Gun()

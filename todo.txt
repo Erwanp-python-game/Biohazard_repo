@@ -17,10 +17,11 @@ more destructible obj
 
 BUG
 
+ennemies gunshot through opened walls
+floor not shown when multiple
+
+
 bug -> test_behind when looking up in high ceiling room (small bug)
 bug -> slanted walls inward disappearing too early (small bug)
 bug -> bug with normal in slanted wall toward inside (not reproducible easily)
 
-IMPROVEMENT
-
-speed up thing rendering (tested not conclusive)
