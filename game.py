@@ -67,7 +67,7 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 2
+level = 5
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves']
 level_arme = [1, 2, 2, 2, 3,5]  # last 3
@@ -1087,7 +1087,7 @@ class Thing():
 
         SQUARE = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
                     Xthing >= self.DX + scrnL[0]) & (Ything <= self.widthY + self.DY + scrnL[1]) & (
-                             Ything >= self.DY + scrnL[1])
+                             Ything >= self.DY + scrnL[1]).astype(bool)
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('square')
         self.U = np.stack(((Xthing - self.DX - scrnL[0]) / self.width, (Ything - self.DY - scrnL[1]) / self.widthY),
@@ -2502,7 +2502,7 @@ nb_wall = []
 time_wall = []
 time_tot=[]
 time_behind = []
-plot_stats=True
+plot_stats=False
 sensitivity=500
 movement=0
 
