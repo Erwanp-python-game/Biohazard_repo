@@ -2,7 +2,7 @@
 
 objects on moving background (finish)
 move down center of gun shoot maybe (check alignment)
-
+speed up thing rendering
 
 ----------------------------------
 low priority:

@@ -67,7 +67,7 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 5
+level = 2
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves']
 level_arme = [1, 2, 2, 2, 3,5]  # last 3
@@ -172,17 +172,19 @@ class Wall():
             verrou.fill(colo, special_flags=BLEND_RGB_MULT)
             Imdeco.blit(verrou, (0, 0))
             Imdeco2.blit(verrou, (0, 0))
-
+        self.sky = 0
         IM = np.transpose(pygame.surfarray.pixels3d(Imdeco), (1, 0, 2))
         IM = np.where(np.expand_dims(((IM - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM)
         IM = np.where(np.expand_dims(((IM - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM)
         self.window = np.sum(IM <= -1)
+        self.sky = self.sky = self.sky or np.sum(IM <= -2)
         self.wall_im = [np.flip(np.minimum(IM + 1, 255), (0, 1))]
 
         IM2 = np.transpose(pygame.surfarray.pixels3d(Imdeco2), (1, 0, 2))
         IM2 = np.where(np.expand_dims(((IM2 - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM2)
         IM2 = np.where(np.expand_dims(((IM2 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM2)
         self.wall_im2 = [np.flip(np.minimum(IM2 + 1, 255), (0, 1))]
+        self.sky = self.sky = self.sky or np.sum(IM2 <= -2)
 
         self.phase = 0
         if self.text[11:-3] in liquid_floor:
@@ -191,7 +193,7 @@ class Wall():
         files = [filename for filename in os.listdir(self.text[:11]) if filename.startswith(self.text[11:-3])]
         files_d = [filename for filename in os.listdir('image/deco') if
                    filename.startswith(str(levelD[level]['deco'][deco - 1]) + '.')]
-        self.sky = 0
+
         if (len(files) > 1) or (len(files_d) > 1):
             for k in range(max(len(files) - 1, len(files_d) - 1)):
                 if (len(files) > 1):
@@ -265,8 +267,9 @@ class Wall():
                 IM2 = np.transpose(pygame.surfarray.pixels3d(Imdeco2), (1, 0, 2))
                 IM2 = np.where(np.expand_dims(((IM2 - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM2)
                 IM2 = np.where(np.expand_dims(((IM2 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM2)
-                self.wall_im2.append(np.flip(np.minimum(IM2 + 1, 255), (0, 1)))
                 self.sky = self.sky or np.sum(IM2 <= -2)
+                self.wall_im2.append(np.flip(np.minimum(IM2 + 1, 255), (0, 1)))
+
 
         self.U = np.array([0])
         self.z = w[-1]
@@ -992,7 +995,8 @@ class Thing():
 
     def render(self):
         global Killed_E,x_d
-
+        milliseconds=[time.perf_counter()*1000]
+        label_m=[]
         if self.attack_range and self.active and self.vie > 0:
             if self.range == 0:
                 self.im = np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][c // 4]), 255)
@@ -1009,7 +1013,8 @@ class Thing():
                 im.blit(shield,(0,0))
                 self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
                 self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
-
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('attack')
         if (self.inline and shoot == 2 and (self.attack_range or arme != 0)) and self.vie > 0 and arme != 4:
             self.im = np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][4]), 255)
             if self.type_M==6 and self.shield==0:
@@ -1048,7 +1053,8 @@ class Thing():
                                    (X0[1], X0[0]))
                 s = pygame.mixer.Sound("son/grognespot%s.ogg" % (self.type_M + 1))
                 s.play()
-
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('hit and move')
         if self.vie <= 0:
             self.im = np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][4 + int(self.mort)]), 255)
             self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
@@ -1070,28 +1076,44 @@ class Thing():
                 for i in range(randint(50, 60)):
                     Boule.append(boule(self.x0[0], self.x0[1], self.z - 1, -pi * random(), 2 * pi * random(), 1, 5,
                                        'image/effects/vert.png', 1))
-
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('dead')
         colorT = light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2]
         if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
             colorT = np.array([1, 1, 1.])
         colorT = light_modif(colorT, level, c3)
         if explo!=0 and np.linalg.norm(self.x0 - explo_pt) < 20:
             colorT*=np.array([1,0,0])
+
         SQUARE = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
                     Xthing >= self.DX + scrnL[0]) & (Ything <= self.widthY + self.DY + scrnL[1]) & (
                              Ything >= self.DY + scrnL[1])
-
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('square')
         self.U = np.stack(((Xthing - self.DX - scrnL[0]) / self.width, (Ything - self.DY - scrnL[1]) / self.widthY),
                           -1) * np.expand_dims(SQUARE, -1)
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('U')
         self.G = np.maximum((self.U * 160).astype(int), 0)
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('G')
+        # self.Gx= self.G[..., 0]
+        # self.Gy= self.G[..., 1]
+        #
+        # Ar=self.im[self.Gx, self.Gy]*colorT
         Ar = np.moveaxis(self.im[tuple(map(tuple, self.G.T))] * colorT, 1, 0)
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('Ar')
         if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
             Ar = Ar * torch_on * TORCHE ** 3
             Ar = np.minimum(np.divide(Ar, 0.1 * self.norm ** 0.5), 255)
         else:
             Ar = Ar * level_light
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('light')
         self.Ut = np.moveaxis(self.vis[tuple(map(tuple, self.G.T))], 1, 0)
-
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('Ut')
         if shoot==1:
             self.inline=False
             self.shot = []
@@ -1105,6 +1127,10 @@ class Thing():
                     x_d0.append(x_d[i])
             x_d=x_d0
         #print(x_d,y_d,np.sum(self.Ut[int(scrnL[0]*(1+2*x_d) - gun_width):int(scrnL[0]*(1+2*x_d) + gun_width), int(2 * scrnL[1]*(1+2*y_d) // 2 - gun_width):int(2 * scrnL[1]*(1+2*y_d) // 2 + gun_width)]))
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('inline')
+        self.time = ((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], label_m)
+        #print(np.round(self.time[0]*1000,1),self.time[1],np.round(1000*np.sum(self.time[0])))
         return Ar
 
 import matplotlib.pyplot as plt
@@ -1198,6 +1224,8 @@ class Object():
 
     def render(self):
         global Boule, explo, VIE, explo_pt, Killed_O, HIT,x_d
+
+
         if ((self.inline and shoot == 2 and (self.norm <= 5 or arme != 0) and arme != 4) or (
                 np.linalg.norm(self.x0 - explo_pt) < 20 and explo == 1)) and self.vie > 0 and self.type_M in destr:
             self.vie = 0
@@ -2474,7 +2502,7 @@ nb_wall = []
 time_wall = []
 time_tot=[]
 time_behind = []
-plot_stats=False
+plot_stats=True
 sensitivity=500
 movement=0
 
@@ -3009,9 +3037,14 @@ while running == 1:
                 break
             if i.test_behind():
                 render_C += 1
-                Im = i.render() * np.expand_dims(i.Ut, -1) + Im * (1 - np.expand_dims(i.Ut, -1))
+                rend_=i.render()
+                mask=i.Ut.astype(bool)
+                Im[mask] = rend_[mask]
+                #Im =  rend_* np.expand_dims(i.Ut, -1) + Im * (1 - np.expand_dims(i.Ut, -1))
+
                 depth = depth * (1 - np.expand_dims(i.Ut, -1)) + np.expand_dims(i.Ut, -1) * i.norm
     milliseconds.append(time.perf_counter()*1000)
+
     label_deltat.append('things')
     if len(L0) > 0:
         if L0[0].test_behind(TAN2, scrnL, horizon):
@@ -3165,8 +3198,8 @@ while running == 1:
     time_wall.append(np.sum(time_in_render))
     time_behind.append(np.sum(time_in_behind))
     time_tot.append(milliseconds[-1]-milliseconds[0])
-    if len(time_tot)>10:
-        print('fps',1000/np.mean(time_tot[-10:]))
+    # if len(time_tot)>10:
+    #     print('fps',1000/np.mean(time_tot[-10:]))
 
     if (c3-1) % 1000 == 999 :
         averaged_time = np.round(averaged_time / 1000, 1)
@@ -3208,17 +3241,17 @@ while running == 1:
             ax[0].legend()
             ax[1].hist(time_tot,bins=100)
             ax[1].set_xlabel('time in ms')
-            plt.show()
+
 
             dataT=milliT - np.roll(milliT, 1,axis=0)
-            fig, ax = plt.subplots(4, 5)
+            fig2, ax2 = plt.subplots(4, 5)
             for i in range(4):
-                ax[i][0].set_ylabel('time in ms')
+                ax2[i][0].set_ylabel('time in ms')
                 for j in range(5):
-                    ax[i][j].set_title(label_deltat[i*5+j])
-                    ax[i][j].scatter(nb_wall[1:],dataT[1+i*5+j,:])
-                    ax[3][j].set_xlabel('nb_wall')
-                    ax[i][j].hlines(1000 / 24, 0, max(nb_wall),color='red')
+                    ax2[i][j].set_title(label_deltat[i*5+j])
+                    ax2[i][j].scatter(nb_wall[1:],dataT[1+i*5+j,:])
+                    ax2[3][j].set_xlabel('nb_wall')
+                    ax2[i][j].hlines(1000 / 24, 0, max(nb_wall),color='red')
 
             plt.show()
         nb_wall=[]
