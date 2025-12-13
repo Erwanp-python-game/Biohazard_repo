@@ -1245,7 +1245,7 @@ class Object():
                     VIE = VIE - DEGAT[4]/3
                     HIT = 1
                     s = pygame.mixer.Sound("son/aie.ogg")
-                    s.play()
+                    s.play()#
 
         if self.mort < 4 and self.vie <= 0:
             self.im = np.minimum(pygame.surfarray.pixels3d(Mod[self.type_M][int(self.mort)]), 255)
