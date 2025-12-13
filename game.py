@@ -71,7 +71,7 @@ level = 5
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves']
 level_arme = [1, 2, 2, 2, 3,5]  # last 3
-level_end = [5, 7, 8, 6, 6,10]
+level_end = [5, 7, 8, 6, 6,4]
 level_start = [1, 2, 1, 1, 1,1]
 for i in range(100 - len(level_arme)):
     level_arme.append(5)
@@ -1242,7 +1242,7 @@ class Object():
                 explo = 5
                 explo_pt = self.x0
                 if self.norm < 15:
-                    VIE = VIE - DEGAT[4]
+                    VIE = VIE - DEGAT[4]/3
                     HIT = 1
                     s = pygame.mixer.Sound("son/aie.ogg")
                     s.play()
@@ -1461,11 +1461,11 @@ class grenade(pygame.sprite.Sprite):
                             self.v[:-1] += +2 * abs(np.dot(self.v[:-1], No)) * No
                         else:
                             self.v[:-1] += +2 * abs(np.dot(self.v[:-1], -No)) * -No
-                        self.v *= 0.5
+                        self.v *= 0.3
                         self.cool = 20
                         break
 
-        if self.lifetime == 100:
+        if self.lifetime == 50:
             global explo, Boule, explo_pt, VIE, HIT
             s = pygame.mixer.Sound("son/barril.ogg")
             for i in range(randint(5, 10)):
@@ -1480,13 +1480,13 @@ class grenade(pygame.sprite.Sprite):
                 HIT = 1
                 s = pygame.mixer.Sound("son/aie.ogg")
                 s.play()
-        if self.lifetime >= 100 and self.lifetime <= 106:
+        if self.lifetime >= 50 and self.lifetime <= 56:
             self.im = []
             self.size = 5000
             for i in range(4):
-                self.im.append(pygame.image.load('image/effects/explo%s.png' % str(self.lifetime - 100)))
+                self.im.append(pygame.image.load('image/effects/explo%s.png' % str(self.lifetime - 50)))
 
-        if self.lifetime == 107:
+        if self.lifetime == 57:
             return True
         return False
 
@@ -1674,7 +1674,7 @@ arme = 0
 TotAr = 1
 COOLDOWN = [10, 10, 17, 0, 10]
 REC = [0, 1, 3, 0, 0]
-DEGAT = [35, 25, 70, 10, 50]
+DEGAT = [35, 25, 70, 30, 150]
 PREC=[0,pi/200,pi/100,pi/100]
 BULLETS=[1,1,5,1,1]
 clock = pygame.time.Clock()
@@ -1902,7 +1902,7 @@ def animation(N):
     return 0
 
 
-modif_game = ['0_1', '0_V2', '1_2', '1_6', '2_1', '2_6', '3_2', '3_3', '3_4', '3_G99', '4_2', '4_3', '4_4']
+modif_game = ['0_1', '0_V2', '1_2', '1_6', '2_1', '2_6', '3_2', '3_3', '3_4', '3_G99', '4_2', '4_3', '4_4','5_2']
 
 tutotxt = []
 tutotxt.append('Use the arrow keys to move and leftclick to attack')
@@ -2001,7 +2001,9 @@ def change_game(num):
                 counterspecial += 1
             if counterspecial == 2:
                 break
-
+    if num == '5_2':
+        TotAr = 5
+        AMMO[3] += 5
 
 Xmap_, Ymap_ = np.indices((500, 500))
 
