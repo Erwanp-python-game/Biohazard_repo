@@ -17,7 +17,7 @@ more destructible obj
 
 BUG
 
-ennemies gunshot through opened walls
+
 floor not shown when multiple
 
 

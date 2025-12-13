@@ -64,6 +64,8 @@ R_c = np.array([-1, 0, 0])
 Vg = np.array([1, -sqrt(2) / 2]) / sqrt(3 / 2)
 Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 
+
+
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
@@ -308,10 +310,10 @@ class Wall():
 
             if self.angle0>0:
 
-                self.a_middle[:,:,0]=self.a_old[:,:,0]+np.sin(self.angle0)*np.sin(angle1)*(5)
-                self.a_middle[:, :, 1] = self.a_old[:, :, 1] + np.sin(self.angle0) * np.cos(angle1) * (5)
-                self.X_middle[:,:,0]=self.X[:,:,0]-np.sin(self.angle0)*np.sin(angle1)*(5)
-                self.X_middle[:, :, 1] = self.X[:, :, 1] - np.sin(self.angle0) * np.cos(angle1) * (5)
+                self.a_middle[:,:,0]=self.a_old[:,:,0]+np.sin(self.angle0)*np.sin(angle1)*(2.5)
+                self.a_middle[:, :, 1] = self.a_old[:, :, 1] + np.sin(self.angle0) * np.cos(angle1) * (2.5)
+                self.X_middle[:,:,0]=self.X[:,:,0]-np.sin(self.angle0)*np.sin(angle1)*(2.5)
+                self.X_middle[:, :, 1] = self.X[:, :, 1] - np.sin(self.angle0) * np.cos(angle1) * (2.5)
 
         self.Ub = np.empty_like(depth[:,:,0]).astype(bool)
 
@@ -363,10 +365,10 @@ class Wall():
         global moving_cam
         if len(self.wall_im)>1 or len(self.wall_im2)>1:
             moving_cam=True
-        N = np.stack((self.a_middle[0][0], self.b_middle[0][0], -self.n), axis=-1)
-        V = np.maximum(np.minimum(np.linalg.solve(N, -self.X_middle[0][0] + R_c)[:-1], 1), 0)
+        N = np.stack((self.a_old[0][0], self.b_old[0][0], -self.n), axis=-1)
+        V = np.maximum(np.minimum(np.linalg.solve(N, -self.X_old[0][0] + R_c)[:-1], 1), 0)
         self.norm = np.linalg.norm(
-            self.X_middle[0][0][:-1] + V[0] * self.a_middle[0][0][:-1] + V[1] * self.b_middle[0][0][:-1] - R_c[:-1]) - min(self.window,
+            self.X_old[0][0][:-1] + V[0] * self.a_old[0][0][:-1] + V[1] * self.b_old[0][0][:-1] - R_c[:-1]) - min(self.window,
                                                                                                       1) * 0.001
         self.norm3 = np.linalg.norm(self.X_middle[0][0] + V[0] * self.a_middle[0][0] + V[1] * self.b_middle[0][0] - R_c)
         self.inter=V
@@ -437,6 +439,7 @@ class Wall():
 
                 milliseconds.append(time.perf_counter()*1000)
                 i.time_behind = milliseconds[1] - milliseconds[0]
+
                 return True
             else:
 
@@ -453,6 +456,7 @@ class Wall():
 
 
                 if self.angle0<0:
+
                     angle1=pi-np.arctan2(self.b_old[:,0,1],self.b_old[:,0,0])
                     X0[:, 0] = self.X_old[:, 0, 0] - np.sin(self.angle0) * np.sin(angle1) *self.a_old[:, 0, 2]
                     X0[:, 1] = self.X_old[:, 0, 1] - np.sin(self.angle0) * np.cos(angle1) * self.a_old[:, 0, 2]
@@ -462,9 +466,21 @@ class Wall():
                     self.U1 = np.where(
                         np.all(self.S1 <= horizon, axis=-1) & np.all(self.S1 > 0, axis=-1) & np.all(self.S1[:, :-1] < 1, axis=-1), 1, 0)
 
+                if self.angle0>0:
+
+                    self.U1=self.U0.copy()
+                    X0[:, 0] = self.X[:, 0, 0]
+                    X0[:, 1] = self.X[:, 0, 1]
+                    self.M0 = np.stack((B0, -screen[:, 24, 3:-1] @ Rp), axis=-1)  # -------------- PB à résoudre pièce haute
+                    self.A0 = -X0 + (screen[:, 24, :2] - x) @ Rp + x
+                    self.S1 = (np.linalg.solve(self.M0, self.A0))
+                    self.U0 = np.where(
+                        np.all(self.S1 <= horizon, axis=-1) & np.all(self.S1 > 0, axis=-1) & np.all(self.S1[:, :-1] < 1, axis=-1), 1, 0)
+
 
                 if self.window == 0:
-                    if self.angle0<0:
+                    if self.angle0!=0:
+
                         horizon = self.S1[:, -1:] * np.expand_dims(self.U1, -1) + horizon * (
                                     1 - np.expand_dims(self.U1, -1))
                     else:
@@ -481,6 +497,7 @@ class Wall():
                     return False
 
         else:
+
             milliseconds.append(time.perf_counter()*1000)
             i.time_behind = milliseconds[1] - milliseconds[0]
             return False
@@ -894,7 +911,10 @@ class Thing():
         self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
         if self.type_M == 6 and self.shield == 0:
             im=MD[self.type_M][c // 3][self.angle].copy()
-            im.blit(shield,(0,0))
+            if c%2:
+                im.blit(shield,(0,0))
+            else:
+                im.blit(shield2, (0, 0))
             self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
             self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
 
@@ -1386,7 +1406,14 @@ class boule(pygame.sprite.Sprite):
     def affiche(self):
         if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and self.D <= \
                 depth[int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))]:
-            self.imA = pygame.transform.scale(self.im, (
+
+            colorT = light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2]
+            colorT = light_modif(colorT, level, c3)
+
+            self.imb=self.im.copy()
+            self.imb.fill(255*colorT, special_flags=BLEND_RGB_MULT)
+
+            self.imA = pygame.transform.scale(self.imb, (
             min(int(Ratio*300 / self.f0[0]), window[1] // 1), min(int(Ratio*300 / self.f0[0]), window[1] // 1)))
 
 
@@ -2496,6 +2523,7 @@ BLOOD = pygame.transform.scale(pygame.image.load('image/effects/blood.png'), win
 code01 = pygame.image.load('image/Interface/code.png')
 code02 = pygame.image.load('image/Interface/code2.png')
 shield=pygame.image.load('image/effects/shield.png').convert_alpha()
+shield2=pygame.image.load('image/effects/shield2.png').convert_alpha()
 ttt = []
 bleed = 0
 explo = 0
@@ -2892,22 +2920,28 @@ while running == 1:
         moving_cam=True
 
     time_in_behind=0.
+    add_h=[]
+
     if moving_cam == True:
 
         Sky_view = 0
         IS = []
         empty_pixel_count=128000
-        for i in wall[0:wall_count]:
+        for ci,i in enumerate(wall[0:wall_count]):
             devant = True
             if i not in h_wall:
                 devant = i.test_behind()
+
                 time_in_behind+=i.time_behind
                 if i.window > 0 and devant:
                     CLOSED = 1
                     if i.sky>0:
                         Sky_view = 1
             else:
+
                 if i.norm > 6 and i.text[11:-3] not in liquid_floor:
+                    if len(add_h)<2:
+                        add_h.append(i)
                     devant = False
                     if CLOSED != 0:  # and h_wall.index(i)<=6: # INSTEAD CHECK IF ASSOCIATED DOOR WITH THIS FLOOR IS OPEN AND VISIBLE---COMPLICATED
                         devant = True
@@ -2919,6 +2953,7 @@ while running == 1:
                     rend=i.render()
                     Im[i.Ub]=rend[i.Ub]
                     # Im = i.render() + Im * (1 - np.expand_dims(i.U, -1))
+
                     empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
 
                     if render_w==1 :#and c3==1:
@@ -2933,8 +2968,14 @@ while running == 1:
                     IS.append(i)
 
 
-                if empty_pixel_count < 8 or i.norm > 150:
-                    break
+            if empty_pixel_count < 8 or i.norm > 150 or ci==wall_count-1:
+                if empty_pixel_count>5:
+
+                    for j in add_h:
+                        rend = j.render()
+                        Im[j.Ub] = rend[j.Ub]
+                        render_w+=1
+                break
         if render_w2>wall_count-10:
             elastic_count+=10
         else:
