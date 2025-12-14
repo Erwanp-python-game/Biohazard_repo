@@ -809,6 +809,7 @@ while running==1:
 			group=max(group-1,0)
 			pygame.time.wait(300)
 		if key[K_KP_ENTER]:
+
 			for i in sel_Mo:
 				M_liste[i[1]]=tuple(list(M_liste[i[1]][:-1])+[group])
 

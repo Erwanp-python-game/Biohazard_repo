@@ -17,7 +17,7 @@ more destructible obj
 
 BUG
 
-bug -> going through slanted walls sometime
-bug -> test_behind when looking up in high ceiling room (small bug)
+
+bug -> test_behind when looking up in high ceiling room (small bug no easy to fix)
 
 

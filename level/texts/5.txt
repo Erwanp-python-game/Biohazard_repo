@@ -1,4 +1,13 @@
 {1:"start",
 2:"grenade",
 3:"scientific",
-4:"end"}
+4:"end",
+5:"pilar",
+6:"wow",
+7:"journal",
+8:"card",
+'V1':"help",
+'G1':" ",
+'V2':"lizard",
+'G2':"die"
+}

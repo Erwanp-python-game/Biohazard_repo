@@ -1954,7 +1954,7 @@ def animation(N):
     return 0
 
 
-modif_game = ['0_1', '0_V2', '1_2', '1_6', '2_1', '2_6', '3_2', '3_3', '3_4', '3_G99', '4_2', '4_3', '4_4','5_2']
+modif_game = ['0_1', '0_V2', '1_2', '1_6', '2_1', '2_6', '3_2', '3_3', '3_4', '3_G99', '4_2', '4_3', '4_4','5_2','5_1','5_8']
 
 tutotxt = []
 tutotxt.append('Use the arrow keys to move and leftclick to attack')
@@ -2056,6 +2056,11 @@ def change_game(num):
     if num == '5_2':
         TotAr = 5
         AMMO[3] += 5
+
+    if num == '5_1':
+        activatedT.append(Trig_liste[6][1])
+    if num == '5_8':
+        activatedT.remove(Trig_liste[6][1])
 
 Xmap_, Ymap_ = np.indices((500, 500))
 
@@ -2165,10 +2170,18 @@ def show_MAP(MAP):
     ym = max(min(int(-pos[0] + window[1] * 0.5), int(0.85 * window[1])), int(0.15 * window[1]))
     if xm not in [int(window[0] / 2 + 0.35 * window[1]), int(window[0] / 2 - 0.35 * window[1])] and ym not in [
         int(0.85 * window[1]), int(0.15 * window[1])]:
-        pygame.draw.polygon(fenetre, (200, 100, 100), (
-        (xm, ym), (xm + 15 * cos(ang[0] + pi / 8 + pi / 2), ym - 15 * sin(ang[0] + pi / 8 + pi / 2)),
-        (xm + 15 * cos(ang[0] - pi / 8 + pi / 2), ym - 15 * sin(ang[0] - pi / 8 + pi / 2))), 0)
-        pygame.draw.circle(fenetre, (255, 0, 0), (xm, ym), int(0.01 * window[1]))
+        ll=10*window[0]/960
+        pygame.draw.polygon(fenetre, (255, 255, 255), (
+        (xm, ym),
+        (xm - ll * cos(ang[0] + pi / 4 + pi / 2), ym + ll * sin(ang[0] + pi / 4 + pi / 2)),
+        (xm + ll * cos(ang[0] + pi / 2), ym - ll * sin(ang[0] + pi / 2)),
+        (xm - ll * cos(ang[0] - pi / 4 + pi / 2), ym + ll * sin(ang[0] - pi / 4 + pi / 2))), 0)
+        pygame.draw.polygon(fenetre, (255, 0, 0), (
+        (xm, ym),
+        (xm - ll * cos(ang[0] + pi / 4 + pi / 2), ym + ll * sin(ang[0] + pi / 4 + pi / 2)),
+        (xm + ll * cos(ang[0] + pi / 2), ym - ll * sin(ang[0] + pi / 2)),
+        (xm - ll * cos(ang[0] - pi / 4 + pi / 2), ym + ll * sin(ang[0] - pi / 4 + pi / 2))), 3)
+        #pygame.draw.circle(fenetre, (255, 0, 0), (xm, ym), int(0.01 * window[1]))
 
     fenetre.blit(mapback, (int(window[0] / 2 - 0.375 * window[1]), int(0.125 * window[1])))
 
@@ -2220,7 +2233,7 @@ def show_doc():
 
 def check_trigger():
     global startmsg, indk, Sline, groupD, v, activatedT
-    # print(queueT,startmsg)
+    # print(queueT,startmsg,activatedT)
     for i in Trig_liste:
         if np.linalg.norm(2 * (i[0] - 50) - x) < 10 and (i[1] not in activatedT):
             Sline = 0
@@ -2321,7 +2334,13 @@ def check_trigger():
 def load_level(level_name):
     global level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     level = int(level_name)
-    if level>=5:
+    if level==5:
+        SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel1.png'))
+        LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape1.png'))
+        LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
+        SKY0_im = pygame.image.load('image/ciel/ciel1.png')
+        LAND0_im = pygame.image.load('image/ciel/lanscape1.png')
+    if level==6:
         SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel2.png'))
         LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape2.png'))
         LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
@@ -2409,6 +2428,7 @@ def load_level(level_name):
     light_color = pickle.load(f)
     light_array = pickle.load(f)
     Trig_liste = pickle.load(f)
+    # print(Trig_liste)
     pickle.load(f)
     lifts = pickle.load(f)
     stairs = pickle.load(f)
@@ -2478,6 +2498,7 @@ def load_level(level_name):
     ennemies = []
     difficulty_var=[0.,0.,0.,0.]
     for i in M_liste:
+
         if i[-1] not in groupD:
             groupD.append(i[-1])
         if i[-2]:
@@ -2575,7 +2596,7 @@ plot_stats=False
 sensitivity=500
 movement=0
 
-if level==5:
+if level==6:
     op=[]
     for i in range(10):
         xra=np.random.randint(-5000,1000)
@@ -3161,8 +3182,10 @@ while running == 1:
     fond = pygame.Surface((160-6,80-6))#to improve
 
     if Sky_view:
-
-        movement+=-sin(ang[0])/ 500# correct to put some accumulation
+        if level==6:
+            movement+=-sin(ang[0])/ 500
+        else:
+            movement=0
 
         fond.blit(SKY0_im,(int(-((-ang[0])%(2*pi)) * 6 * scrnL[0] / (2 * pi)),-int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1])))
         fond.blit(SKY0_im, (
@@ -3171,7 +3194,7 @@ while running == 1:
         fond.blit(LAND0_im, (
         int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi))+LAND0_im.get_width(), -int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
 
-        if level==5:
+        if level==6:
             [i.calc_norm() for i in op]
             [i.affiche() for i in op]
     else:
