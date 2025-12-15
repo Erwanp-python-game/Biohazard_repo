@@ -1,0 +1,1446 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="960mm"
+   height="480mm"
+   viewBox="0 0 960 480"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="dessin-13.svg"
+   inkscape:export-filename="C:\Users\erwan\image.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2838">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop2834" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop2836" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2830">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop2826" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop2828" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2782">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0.64032698"
+         offset="0"
+         id="stop2778" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop2780" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2518">
+      <stop
+         style="stop-color:#956310;stop-opacity:1"
+         offset="0"
+         id="stop2514" />
+      <stop
+         style="stop-color:#a76f12;stop-opacity:1"
+         offset="1"
+         id="stop2516" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2508">
+      <stop
+         style="stop-color:#7b9798;stop-opacity:1;"
+         offset="0"
+         id="stop2504" />
+      <stop
+         style="stop-color:#b3dcde;stop-opacity:1"
+         offset="1"
+         id="stop2506" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2421">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0.40599456"
+         offset="0"
+         id="stop2417" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop2419" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2244">
+      <stop
+         style="stop-color:#705e09;stop-opacity:1"
+         offset="0"
+         id="stop2240" />
+      <stop
+         style="stop-color:#725f09;stop-opacity:1"
+         offset="1"
+         id="stop2242" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2163">
+      <stop
+         style="stop-color:#615107;stop-opacity:1;"
+         offset="0"
+         id="stop2159" />
+      <stop
+         style="stop-color:#615107;stop-opacity:0;"
+         offset="1"
+         id="stop2161" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2089">
+      <stop
+         style="stop-color:#625207;stop-opacity:1;"
+         offset="0"
+         id="stop2085" />
+      <stop
+         style="stop-color:#625207;stop-opacity:0.44686648"
+         offset="1"
+         id="stop2087" />
+    </linearGradient>
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1915"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1911"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1899">
+      <stop
+         style="stop-color:#8d8d8d;stop-opacity:1;"
+         offset="0"
+         id="stop1895" />
+      <stop
+         style="stop-color:#454545;stop-opacity:1"
+         offset="1"
+         id="stop1897" />
+    </linearGradient>
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1790"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1786"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1780"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1776"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1772"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1768"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1764"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1760"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1756"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect1752"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1298">
+      <stop
+         style="stop-color:#8d6b20;stop-opacity:1;"
+         offset="0"
+         id="stop1294" />
+      <stop
+         style="stop-color:#614817;stop-opacity:1"
+         offset="1"
+         id="stop1296" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1298"
+       id="linearGradient1300"
+       x1="-1.2554569"
+       y1="432.97664"
+       x2="964.49082"
+       y2="432.97664"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1899"
+       id="linearGradient1901"
+       x1="533.34283"
+       y1="130.33546"
+       x2="527.56561"
+       y2="471.42117"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2089"
+       id="linearGradient2091"
+       x1="813.21582"
+       y1="184.07407"
+       x2="833.24854"
+       y2="170.84489"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2089"
+       id="linearGradient2120"
+       gradientUnits="userSpaceOnUse"
+       x1="813.21582"
+       y1="184.07407"
+       x2="833.24854"
+       y2="170.84489"
+       gradientTransform="matrix(0.61240068,0,0,0.35784356,308.45346,122.85339)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2089"
+       id="linearGradient2150"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.61240068,0,0,0.35784356,328.76594,123.52156)"
+       x1="813.21582"
+       y1="184.07407"
+       x2="833.24854"
+       y2="170.84489" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2163"
+       id="linearGradient2165"
+       x1="822.92285"
+       y1="224.23915"
+       x2="827.46649"
+       y2="238.67171"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-1.889881,-8.3154763)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2244"
+       id="linearGradient2246"
+       x1="788.97961"
+       y1="208.47023"
+       x2="893.74921"
+       y2="129.09117"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2421"
+       id="radialGradient2425"
+       cx="490.17227"
+       cy="184.95052"
+       fx="490.17227"
+       fy="184.95052"
+       r="315.09351"
+       gradientTransform="matrix(1,0,0,0.54365605,0,84.401045)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2508"
+       id="linearGradient2510"
+       x1="44.450001"
+       y1="216.42917"
+       x2="139.7"
+       y2="64.029167"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-16.933333,-10.583333)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2518"
+       id="linearGradient2520"
+       x1="71.955925"
+       y1="395.28751"
+       x2="73.025002"
+       y2="17.462496"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2782"
+       id="radialGradient2784"
+       cx="477.30832"
+       cy="491.06668"
+       fx="477.30832"
+       fy="491.06668"
+       r="486.83331"
+       gradientTransform="matrix(1,0,0,0.23478262,0,375.77276)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2830"
+       id="linearGradient2832"
+       x1="-1.0690781"
+       y1="0"
+       x2="210.73732"
+       y2="208.34131"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2838"
+       id="linearGradient2840"
+       x1="964.30847"
+       y1="0"
+       x2="751.5835"
+       y2="189.22246"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(2.1679688e-5)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.25"
+     inkscape:cx="1706.892"
+     inkscape:cy="1003.4161"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     showguides="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="365.62469"
+       y="226.64456"
+       id="text1989"><tspan
+         sodipodi:role="line"
+         id="tspan1987"
+         x="365.62469"
+         y="226.64456"
+         style="stroke-width:0.264583" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="126.15121"
+       y="112.2532"
+       id="text1993"><tspan
+         sodipodi:role="line"
+         id="tspan1991"
+         x="126.15121"
+         y="112.2532"
+         style="stroke-width:0.264583" /></text>
+    <rect
+       style="fill:url(#linearGradient1901);stroke:#c8720d;stroke-width:1;stroke-opacity:0;fill-opacity:1"
+       id="rect1289"
+       width="965.37756"
+       height="483.2233"
+       x="-1.0690781"
+       y="0"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#7a7a7a;fill-opacity:1;stroke:#c8720d;stroke-width:0.499999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0"
+       id="rect1792"
+       width="629.68701"
+       height="342.10498"
+       x="175.32881"
+       y="13.898015"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#75a8ff;fill-opacity:1;stroke:#fcf9f5;stroke-width:0.459662;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1792-9"
+       width="591.24054"
+       height="307.93481"
+       x="194.90771"
+       y="32.193161"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#eaeaea;fill-opacity:1;stroke:none;stroke-width:0.504088;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1907"
+       width="198.51302"
+       height="191.24417"
+       x="194.9077"
+       y="32.193161"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <image
+       width="151.55122"
+       height="155.82753"
+       preserveAspectRatio="none"
+       xlink:href="data:image/png;base64,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
+"
+       id="image1826"
+       x="210.73732"
+       y="52.513771"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#469100;fill-opacity:1;stroke:#fcf9f5;stroke-width:0.5431;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1830"
+       width="363.44345"
+       height="275.77908"
+       x="392.37323"
+       y="50.268223"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1832"
+       style="fill:#4da000;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 729.11129,88.198942 c 0,10.480232 11.18599,123.936148 -32.26498,157.798388 C 653.39534,279.85956 546.7548,191.36499 533.47,191.36499 c -13.2848,0 -67.00598,38.2479 -71.43559,12.93829 -4.42962,-25.30961 -5.53803,-53.23928 -5.53803,-63.71951 0,-10.48023 5.38473,-19.9683 14.09066,-26.83631 8.70593,-6.86801 22.87121,-36.773834 36.15601,-36.773835 13.28479,-10e-7 53.64249,21.353202 92.81714,19.668587 39.17466,-1.684615 129.5511,-18.9235 129.5511,-8.44327 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1832-6"
+       style="fill:#57b500;fill-opacity:1;stroke:none;stroke-width:0.331902;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 712.29291,108.00606 c 0,6.6767 0.25332,87.50941 -29.79987,109.08224 -30.0532,21.57283 -127.33166,-51.91022 -136.52019,-51.91022 -9.18853,0 -55.9669,35.05761 -59.03067,18.93346 -3.06378,-16.12415 -11.31397,-31.77933 -11.31397,-38.45603 0,-6.67671 20.82964,-25.55028 26.85116,-29.92572 6.02152,-4.37545 4.05919,-21.289583 13.24772,-21.289583 9.18853,-1e-5 48.8621,11.465463 75.95754,10.392233 27.09545,-1.07323 120.60828,-3.50309 120.60828,3.17362 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1832-6-7"
+       style="fill:#89b500;fill-opacity:1;stroke:none;stroke-width:0.209615;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 664.18442,118.77315 c 0,4.08342 0.16521,53.52008 -19.43459,66.71386 -19.59981,13.19377 -83.04194,-31.74789 -89.03443,-31.74789 -5.99249,0 -36.49995,21.44096 -38.49805,11.57956 -1.99811,-9.86141 -7.37864,-19.436 -7.37864,-23.51942 0,-4.08342 13.58447,-15.62635 17.51153,-18.30233 3.92706,-2.676 2.64728,-13.02055 8.63977,-13.02055 5.99249,-1e-5 31.86642,7.01219 49.53726,6.35581 17.67085,-0.65638 78.65715,-2.14246 78.65715,1.94096 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1832-6-7-5"
+       style="fill:#9ca700;fill-opacity:1;stroke:none;stroke-width:0.123448;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 632.60901,129.3225 c 0,2.16665 0.108,28.39753 -12.7039,35.3981 -12.81188,7.00056 -57.98654,-19.49113 -61.90368,-19.49113 -3.91713,0 -23.85907,11.37649 -25.16518,6.14407 -1.30612,-5.23243 -4.82323,-10.31266 -4.82323,-12.47931 0,-2.16664 8.87982,-8.29127 11.44683,-9.71114 2.56703,-1.41987 1.73046,-6.90865 5.6476,-6.90865 3.91714,-1e-5 20.83026,3.72064 32.38123,3.37237 11.55098,-0.34827 55.12033,1.50905 55.12033,3.67569 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <text
+       xml:space="preserve"
+       style="font-size:15.875px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="213.81561"
+       y="47.039436"
+       id="text1905"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         sodipodi:role="line"
+         id="tspan1903"
+         x="213.81561"
+         y="47.039436"
+         style="font-size:15.875px;stroke-width:0.264583">Viper organisation</tspan></text>
+    <path
+       style="fill:none;stroke:#959595;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 393.95529,238.93896 c 21.91629,-4.8109 43.83239,-9.62175 61.65046,-14.9672 17.81806,-5.34546 31.53763,-11.22527 43.56487,-16.39253 12.02723,-5.16725 22.36145,-9.62166 34.83427,-8.01785 12.47282,1.60381 27.08325,9.26538 41.33776,17.72902 14.25451,8.46365 28.15225,17.72881 45.88135,24.76689 17.72909,7.03808 39.2884,11.84883 52.91911,12.91782 13.63071,1.06899 19.33235,-1.60365 27.88501,-11.49274 8.55266,-9.88908 19.95593,-26.99399 26.19224,-50.60301 6.23632,-23.60901 7.30538,-53.72077 8.55265,-78.22067 1.24726,-24.499903 2.67267,-43.386571 4.09812,-62.273863"
+       id="path1909"
+       inkscape:path-effect="#path-effect1911"
+       inkscape:original-d="m 393.95529,238.93896 c 21.91636,-4.81059 43.83246,-9.62144 65.7483,-14.43256 13.72036,-5.87978 27.43993,-11.75959 41.15951,-17.63979 10.33489,-4.45431 20.66911,-8.90871 31.00326,-13.36347 14.6113,7.66214 29.22172,15.32372 43.8322,22.98518 13.89856,9.26579 27.7963,18.53095 41.69405,27.79603 21.56044,4.81121 43.11975,9.62197 64.67922,14.43255 5.70214,-2.67248 11.40378,-5.34512 17.10526,-8.01808 11.40399,-17.10533 22.80726,-34.21024 34.21049,-51.31575 1.06937,-30.11271 2.13841,-60.22447 3.20725,-90.3371 1.42571,-18.887163 2.85112,-37.77383 4.2763,-56.661143"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;stroke:#959595;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 662.29388,252.30244 c 8.01836,7.84017 16.03646,15.68006 17.37259,23.78723 1.33614,8.10716 -4.00914,16.48143 -12.9182,24.67773 -8.90906,8.19629 -21.38138,16.21422 -33.85402,24.23234"
+       id="path1913"
+       inkscape:path-effect="#path-effect1915"
+       inkscape:original-d="m 662.29388,252.30244 c 8.01836,7.84017 16.03645,15.68007 24.05428,23.5197 -5.34525,8.37488 -10.69052,16.74916 -16.03619,25.12335 -12.47256,8.01852 -24.94489,16.03643 -37.41772,24.05425"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1917-0"
+       style="fill:#297a0f;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 636.72275,299.38032 c 3.81388,-5.07356 23.27618,-17.02524 20.71092,-24.15725 -2.56525,-7.13201 -27.15807,-9.44435 -34.8864,-15.25387 -7.72833,-5.80951 -17.64709,-21.4154 -25.21106,-21.8977 -7.56396,-0.48229 -29.22776,5.80213 -33.04164,10.87569 -3.81388,5.07357 1.52067,22.29095 4.08593,29.42296 2.56525,7.13201 22.33138,23.87162 30.05971,29.68113 7.72834,5.80953 15.75808,-10.76594 23.32204,-10.28364 7.56396,0.48229 11.14662,6.68624 14.9605,1.61268 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1917"
+       style="fill:#297a0f;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 494.44862,280.09848 c 0,6.34718 8.37551,27.59511 2.03953,31.75461 -6.33598,4.1595 -27.38346,-8.76943 -37.05184,-8.76943 -9.66838,0 -26.97408,6.51446 -33.31007,2.35496 -6.33598,-4.1595 -19.87657,-22.20019 -19.87657,-28.54737 0,-6.34719 14.60967,-16.90433 20.94565,-21.06383 6.33598,-4.1595 32.19431,-5.66313 41.86269,-5.66313 9.66839,0 6.12706,18.07434 12.46305,22.23384 6.33598,4.1595 12.92756,1.35317 12.92756,7.70035 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient2425);fill-opacity:1;stroke:#c8720d;stroke-width:0.499999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0"
+       id="rect1792-97"
+       width="629.68701"
+       height="342.10498"
+       x="175.32877"
+       y="13.898015"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2311"
+       style="fill:#767d20;fill-opacity:1;stroke:none;stroke-width:2.54661;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 788.13346,254.37131 c 3.36508,8.2435 -2.37172,23.20516 -12.75284,33.74527 -10.38112,10.5401 -23.08307,17.27541 -42.28921,25.11556 -19.20613,7.84014 -91.64427,-25.18488 -106.43587,-25.44921 0,0 -40.07563,-21.34598 -43.44072,-29.58948 -3.36508,-8.24351 9.54107,-32.14186 24.37021,-30.66133 26.10615,2.60641 79.93116,42.4769 99.13728,34.63675 19.20613,-7.84014 54.88593,-31.02891 69.67753,-30.76457 14.79161,0.26432 8.36854,14.7235 11.73362,22.96701 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2253"
+       style="fill:#7d832a;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 909.28889,412.7635 c -1e-5,14.31806 -0.31625,44.66753 -11.82742,54.05059 -11.51117,9.38305 -56.89585,-1.44436 -74.4613,-1.44436 -17.56546,0 -77.31323,-7.31544 -88.8244,-16.69849 -11.51117,-9.38306 15.20724,-109.31076 16.14283,-123.59822 1.71829,-26.24 -3.84151,-22.9339 9.55954,-68.79166 13.40106,-45.85776 53.11609,-40.51101 70.68155,-40.51101 17.56546,0 64.08407,-7.61462 73.70536,38.24314 9.62129,45.85776 5.02384,144.43195 5.02384,158.75001 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#9e9e9e;fill-opacity:1;stroke:none;stroke-width:1.59861;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1940"
+       width="16.036171"
+       height="12.294398"
+       x="525.45184"
+       y="186.01958"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1984"
+       style="fill:url(#linearGradient2246);fill-opacity:1;stroke:none;stroke-width:2.63441;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 906.00567,155.72316 c 0,36.31179 -33.74648,78.26412 -72.12479,78.26412 -19.18915,0 -34.01311,-9.16517 -43.28384,-21.73538 -9.27072,-12.57021 -9.20844,-28.54547 -9.20844,-46.70136 0,-36.31179 19.39451,-67.638189 57.77282,-67.63819 38.37831,10e-7 66.84425,21.49902 66.84425,57.81081 z"
+       sodipodi:nodetypes="ssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       sodipodi:type="star"
+       style="fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1942"
+       sodipodi:sides="4"
+       sodipodi:cx="533.20275"
+       sodipodi:cy="199.24944"
+       sodipodi:r1="11.056206"
+       sodipodi:r2="2.4062381"
+       sodipodi:arg1="0.79394499"
+       sodipodi:arg2="1.4823883"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 540.95357,207.13389 -7.53836,-5.48761 -8.0969,5.35397 5.48761,-7.53836 -5.35398,-8.0969 7.53837,5.4876 8.0969,-5.35397 -5.48761,7.53836 z"
+       inkscape:transform-center-x="-0.048843523"
+       inkscape:transform-center-y="-0.29180528"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dabc25;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1944"
+       width="24.588797"
+       height="26.726954"
+       x="218.09193"
+       y="229.85181"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dabc25;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1944-6"
+       width="24.588797"
+       height="26.726954"
+       x="264.59683"
+       y="230.38632"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dabc25;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1944-4"
+       width="24.588797"
+       height="26.726954"
+       x="217.5574"
+       y="279.56393"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#fffdf5;fill-opacity:1;stroke:none;stroke-width:1.52634;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1987-1"
+       cx="841.68158"
+       cy="160.03772"
+       rx="9.4226465"
+       ry="8.3009024"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#dabc25;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1944-8"
+       width="24.588797"
+       height="26.726954"
+       x="266.73499"
+       y="279.56393"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#2b2b29;fill-opacity:1;stroke:none;stroke-width:1.02588;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1987-9-9"
+       cx="841.77185"
+       cy="160.11331"
+       rx="6.0574155"
+       ry="5.8330665"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#fffdf5;fill-opacity:1;stroke:none;stroke-width:1.52634;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1987"
+       cx="806.06616"
+       cy="158.26434"
+       rx="9.4226465"
+       ry="8.3009024"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1987-9-7-9"
+       style="fill:#5e4f07;fill-opacity:1;stroke:none;stroke-width:1.02588;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 852.354,150.79943 c 0.5016,3.18223 -10.14388,2.05314 -13.44851,2.57403 -3.30462,0.52088 -7.03324,4.36988 -7.53483,1.18766 -0.50158,-3.18223 5.56219,-9.50724 8.8668,-10.02812 3.30462,-0.52088 11.61495,3.0842 12.11654,6.26643 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#2b2b29;fill-opacity:1;stroke:none;stroke-width:1.02588;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path1987-9"
+       cx="806.30768"
+       cy="159.02029"
+       rx="6.0574155"
+       ry="5.8330665"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1987-9-7-7-2"
+       style="fill:#5e4f07;fill-opacity:1;stroke:none;stroke-width:1.02588;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 852.33816,166.58668 c 0,-3.22152 -10.33985,-0.4487 -13.68528,-0.4487 -3.34541,0 -7.62786,-3.22152 -7.62786,0 10e-6,3.22151 6.97463,8.52525 10.32004,8.52525 3.34542,0 10.9931,-4.85504 10.9931,-8.07655 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1987-9-7"
+       style="fill:#5e4f07;fill-opacity:1;stroke:none;stroke-width:1.02588;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 816.12773,152.82613 c -0.2384,3.21268 -10.3447,-0.31773 -13.68095,-0.5653 -3.33625,-0.24758 -7.84535,2.64817 -7.60694,-0.5645 0.23841,-3.21268 7.58641,-7.98572 10.92265,-7.73814 3.33624,0.24757 10.60365,5.65527 10.36524,8.86794 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2153"
+       style="fill:#5c4d07;fill-opacity:0.446867;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 894.6696,163.38022 c 0,9.34158 -6.55501,20.12723 -10.67783,20.12723 -4.12282,0 -4.25223,-10.78565 -4.25223,-20.12723 0,-9.34159 3.34221,-16.91444 7.46503,-16.91444 4.12282,0 7.46503,7.57285 7.46503,16.91444 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2156"
+       style="fill:url(#linearGradient2165);fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 842.9491,220.86814 c 0,5.09251 -6.11449,12.6953 -15.63526,12.6953 -9.52078,10e-6 -18.84251,-7.60279 -18.84251,-12.6953 1e-5,-5.0925 7.71812,-9.22079 17.23889,-9.22079 9.52076,0 17.23887,4.12829 17.23888,9.22079 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1987-9-7-7"
+       style="fill:#5e4f07;fill-opacity:1;stroke:none;stroke-width:1.02588;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 816.72278,164.8133 c 0,-3.22151 -10.33985,-0.44869 -13.68528,-0.44869 -3.34541,0 -7.62786,-3.22152 -7.62786,0 1e-5,3.22151 6.97464,8.52525 10.32005,8.52525 3.34541,0 10.99309,-4.85504 10.99309,-8.07656 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.640327"
+       id="path2842"
+       cx="824.68689"
+       cy="206.45235"
+       rx="17.96051"
+       ry="1.7773423"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2167"
+       style="fill:#594c06;fill-opacity:0.446867;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 852.05523,205.93118 c 10e-6,1.99272 -20.75286,-0.61472 -26.45969,-0.61472 -6.26809,0 -26.72695,2.60744 -26.72694,0.61472 -10e-6,-1.99272 11.63896,-5.47903 26.32604,-5.47903 14.68709,0 26.8606,3.48631 26.86059,5.47903 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2167-4"
+       style="fill:#594c06;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 852.05523,205.93118 c 10e-6,-1.99272 -12.52095,1.92434 -27.20804,1.92434 -14.68708,0 -25.9786,-3.91706 -25.97859,-1.92434 -10e-6,1.99272 11.63896,5.47903 26.32604,5.47903 14.68709,0 26.8606,-3.48631 26.86059,-5.47903 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2082-1"
+       style="fill:url(#linearGradient2120);fill-opacity:1;stroke:none;stroke-width:0.936256;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 819.77705,188.99374 c 0,2.4651 -4.47554,3.78718 -6.71272,3.78718 -2.23718,0 -8.9117,-1.45733 -8.9117,-3.92243 0,-2.4651 1.81511,-9.38078 8.68023,-9.33269 6.29177,0.0441 6.94419,7.00285 6.94419,9.46794 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2248"
+       style="fill:#5f832a;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 920.74997,137.77232 c -10e-6,13.67316 -81.95615,-9.6384 -113.58184,-9.6384 -31.6257,0 -25.13541,-10.7063 -25.13542,-24.37945 0,-13.67316 33.5752,-33.072919 65.20089,-33.07292 31.6257,10e-7 73.51637,53.41762 73.51637,67.09077 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2082"
+       style="fill:url(#linearGradient2091);fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 834.9494,184.83036 c 0,6.88876 -7.30818,10.58333 -10.96131,10.58333 -3.65313,0 -14.55208,-4.07254 -14.55208,-10.96131 0,-6.88876 2.96392,-26.21474 14.1741,-26.08035 10.27394,0.12317 11.33929,19.56957 11.33929,26.45833 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2082-1-8"
+       style="fill:url(#linearGradient2150);fill-opacity:1;stroke:none;stroke-width:0.936256;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 840.08953,189.66191 c 0,2.4651 -4.47554,3.78718 -6.71272,3.78718 -2.23718,0 -8.9117,-1.45733 -8.9117,-3.92243 0,-2.4651 1.81511,-9.38078 8.68023,-9.33269 6.29177,0.0441 6.94419,7.00285 6.94419,9.46794 z"
+       sodipodi:nodetypes="sssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       sodipodi:type="star"
+       style="fill:#f5ff00;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2251"
+       sodipodi:sides="5"
+       sodipodi:cx="814.5387"
+       sodipodi:cy="93.360123"
+       sodipodi:r1="20.564127"
+       sodipodi:r2="8.2638273"
+       sodipodi:arg1="0.94200004"
+       sodipodi:arg2="1.6162919"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 826.63393,109.99107 -12.47107,-8.37567 -11.7035,8.38722 4.11196,-14.44892 -11.5933,-8.538898 15.01241,-0.55425 4.53844,-13.664554 5.16622,14.106378 14.39822,0.09374 -11.81952,9.272471 z"
+       inkscape:transform-center-x="0.0020182812"
+       inkscape:transform-center-y="-1.2038688"
+       transform="matrix(0.66179038,0,0,0.61396404,274.91683,47.378659)"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314"
+       style="fill:#715f09;fill-opacity:1;stroke:none;stroke-width:1.91404;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 597.28968,230.64873 c 1.92161,5.20198 1.55225,10.84022 -0.59832,15.75079 -2.15056,4.91058 -6.08235,9.09349 -11.28562,11.38481 -5.20326,2.29131 -10.69281,2.25719 -15.36195,0.34975 -4.66914,-1.90744 -20.16242,-8.62969 -22.08402,-13.83166 -1.9216,-5.20198 -2.64346,-10.93607 -0.49288,-15.84664 2.15057,-4.91058 7.17356,-8.99765 12.37683,-11.28896 5.20326,-2.29132 22.33736,0.68429 27.0065,2.59173 4.66914,1.90745 8.51786,5.68821 10.43946,10.89018 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314-7"
+       style="fill:#695808;fill-opacity:1;stroke:none;stroke-width:0.642605;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 595.56362,219.39932 c 1.48593,1.42197 2.34784,3.21439 2.54015,4.96285 0.19234,1.74846 -0.28495,3.45295 -1.47742,4.69904 -1.19245,1.24608 -2.8743,1.79786 -4.62953,1.6826 -1.75522,-0.11526 -16.62547,-0.4225 -18.11138,-1.84445 -1.48592,-1.42196 -2.69756,-3.13243 -2.88987,-4.88089 -0.19234,-1.74845 0.63467,-3.53491 1.82713,-4.781 1.19244,-1.24609 15.91596,-2.27289 17.67117,-2.15763 1.75523,0.11525 3.58382,0.89752 5.06975,2.31948 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#3a310c;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2395"
+       width="9.3544331"
+       height="69.757347"
+       x="476.63235"
+       y="328.55511"
+       transform="rotate(-15.761675)"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314-7-2"
+       style="fill:#695808;fill-opacity:1;stroke:none;stroke-width:0.531635;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 550.41865,222.1115 c -0.46499,-1.50841 -0.29424,-3.07082 0.35775,-4.37752 0.65198,-1.30669 1.78519,-2.35765 3.24508,-2.84317 1.45989,-0.4855 2.97005,-0.31368 4.23148,0.35666 1.26145,0.67033 12.25296,5.87394 12.71796,7.38236 0.46499,1.5084 0.59333,3.12984 -0.0586,4.43652 -0.65198,1.30669 -2.08429,2.29865 -3.54417,2.78416 -1.4599,0.48551 -12.94886,-3.72111 -14.21029,-4.39145 -1.26145,-0.67033 -2.27416,-1.83915 -2.73916,-3.34756 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314-7-2-2"
+       style="fill:#695808;fill-opacity:1;stroke:none;stroke-width:0.531635;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 545.08919,230.17028 c -0.465,-1.50841 -0.29424,-3.07081 0.35775,-4.37751 0.65198,-1.30669 1.78519,-2.35765 3.24508,-2.84317 1.45989,-0.48551 2.97005,-0.31369 4.23148,0.35665 1.26144,0.67033 18.68593,7.89041 19.15093,9.39882 0.46499,1.50841 0.59333,3.12985 -0.0586,4.43653 -0.65198,1.30669 -2.08429,2.29864 -3.54417,2.78416 -1.4599,0.48551 -19.38183,-5.73758 -20.64326,-6.40791 -1.26146,-0.67033 -2.27416,-1.83916 -2.73916,-3.34757 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314-7-9"
+       style="fill:#695808;fill-opacity:1;stroke:none;stroke-width:0.642605;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 927.59722,435.07611 c -1.65239,-1.22459 -3.56458,-1.77157 -5.32041,-1.66595 -1.75585,0.10556 -3.35532,0.86372 -4.38225,2.24941 -1.0269,1.38567 -1.28687,3.13654 -0.87699,4.84713 0.40989,1.71056 3.22279,16.31557 4.87515,17.54014 1.65238,1.22458 3.54282,2.13011 5.29865,2.02453 1.75583,-0.10557 3.37707,-1.22226 4.40399,-2.60794 1.02692,-1.38567 -0.44631,-16.07124 -0.85619,-17.7818 -0.40988,-1.71059 -1.48958,-3.38089 -3.14196,-4.60549 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314-5"
+       style="fill:#715f09;fill-opacity:1;stroke:none;stroke-width:1.91404;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 920.20644,428.15811 c -3.73983,-4.09474 -8.9187,-6.35427 -14.26855,-6.6973 -5.34988,-0.34304 -10.87072,1.23043 -15.29454,4.80172 -4.4238,3.57129 -1.56753,8.46419 -2.01576,13.48797 -0.44824,5.02376 -6.93189,21.87413 -3.19206,25.96886 3.73982,4.09473 8.50303,7.36776 13.85289,7.71078 5.34987,0.34304 11.28639,-2.24392 15.71019,-5.81521 4.4238,-3.57128 9.64385,-20.15991 10.09208,-25.18369 0.44823,-5.02377 -1.14444,-10.1784 -4.88425,-14.27313 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2311-8"
+       style="fill:#767d20;fill-opacity:1;stroke:none;stroke-width:2.54661;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 880.98807,237.59648 c 7.36513,-5.00338 23.19189,-2.49815 35.65777,5.46823 12.46587,7.9664 21.69175,18.99304 33.3489,36.15273 11.65712,17.15967 -5.60752,94.87626 -2.79484,109.40039 0,0 -12.5597,43.6344 -19.92484,48.63779 -7.36515,5.00337 -33.42243,-2.65939 -35.0532,-17.47276 -2.87093,-26.07838 24.95472,-87.00884 13.29758,-104.1685 -11.65713,-17.15968 -41.74889,-47.24711 -44.56155,-61.77124 -2.81269,-14.52412 12.66503,-11.24326 20.03018,-16.24664 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314-7-2-6"
+       style="fill:#695808;fill-opacity:1;stroke:none;stroke-width:0.531635;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 909.3015,482.79935 c 1.12675,1.1054 2.59325,1.67077 4.05345,1.69122 1.46016,0.0204 2.91398,-0.50399 4.01538,-1.57824 1.10136,-1.07422 1.6418,-2.49481 1.62517,-3.92319 -0.0166,-1.4284 0.40478,-13.58213 -0.72197,-14.68756 -1.12675,-1.1054 -2.50843,-1.96359 -3.96857,-1.98409 -1.46017,-0.0205 -2.99885,0.79683 -4.10023,1.87105 -1.10138,1.07423 -2.63687,13.21235 -2.62024,14.64074 0.0166,1.42841 0.59028,2.86459 1.71703,3.97001 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314-7-2-2-5"
+       style="fill:#695808;fill-opacity:1;stroke:none;stroke-width:0.531635;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 897.56837,489.54713 c 1.12674,1.10543 2.59325,1.67078 4.05343,1.69124 1.46017,0.0204 2.91401,-0.504 4.01539,-1.57825 1.10138,-1.07422 1.64181,-2.4948 1.62518,-3.92318 -0.0166,-1.4284 1.56567,-20.22304 0.43892,-21.32846 -1.12676,-1.10543 -2.50844,-1.96361 -3.96858,-1.9841 -1.46017,-0.0205 -2.99884,0.79683 -4.10022,1.87105 -1.10139,1.07423 -3.79776,19.85326 -3.78114,21.28165 0.0166,1.4284 0.59029,2.86459 1.71704,3.97001 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314-7-2-8-2"
+       style="fill:#695808;fill-opacity:1;stroke:none;stroke-width:0.531635;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 876.91112,476.35648 c 0.84047,1.3361 2.13635,2.22543 3.55218,2.58314 1.41582,0.35774 2.95155,0.18386 4.27158,-0.60642 1.32003,-0.79026 2.17447,-2.04728 2.48876,-3.44075 0.3143,-1.39348 3.53614,-13.11999 2.69569,-14.45609 -0.84045,-1.3361 -1.98607,-2.49067 -3.40188,-2.8484 -1.41582,-0.35772 -3.10183,0.0814 -4.42187,0.87167 -1.32003,0.79028 -5.62212,12.24383 -5.93641,13.6373 -0.31431,1.3935 -0.0885,2.92344 0.75199,4.25954 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#linearGradient2520);fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2512"
+       width="162.99408"
+       height="483.65833"
+       x="-1.0690781"
+       y="0"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       id="g2269"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
+      <path
+         id="rect1291"
+         style="fill:url(#linearGradient1300);fill-opacity:1;stroke:#c8720d;stroke-width:1;stroke-opacity:0"
+         d="M 249.09521,382.72998 H 707.72972 L 964.30847,483.2233 H -1.0690781 Z"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         id="rect1692"
+         style="fill:#d5c9b2;fill-opacity:1;stroke:#c8720d;stroke-width:1;stroke-opacity:0"
+         d="m 290.78924,426.56215 80.18085,1.06908 38.48681,43.8322 -89.80255,-1.06908 z"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         id="rect1692-3"
+         style="fill:#e5d8be;fill-opacity:1;stroke:#c8720d;stroke-width:1;stroke-opacity:0"
+         d="m 477.43333,438.32164 -80.18085,1.06908 -38.48681,43.8322 100.49333,-1.06908 z"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         id="rect1692-0"
+         style="fill:#f5e7cd;fill-opacity:1;stroke:#c8720d;stroke-width:0.90914;stroke-opacity:0"
+         d="m 577.66221,433.99925 73.0824,0.96946 35.07955,39.74773 -81.85229,-0.96946 z"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="m 302.81636,431.90755 c 1.96313,1.0708 3.92311,2.13987 5.30243,2.27265 1.37933,0.13277 2.18114,-0.66903 3.74178,-0.71309 1.56065,-0.0441 3.87699,0.66867 5.52357,0.53455 1.64657,-0.13413 2.62656,-1.11412 3.83088,-1.2916 1.20431,-0.17748 2.62975,0.44615 4.5448,0.66809 1.91505,0.22194 4.32048,0.0438 6.0581,0.13347 1.73762,0.0897 2.80669,0.44607 3.74101,0.40074 0.93431,-0.0453 1.73611,-0.49077 4.36528,-0.44581 2.62917,0.045 7.08364,0.5795 10.55779,0.66826 3.47416,0.0888 5.96869,-0.2676 9.71081,-0.13362 3.74213,0.13398 8.73115,0.75761 13.71725,1.38087"
+         id="path1750"
+         inkscape:path-effect="#path-effect1752"
+         inkscape:original-d="m 302.81636,431.90755 c 1.96263,1.07172 3.92261,2.1408 5.87994,3.20723 0.80447,-0.79915 1.60626,-1.60097 2.40544,-2.40541 2.31896,0.71536 4.63531,1.42806 6.94899,2.13815 0.98263,-0.97734 1.96262,-1.95733 2.93997,-2.93997 1.42809,0.62627 2.85353,1.24989 4.27632,1.8709 2.40806,-0.17555 4.81349,-0.35372 7.21628,-0.53454 1.07172,0.35899 2.14079,0.71535 3.20722,1.06908 0.80447,-0.44281 1.60626,-0.88826 2.40544,-1.33636 4.45714,0.53718 8.91161,1.07172 13.36347,1.60361 2.49716,-0.35369 4.99168,-0.71006 7.48355,-1.06907 4.99168,0.62626 9.98069,1.24991 14.96708,1.87089" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+         d="m 312.9726,444.73651 c 1.42564,-1.24743 2.85108,-2.49469 4.01061,-2.76072 1.15953,-0.26602 2.05041,0.44668 3.52032,0.84649 1.46991,0.3998 3.51898,0.4889 5.1228,0.84605 1.60382,0.35715 2.76198,0.98078 4.00857,1.11332 1.2466,0.13255 2.58293,-0.22381 4.40988,-0.17873 1.82695,0.0451 4.1433,0.49052 6.10247,0.40086 1.95916,-0.0897 3.56276,-0.71329 5.56815,-0.71261 2.00539,6.8e-4 4.41082,0.62431 9.84507,0.98028 5.43425,0.35597 13.8978,0.44507 22.35864,0.53413"
+         id="path1754"
+         inkscape:path-effect="#path-effect1756"
+         inkscape:original-d="m 312.9726,444.73651 c 1.42809,-1.24463 2.85354,-2.49188 4.27633,-3.74179 0.89355,0.71538 1.78443,1.42808 2.67269,2.13815 2.05171,0.0917 4.10078,0.18084 6.1472,0.26728 1.16083,0.62627 2.31899,1.24989 3.47451,1.87089 1.339,-0.35372 2.67533,-0.71009 4.00904,-1.06907 2.31897,0.44807 4.63532,0.89352 6.94902,1.33633 1.60626,-0.62098 3.20987,-1.2446 4.81084,-1.8709 2.40808,0.6263 4.81351,1.24992 7.21627,1.8709 8.46619,0.0917 16.92974,0.18084 25.39061,0.26728" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+         d="m 322.05977,454.89275 c 2.05119,-0.35674 4.10026,-0.7131 5.70424,-0.3999 1.60398,0.3132 2.76215,1.29319 4.54357,1.55906 1.78142,0.26588 4.18685,-0.17957 6.23643,-0.17896 2.04958,6.1e-4 3.74229,0.44605 5.2117,0.53451 1.46942,0.0885 2.71666,-0.1788 4.45425,-0.31222 1.73758,-0.13342 3.96485,-0.13342 5.34454,-0.35625 1.37969,-0.22283 1.91424,-0.66829 3.07386,-0.57853 1.15963,0.0897 2.94142,0.71338 5.07905,0.80172 2.13763,0.0883 4.63212,-0.3571 7.57246,-0.44589 2.94033,-0.0888 6.32575,0.17848 9.70831,0.44553"
+         id="path1762"
+         inkscape:path-effect="#path-effect1764"
+         inkscape:original-d="m 322.05977,454.89275 c 2.05171,-0.35372 4.10078,-0.71009 6.1472,-1.0691 1.16083,0.98263 2.31899,1.96262 3.47451,2.93997 2.40808,-0.44281 4.81351,-0.88826 7.21627,-1.33633 1.69537,0.44807 3.38807,0.89352 5.07812,1.33633 1.24992,-0.26461 2.49716,-0.53189 3.74179,-0.8018 2.22988,0.003 4.45715,0.003 6.68174,0 0.53718,-0.4428 1.07172,-0.88826 1.60361,-1.33635 1.78445,0.62626 3.56624,1.24989 5.3454,1.87089 2.49717,-0.44281 4.99166,-0.88826 7.48353,-1.33636 3.38807,0.26993 6.77349,0.53719 10.15624,0.80182" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 403.67857,450.92559 c 0.50348,-0.88109 1.00744,-1.76302 4.97793,-1.63724 3.97049,0.12579 11.40403,1.25972 17.82935,1.63739 6.42533,0.37767 11.84299,-3.1e-4 15.62312,0.3155 3.78012,0.31581 5.922,1.32375 7.81056,1.25981 1.88856,-0.0639 3.52644,-1.19786 6.55134,-1.7016 3.0249,-0.50374 7.43464,-0.37774 11.84162,-0.25182"
+         id="path1766"
+         inkscape:path-effect="#path-effect1768"
+         inkscape:original-d="m 403.67857,450.92559 c 0.50662,-0.87929 1.01058,-1.76123 1.51191,-2.64584 7.43617,1.1366 14.86971,2.27052 22.30059,3.4018 5.42031,-0.37533 10.83797,-0.75332 16.25298,-1.13392 2.1445,1.01057 4.28639,2.0185 6.42559,3.02379 1.64055,-1.13128 3.27843,-2.2652 4.91369,-3.40178 4.41237,0.12865 8.82211,0.25464 13.22916,0.37799" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 390.82739,458.86309 c 3.7827,0.50436 7.56246,1.00833 10.77458,0.81888 3.21211,-0.18945 5.85794,-1.07139 8.00061,-1.13339 2.14267,-0.062 3.78057,0.69397 7.74921,1.51239 3.96863,0.81843 10.26823,1.70037 17.19755,1.88907 6.92932,0.18869 14.48884,-0.31527 22.0459,-0.81908"
+         id="path1770"
+         inkscape:path-effect="#path-effect1772"
+         inkscape:original-d="m 390.82739,458.86309 c 3.7824,0.50662 7.56216,1.0106 11.33927,1.5119 2.64848,-0.87929 5.29431,-1.76122 7.9375,-2.64583 1.64055,0.75861 3.27845,1.51456 4.91371,2.26788 6.30224,0.88458 12.60184,1.76651 18.89879,2.64583 7.56219,-0.50133 15.12171,-1.00531 22.67858,-1.51191" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 384.02381,472.84822 c 1.8919,-0.37838 3.7818,-0.75636 5.3572,-0.50311 1.57539,0.25324 2.8353,1.13518 4.66168,1.32291 1.82638,0.18772 4.22022,-0.31625 11.27622,-9.2e-4 7.056,0.31532 18.77326,1.44925 27.27758,1.95305 8.50432,0.5038 13.79598,0.37781 19.08506,0.25189"
+         id="path1774"
+         inkscape:path-effect="#path-effect1776"
+         inkscape:original-d="m 384.02381,472.84822 c 1.89251,-0.37534 3.78241,-0.75332 5.66965,-1.13393 1.26257,0.88459 2.52249,1.76652 3.77976,2.64584 2.39649,-0.50133 4.79033,-1.00531 7.18153,-1.51191 11.71993,1.13657 23.43719,2.2705 35.1518,3.40177 5.29432,-0.12334 10.58598,-0.24934 15.875,-0.37795" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 588.50892,439.9643 c 1.26259,0 2.52251,0 3.46719,0.44247 0.94468,0.44246 1.57464,1.32441 3.33852,1.51172 1.76389,0.1873 4.66171,-0.31667 7.55741,-0.82027"
+         id="path1778"
+         inkscape:path-effect="#path-effect1780"
+         inkscape:original-d="m 588.50892,439.9643 c 1.26259,0.003 2.52251,0.003 3.77978,0 0.63259,0.88458 1.26257,1.76651 1.88987,2.64583 2.90047,-0.50133 5.79829,-1.00531 8.69347,-1.51191" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 598.33631,451.30357 c 3.78256,0.25218 7.56232,0.50417 10.39654,0.31482 2.83421,-0.18935 4.7241,-0.81932 6.86673,-0.81864 2.14262,6.8e-4 4.53649,0.63065 6.74041,0.50397 2.20392,-0.12667 4.2198,-1.00863 9.63825,-1.13424 5.41844,-0.12562 14.23788,0.50434 23.05449,1.13409"
+         id="path1784"
+         inkscape:path-effect="#path-effect1786"
+         inkscape:original-d="m 598.33631,451.30357 c 3.7824,0.25463 7.56216,0.50662 11.33927,0.75597 1.89254,-0.62733 3.78243,-1.2573 5.66965,-1.8899 2.39649,0.6326 4.79036,1.26257 7.18156,1.8899 2.01851,-0.87932 4.0344,-1.76125 6.04761,-2.64584 8.82211,0.6326 17.64154,1.26257 26.45833,1.88987" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 601.73808,459.99704 c 2.27096,0.50465 4.53882,1.00861 6.93213,1.00806 2.39332,-5.4e-4 4.91319,-0.50451 8.69337,-0.50416 3.78017,3.5e-4 8.81986,0.50431 12.09452,0.25197 3.27466,-0.25233 4.78657,-1.26026 6.42568,-1.57471 1.63912,-0.31444 3.40302,0.0635 7.49762,0.44126 4.09461,0.37773 10.5202,0.75571 16.943,1.13352"
+         id="path1788"
+         inkscape:path-effect="#path-effect1790"
+         inkscape:original-d="m 601.73808,459.99704 c 2.27053,0.50659 4.53838,1.01057 6.80358,1.51188 2.52248,-0.50131 5.04235,-1.00529 7.55954,-1.51188 5.04232,0.50659 10.082,1.01057 15.11903,1.51188 1.51456,-1.00529 3.02647,-2.01322 4.53573,-3.02379 1.76652,0.3806 3.53041,0.75859 5.29167,1.13392 6.42823,0.38063 12.85382,0.75859 19.27677,1.13393" />
+    </g>
+    <rect
+       style="fill:url(#linearGradient2510);fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2502"
+       width="141.81667"
+       height="221.19167"
+       x="-8.7222679e-07"
+       y="26.458334"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2522"
+       style="fill:#493208;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       transform="rotate(27.328428)"
+       d="m 876.62219,-207.20514 48.68334,0 -7.31029,18.92411 -45.91,-5.00706 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2522-3"
+       style="fill:#ccc817;fill-opacity:1;stroke:none;stroke-width:1.47248;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 874.43157,220.2968 39.16743,20.10246 -12.20698,11.01071 -35.2519,-23.41523 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       sodipodi:type="star"
+       style="fill:#cc3b17;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2545"
+       sodipodi:sides="5"
+       sodipodi:cx="886.70673"
+       sodipodi:cy="232.45769"
+       sodipodi:r1="9.5735664"
+       sodipodi:r2="3.8471954"
+       sodipodi:arg1="0.59071262"
+       sodipodi:arg2="1.2190312"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 894.65799,237.78971 -6.62569,-1.72041 -3.93956,5.59818 -0.41124,-6.83305 -6.54157,-2.0168 6.37153,-2.50265 -0.10336,-6.84463 4.34907,5.28633 6.47769,-2.21341 -3.68366,5.76977 z"
+       inkscape:transform-center-x="-0.33594514"
+       inkscape:transform-center-y="0.33744564"
+       transform="matrix(0.69799178,-0.28581663,0.31615509,0.63101202,207.07777,347.82507)"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       sodipodi:type="star"
+       style="fill:#cc3b17;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2545-3"
+       sodipodi:sides="5"
+       sodipodi:cx="886.70673"
+       sodipodi:cy="232.45769"
+       sodipodi:r1="9.5735664"
+       sodipodi:r2="3.8471954"
+       sodipodi:arg1="0.59071262"
+       sodipodi:arg2="1.2190312"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       inkscape:transform-center-x="-0.32507368"
+       inkscape:transform-center-y="0.29931005"
+       transform="matrix(0.67539043,-0.25351337,0.30591782,0.55969446,217.3531,328.5981)"
+       d="m 894.65799,237.78971 -6.62569,-1.72041 -3.93956,5.59818 -0.41124,-6.83305 -6.54157,-2.0168 6.37153,-2.50265 -0.10336,-6.84463 4.34907,5.28633 6.47769,-2.21341 -3.68366,5.76977 z"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       sodipodi:type="star"
+       style="fill:#cc3b17;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2545-5"
+       sodipodi:sides="5"
+       sodipodi:cx="886.70673"
+       sodipodi:cy="232.45769"
+       sodipodi:r1="9.5735664"
+       sodipodi:r2="3.8471954"
+       sodipodi:arg1="0.59071262"
+       sodipodi:arg2="1.2190312"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       inkscape:transform-center-x="-0.068183631"
+       inkscape:transform-center-y="0.29485708"
+       transform="matrix(0.64440226,-0.08241696,0.20685921,0.46034521,256.15872,193.87465)"
+       d="m 894.65799,237.78971 -6.62569,-1.72041 -3.93956,5.59818 -0.41124,-6.83305 -6.54157,-2.0168 6.37153,-2.50265 -0.10336,-6.84463 4.34907,5.28633 6.47769,-2.21341 -3.68366,5.76977 z"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2621-4"
+       style="fill:#767d20;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 876.69752,238.35096 -13.20939,-9.70012 -42.16884,6.7067 9.54151,28.62457 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314-7-2-9"
+       style="fill:#695808;fill-opacity:1;stroke:none;stroke-width:0.531635;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 543.52672,239.15794 c -0.465,-1.50842 -0.29424,-3.07082 0.35775,-4.37752 0.65198,-1.30669 1.78519,-2.35765 3.24508,-2.84317 1.45989,-0.4855 2.97005,-0.31368 4.23148,0.35666 1.26144,0.67033 21.29062,7.56035 21.75562,9.06877 0.46498,1.50841 0.59332,3.12984 -0.0587,4.43652 -0.65198,1.30669 -2.08429,2.29865 -3.54417,2.78416 -1.4599,0.48552 -21.98651,-5.40752 -23.24794,-6.07786 -1.26146,-0.67033 -2.27416,-1.83916 -2.73916,-3.34756 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#767d20;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2664"
+       width="35.921021"
+       height="35.733932"
+       x="868.9176"
+       y="188.20688"
+       transform="rotate(6.71849)"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path2314-7-2-8"
+       style="fill:#695808;fill-opacity:1;stroke:none;stroke-width:0.531635;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 544.44261,251.48965 c -0.80137,-1.35991 -0.99673,-2.91943 -0.66474,-4.34152 0.33197,-1.42208 1.19128,-2.7067 2.49924,-3.5168 1.30795,-0.8101 2.8169,-0.99232 4.19919,-0.63201 1.38231,0.36029 13.27951,2.87974 14.08087,4.23965 0.80136,1.3599 1.30134,2.90765 0.96937,4.32972 -0.33197,1.42208 -1.49592,2.7185 -2.80387,3.5286 -1.30796,0.8101 -13.45845,-0.62432 -14.84074,-0.98463 -1.38232,-0.36029 -2.63796,-1.26311 -3.43932,-2.62301 z"
+       sodipodi:nodetypes="sssssssss"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#b93700;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2666"
+       width="33.114693"
+       height="6.9222808"
+       x="864.87292"
+       y="175.77184"
+       transform="rotate(6.8310614)"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2576"
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 786.33433,220.05583 11.11982,-0.10684 5.02708,3.88851 -23.25627,1.14637 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2666-1"
+       style="fill:#adb900;fill-opacity:1;stroke:none;stroke-width:1.46086;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       transform="matrix(0.97509371,0.22179328,-0.06296449,0.99801577,0,0)"
+       d="m 864.76489,85.765137 17.90675,-1.862761 -0.21422,6.983373 -18.08656,1.853769 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2576-3"
+       style="fill:#ccc817;fill-opacity:1;stroke:none;stroke-width:1.34399;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 787.98303,220.86418 7.93983,0.12789 4.37756,2.5288 -18.95323,0.6352 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2666-1-4"
+       style="fill:#001ab9;fill-opacity:1;stroke:none;stroke-width:1.45142;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 848.16136,278.6882 7.24333,0.81833 -0.64859,6.92201 -7.13747,-0.91396 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2753"
+       style="fill:url(#linearGradient2832);fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 399.62139,-1.6379422e-6 535.82194,-1.496711 -1.0690781,0 v 483.65833 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2621"
+       style="fill:#767d20;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 789.14005,225.44184 13.34118,-1.60434 18.83806,11.52004 -10.66404,27.12786 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect2753-6"
+       style="fill:url(#linearGradient2840);fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 563.61797,0 427.41744,-1.496713 964.30847,0 v 483.65832 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#b90000;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2720"
+       cx="795.26715"
+       cy="222.44843"
+       rx="1.2628485"
+       ry="0.93544334"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#b90000;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2720-6"
+       cx="791.19794"
+       cy="222.35489"
+       rx="1.2628485"
+       ry="0.93544334"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:#b90000;fill-opacity:1;stroke:none;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2720-2"
+       cx="787.54974"
+       cy="222.1678"
+       rx="1.2628485"
+       ry="0.93544334"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <ellipse
+       style="fill:url(#radialGradient2784);fill-opacity:1;stroke:none;stroke-width:2.10059;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path2776"
+       cx="477.30832"
+       cy="491.06668"
+       rx="486.83331"
+       ry="114.3" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:#c8720d;stroke-width:0.446148;stroke-opacity:0"
+       id="rect1289-3"
+       width="965.9314"
+       height="96.129425"
+       x="-1.3459966"
+       y="483.38141"
+       inkscape:export-filename="D:\python_game\Biohazard\image\animation\a4_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+  </g>
+</svg>

@@ -1934,6 +1934,7 @@ def animation(N):
             if i == 2:
                 s = pygame.mixer.Sound("son/phone.ogg")
                 s.play()
+
         indK = 0
         linenumber = 0
         for ci in range(len(anim)):
@@ -1950,6 +1951,48 @@ def animation(N):
             pygame.time.wait(50)
             pygame.display.flip()
 
+        return 1
+    if N == 4:
+        fenetre.fill((0,0,0))
+        fontH = pygame.font.Font('freesansbold.ttf', int(18 * window[0] / (12 * scrnL[0])))
+        anim = 'General Fisher: Here is your next mission, you will go to this abandonned mine and track the Viper organisation. from the archives you recovered, it appears that this unknown group infiltrated the biolab and created all these giant bugs. Understood!'
+
+        IMLOAD = pygame.transform.scale(pygame.image.load('image/animation/a4_0.png'),
+                                        (window[0], int(window[1] * 1.2)))
+        IMLOAD.set_colorkey((0,0,0))
+        IMLOAD2 = pygame.transform.scale(pygame.image.load('image/animation/a4_1.png'),
+                                        (window[0], int(window[1] * 1.2)))
+        IMLOAD2.set_colorkey((0, 0, 0))
+        IMLOAD3 = pygame.transform.scale(pygame.image.load('image/animation/a4_2.png'),
+                                        (window[0], int(window[1] * 1.2)))
+        IMLOAD3.set_colorkey((0, 0, 0))
+        linenumber = 0
+        indK = 0
+        for i in range(len(anim)+50):
+            if i%10==0:
+                fenetre.blit(IMLOAD, (0, 0))
+            if i % 10 == 5 and i<len(anim):
+                if i<5*10 or i>10*10:
+                    fenetre.blit(IMLOAD2, (0, 0))
+                else:
+                    fenetre.blit(IMLOAD3, (0, 0))
+
+
+            if i<len(anim):
+                text = fontH.render(anim[i], True, (255, 255, 255))
+                text2 = fontH.render(anim[indK:i], True, (255, 255, 255))
+                textRect = text2.get_rect()
+                fenetre.blit(text, (
+                    int(window[0] * 0.05 + textRect[2]),
+                    int(window[1] * 1.01 + 18 * window[0] / (12 * scrnL[0]) * linenumber)))
+
+                if textRect[2] > int(0.9 * window[0]):
+                    indK = i
+                    linenumber += 1
+
+
+            pygame.display.flip()
+            pygame.time.wait(50)
         return 1
     return 0
 
