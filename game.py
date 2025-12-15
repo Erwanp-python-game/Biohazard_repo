@@ -71,10 +71,10 @@ setting['smooth'] = False
 destr = [0, 4, 6,11]
 level = 5
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
-               'Level 4: The Manor','Level 5: The Caves']
-level_arme = [1, 2, 2, 2, 3,4]  # last 3
-level_end = [5, 7, 8, 6, 6,4]
-level_start = [1, 2, 1, 1, 1,1]
+               'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
+level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
+level_end = [5, 7, 8, 6, 6,4,99]
+level_start = [1, 2, 1, 1, 1,1,1]
 for i in range(100 - len(level_arme)):
     level_arme.append(5)
     level_end.append(0)
@@ -1954,7 +1954,7 @@ def animation(N):
     return 0
 
 
-modif_game = ['0_1', '0_V2', '1_2', '1_6', '2_1', '2_6', '3_2', '3_3', '3_4', '3_G99', '4_2', '4_3', '4_4','5_2','5_1','5_8']
+modif_game = ['0_1', '0_V2', '1_2', '1_6', '2_1', '2_6', '3_2', '3_3', '3_4', '3_G99', '4_2', '4_3', '4_4','5_2','5_1','5_8','5_7']
 
 tutotxt = []
 tutotxt.append('Use the arrow keys to move and leftclick to attack')
@@ -2061,6 +2061,15 @@ def change_game(num):
         activatedT.append(Trig_liste[6][1])
     if num == '5_8':
         activatedT.remove(Trig_liste[6][1])
+    if num == '5_8':
+        logL.append('doc picked')
+        s = pygame.mixer.Sound("son/plop_special.ogg")
+        s.play()
+        docs.insert(0, 'page28.png')
+        docs.insert(0, 'page27.png')
+        docs.insert(0, 'page26.png')
+        docs.insert(0, 'page25.png')
+        docs.insert(0, 'journal.png')
 
 Xmap_, Ymap_ = np.indices((500, 500))
 

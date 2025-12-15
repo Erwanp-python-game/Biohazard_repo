@@ -4,7 +4,7 @@
 4:"Me: Ok, I'll wait for the lizard to come and pick the container",
 5:"Me: Hmm, this pillar is weird. This old mosaic looks like the biolab logo.",
 6:"Me: Wow, this is impressive!",
-7:"Captured Scientist: Here's my journal, have a look at the plan at page 26",
+7:"Captured Scientist: Here's my journal, have a look at the plan at page 26-28",
 8:"Me: Ok I've got the card, let's free the scientist.",
 9:"Me: This wall at the end of the tunnel seems cracked, maybe I can break it.",
 'V1':"Captured Scientist: Please, help me, the previous guy tried to flee leaving me here but he died !",
@@ -12,5 +12,5 @@
 'V2':"Me: Ok so there are lizard men ! I guess they are behind the Viper organisation",
 'G2':"Me: At least they die as well...",
 'V3':"Me: This guy has an energy shield !",
-'G2':" "
+'G3':" "
 }
