@@ -69,7 +69,7 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 5
+level = 6
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -1955,7 +1955,7 @@ def animation(N):
     if N == 4:
         fenetre.fill((0,0,0))
         fontH = pygame.font.Font('freesansbold.ttf', int(18 * window[0] / (12 * scrnL[0])))
-        anim = 'General Fisher: Here is your next mission, you will go to this abandonned mine and track the Viper organisation. from the archives you recovered, it appears that this unknown group infiltrated the biolab and created all these giant bugs. Understood!'
+        anim = 'General Fisher: Here is your next mission, you will go to this abandonned mine and track the Viper organisation. From the archives you recovered, it appears that this unknown group infiltrated the biolab and created all these giant bugs. Understood!'
 
         IMLOAD = pygame.transform.scale(pygame.image.load('image/animation/a4_0.png'),
                                         (window[0], int(window[1] * 1.2)))
@@ -1993,6 +1993,64 @@ def animation(N):
 
             pygame.display.flip()
             pygame.time.wait(50)
+        return 1
+    if N == 5:
+        IMLOAD = pygame.transform.scale(pygame.image.load('image/animation/a5_0.png'),
+                                        (int(1.2*window[0]), int(1.2*window[1] * 1.2)))
+        IMLOAD.set_colorkey((0, 0, 0))
+        t=np.linspace(0,1.,300)
+        t0=0.5
+        sig=0.15
+        a_rand=np.random.random(300)
+        shake0=np.sin(2*pi*t*a_rand*10)*np.exp(-(t-t0)**2/sig**2)*a_rand
+        a_rand = np.random.random(300)
+        shake1 = np.sin(2 * pi * t * a_rand * 10) * np.exp(-(t - t0) ** 2 / sig ** 2) * a_rand
+        # plt.plot(shake0)
+        # plt.plot(shake1)
+        # plt.show()
+        for i in range(300):
+            fenetre.fill((0,0,0))
+
+
+
+
+            fenetre.blit(IMLOAD, (int(10*shake0[i]), int(10*shake1[i])))
+
+            pygame.display.flip()
+            pygame.time.wait(1)
+        sig=0.5
+        shake3 = (np.sin(2 * pi * t*3 ) * np.exp(-(t - t0) ** 2 / sig ** 2))*360/(2*pi)
+        shake4 = -(np.sin(2 * pi * t*3 )**2 * np.exp(-(t - t0) ** 2 / sig ** 2))*360/(2*pi)
+        # plt.plot(shake3)
+        # plt.plot(shake4)
+        # plt.show()
+        for i in range(300):
+            fenetre.fill((0,0,0))
+
+
+
+
+            fenetre.blit(IMLOAD, (int(0.2*shake3[i]), int(0.2*shake4[i])))
+
+            pygame.display.flip()
+            pygame.time.wait(1)
+        t = np.linspace(0, 1., 300)
+        t0 = 0.25
+        sig = 0.15
+        a_rand = np.random.random(300)
+        shake0 = np.sin(2 * pi * t * a_rand * 10) * np.exp(-(t - t0) ** 2 / sig ** 2) * a_rand
+        a_rand = np.random.random(300)
+        shake1 = np.sin(2 * pi * t * a_rand * 10) * np.exp(-(t - t0) ** 2 / sig ** 2) * a_rand
+        # plt.plot(shake0)
+        # plt.plot(shake1)
+        # plt.show()
+        for i in range(300):
+            fenetre.fill((0, 0, 0))
+
+            fenetre.blit(IMLOAD, (int(10 * shake0[i]), int(10 * shake1[i])))
+
+            pygame.display.flip()
+            pygame.time.wait(1)
         return 1
     return 0
 
