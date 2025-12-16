@@ -1,12 +1,13 @@
 
 
 objects on moving background (finish)
-shield recalculated in walk things
-+ improve speed by removing make surfarray as preprocess out of objects
+
 rescale grenade icon
 grenade color
-improve rendering in case of liquid floor and maybe torche
 
+improve rendering in case of liquid floor and maybe torche
+shield recalculated in walk things
++ improve speed by removing make surfarray as preprocess out of objects
 
 ----------------------------------
 low priority:

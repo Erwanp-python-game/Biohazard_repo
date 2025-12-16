@@ -69,7 +69,7 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 6
+level = 5
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -314,6 +314,15 @@ class Wall():
                 self.a_middle[:, :, 1] = self.a_old[:, :, 1] + np.sin(self.angle0) * np.cos(angle1) * (2.5)
                 self.X_middle[:,:,0]=self.X[:,:,0]-np.sin(self.angle0)*np.sin(angle1)*(2.5)
                 self.X_middle[:, :, 1] = self.X[:, :, 1] - np.sin(self.angle0) * np.cos(angle1) * (2.5)
+
+        self.a_sliced = self.a[::2, ::2]
+        self.b_sliced = self.b[::2, ::2]
+        self.X_sliced = self.X[::2, ::2]
+        h, w, _ = self.a_sliced.shape
+        if not hasattr(self, "_M"):
+            h, w, _ = self.a_sliced.shape
+            self._M = np.empty((h, w, 3, 3), dtype=np.float64)
+            self._B = np.empty((h, w, 3), dtype=np.float64)
 
         self.Ub = np.empty_like(depth[:,:,0]).astype(bool)
 
@@ -580,12 +589,26 @@ class Wall():
         self.time=(0,0)
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
-        self.M = np.stack((self.a[::2, ::2, :] * 1.01, self.b[::2, ::2, :] * 1.01, -screenV[::2, ::2, :]), axis=-1)
-        self.B = -self.X[::2, ::2, :] + screenP[::2, ::2, :]
+        # self.M = np.stack((self.a[::2, ::2, :] * 1.01, self.b[::2, ::2, :] * 1.01, -screenV[::2, ::2, :]), axis=-1)
+        # self.B = -self.X[::2, ::2, :] + screenP[::2, ::2, :]
+        #
+        # # self.S=(np.linalg.solve(self.M.astype(np.float32),self.B.astype(np.float32)))
+        # inv_M = np.linalg.inv(self.M)
+        # self.S = np.einsum('...ij,...j->...i', inv_M, self.B)
 
-        # self.S=(np.linalg.solve(self.M.astype(np.float32),self.B.astype(np.float32)))
-        inv_M = np.linalg.inv(self.M)
-        self.S = np.einsum('...ij,...j->...i', inv_M, self.B)
+
+        M = self._M
+        B = self._B
+        M[..., 0] = self.a_sliced * 1.01
+        M[..., 1 ] = self.b_sliced * 1.01
+        M[..., 2] = -v_
+
+        # --- fill B in-place ---
+        B[...] = p_ - self.X_sliced
+
+        # --- solve batched 3x3 systems ---
+        self.S = np.linalg.solve(M, B)
+
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('solving')
 
@@ -630,6 +653,7 @@ class Wall():
                     s.play()
                 if self.vie==3:
                     self.X=self.X*0
+                    self.X_sliced = self.X[::2, ::2]
                     self.X_middle = self.X_middle * 0
             #print(self.breakable(),self.text,self.deco,levelD[level]['deco'][self.deco - 1])
         milliseconds.append(time.perf_counter()*1000)
@@ -720,16 +744,15 @@ class Wall():
             self.Ub[:] = self.U  # already boolean so no .astype(bool)
 
             # 4) Vectorized Xl construction (remove expand_dims, use broadcasting)
-            self.S0_[:] = self.S[::2, ::2, 0]
-            self.S1_[:] = self.S[::2, ::2, 1]
-
-            self.Xl_small[:] = (self.S0_[..., None] * (self.a * 1.01) +
-                        self.S1_[..., None] * (self.b * 1.01) +
-                        self.X)
+            self.Xl_small[:] = (
+                    self.S[::2, ::2, 0, None] * (self.a * 1.01) +
+                    self.S[::2, ::2, 1, None] * (self.b * 1.01) +
+                    self.X
+            )
 
             # Upscale 2× using np.repeat once (repeat twice is slow)
 
-            self.Xl[self.Ub] = cv2.resize(self.Xl_small,None,fx=2,fy=2,interpolation=cv2.INTER_LINEAR)[self.Ub]
+            self.Xl = cv2.resize(self.Xl_small,None,fx=2,fy=2,interpolation=cv2.INTER_LINEAR)
 
             # 5) Make D fast
             self.Da[:] =1000.#
@@ -1627,10 +1650,9 @@ def draw_AMMO():
             textRect = text.get_rect()
             textRect.topleft = (int(0.8 * window[0]), window[1] + int((0.05 * i + 0.025) * window[1]))
             fenetre.blit(text, textRect)
-    print(AMMO[3])
     if TotAr>4:
         pygame.draw.line(fenetre, (50, 50, 50), (int(0.97 * window[0]),window[1] + int((0.025 * 0 + 0.01) * window[1]) ),
-                         (int(0.97 * window[0]), window[1] + int((0.025 * 7 + 0.01) * window[1]) ), 20)
+                         (int(0.97 * window[0]), window[1] + int((0.025 * 6 + 0.01) * window[1]) ), 20)
         for i in range(AMMO[3]):
             fenetre.blit(nades,(int(0.96 * window[0]), window[1] + int((0.025 * i + 0.01) * window[1])))
 
@@ -2802,7 +2824,7 @@ if level==6:
 
 
 while running == 1:
-    moving_cam = False
+    moving_cam = True
     milliseconds = [time.perf_counter()*1000]
     fire = 0
     key = pygame.key.get_pressed()
@@ -3122,12 +3144,14 @@ while running == 1:
                     code_show = 0
 
             i.X = np.maximum(Ri - [0., 0., 3], [-10000, -10000, -14.5 + shift])
+            i.X_sliced = i.X[::2, ::2]
             if i.closed:
                 porteson.play()
             i.closed = 0
         else:
             if (Ri)[0][0][-1] < -5. + shift:
                 i.X = np.minimum(Ri + [0., 0., 3], [10000, 10000, -5 + shift])
+                i.X_sliced = i.X[::2, ::2]
             if (Ri)[0][0][-1] < -4.5 + shift:
                 i.closed = 1
         for j in ennemies[0:5]:
@@ -3138,7 +3162,7 @@ while running == 1:
                 if ((j.x0[0] - (0.5 * i.b[0][0][0] + i.X[0][0][0])) ** 2 + (j.x0[1] - (0.5 * i.b[0][0][1] + i.X[0][0][
                     1])) ** 2) ** 0.5 < 10:  # LIMITATION PORTE TAILLE 2 FULL CASES EDITEUR ET DISTANCE D'UNE FULL CASE ENTRE DEUX PORTES
                     i.X = np.maximum(Ri - [0., 0., 9], [-10000, -10000, -14.5 + shift])
-
+                    i.X_sliced = i.X[::2, ::2]
                     # if i.closed:
                     # porteson.play()
                     i.closed = 0
@@ -3157,7 +3181,8 @@ while running == 1:
 
 
     if moving_cam == True:
-
+        v_ = screenV[::2, ::2]
+        p_ = screenP[::2, ::2]
         Sky_view = 0
         IS = []
         empty_pixel_count=128000
@@ -3190,8 +3215,9 @@ while running == 1:
                     # Im = i.render() + Im * (1 - np.expand_dims(i.U, -1))
 
                     empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
-
+                    #print(i.time[0])
                     if render_w==1 :#and c3==1:
+
                         time_in_render=i.time[0]
                         label_t_render=i.time[1]
                     else:
@@ -3504,7 +3530,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('end')
 
-    if c3 % 100 == 2:
+    if c3 % 500 == 2:
         milliT = np.expand_dims(milliseconds, -1)
     else:
         if c3!=1:
@@ -3518,8 +3544,8 @@ while running == 1:
     # if len(time_tot)>10:
     #     print('fps',1000/np.mean(time_tot[-10:]),render_w)
 
-    if (c3-1) % 100 == 99 :
-        averaged_time = np.round(averaged_time / 100, 1)
+    if (c3-1) % 500 == 499 :
+        averaged_time = np.round(averaged_time / 500, 1)
         milliseconds = np.mean(milliT, axis=-1)
         timelist = averaged_time#np.round((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], 1)
         sortingtime = [(x, str(y) + ' ms', str(round(100 * y / np.sum(timelist), 1)) + ' %') for y, x in
@@ -3529,7 +3555,8 @@ while running == 1:
         print('average,framerate', round(1000 / np.sum(averaged_time), 1), '/s | average time',
               round(np.sum(averaged_time), 1), 'ms')
         print(sortingtime)
-        print('detail on wall rendering',np.sum(time_in_render),time_in_render, label_t_render)
+        print('detail on wall rendering',np.sum(time_in_render),time_in_render/render_w, label_t_render)
+        print('per_wall',np.sum(time_in_render)/render_w,render_w)
         print('*-----------*')
         ttt = []
 
