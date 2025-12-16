@@ -69,11 +69,11 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 6
+level = 5
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
-level_end = [5, 7, 8, 6, 6,4,99]
+level_end = [5, 7, 8, 6, 6,10,99]
 level_start = [1, 2, 1, 1, 1,1,1]
 for i in range(100 - len(level_arme)):
     level_arme.append(5)
@@ -379,7 +379,13 @@ class Wall():
                 (self.X_middle[0][0] + V[0] * self.a_old[0][0] + V[1] * self.b_old[0][0])[:-1] - (
                             R_c[:-1] ))
 
-
+        # if self.text.split('/')[1]=='flat':
+        #     add0=np.linalg.norm(self.X[0][0][:-1]-R_c[:-1])
+        #     add1 = np.linalg.norm(self.X[0][0][:-1] - R_c[:-1])
+        #     add2 = np.linalg.norm(self.X[0][0][:-1] - R_c[:-1])
+        #     add3 = np.linalg.norm(self.X[0][0][:-1] - R_c[:-1])
+        #     self.add=(add0+add1+add2+add3)/4
+        #     self.norm+=self.add*1e-3
         self.inter=V
 
     def calc_normfast(self):
@@ -1997,6 +2003,8 @@ def animation(N):
     if N == 5:
         IMLOAD = pygame.transform.scale(pygame.image.load('image/animation/a5_0.png'),
                                         (int(1.2*window[0]), int(1.2*window[1] * 1.2)))
+        IMLOAD_b = pygame.transform.scale(pygame.image.load('image/animation/a5_1.png'),
+                                        (int(1.2*window[0]), int(1.2*window[1] * 1.2)))
         IMLOAD.set_colorkey((0, 0, 0))
         t=np.linspace(0,1.,300)
         t0=0.5
@@ -2005,17 +2013,19 @@ def animation(N):
         shake0=np.sin(2*pi*t*a_rand*10)*np.exp(-(t-t0)**2/sig**2)*a_rand
         a_rand = np.random.random(300)
         shake1 = np.sin(2 * pi * t * a_rand * 10) * np.exp(-(t - t0) ** 2 / sig ** 2) * a_rand
-        # plt.plot(shake0)
-        # plt.plot(shake1)
-        # plt.show()
+
         for i in range(300):
             fenetre.fill((0,0,0))
 
 
+            if i==75:
+                s = pygame.mixer.Sound("son/container.ogg")
+                s.play()
 
+            fenetre.blit(IMLOAD, (-int(.1*window[0])+int(10*shake0[i]), int(10*shake1[i])-int(.1*window[0])))
 
-            fenetre.blit(IMLOAD, (int(10*shake0[i]), int(10*shake1[i])))
-
+            fenetre.blit(IMLOAD_b, (-int(.1 * window[0]) + int(10 * shake0[max(i-10,0)]), int(10 * shake1[max(i-10,0)])-int(.1*window[0])))
+            pygame.draw.rect(fenetre, (0, 0, 0), (0, 0.5 * window[0], window[0], 0.25 * window[1]))
             pygame.display.flip()
             pygame.time.wait(1)
         sig=0.5
@@ -2028,10 +2038,13 @@ def animation(N):
             fenetre.fill((0,0,0))
 
 
+            if i==0:
+                s = pygame.mixer.Sound("son/grince.ogg")
+                s.play()
 
-
-            fenetre.blit(IMLOAD, (int(0.2*shake3[i]), int(0.2*shake4[i])))
-
+            fenetre.blit(IMLOAD, (-int(.1*window[0])+int(0.3*shake3[i]), int(0.2*shake4[i])-int(.1*window[0])))
+            fenetre.blit(IMLOAD_b, (-int(.1 * window[0]) + int(0.3 * shake3[max(i-10,0)]), int(0.2 * shake4[max(i-1,0)])-int(.1*window[0])))
+            pygame.draw.rect(fenetre, (0, 0, 0), (0, 0.5 * window[0], window[0], 0.25 * window[1]))
             pygame.display.flip()
             pygame.time.wait(1)
         t = np.linspace(0, 1., 300)
@@ -2041,16 +2054,40 @@ def animation(N):
         shake0 = np.sin(2 * pi * t * a_rand * 10) * np.exp(-(t - t0) ** 2 / sig ** 2) * a_rand
         a_rand = np.random.random(300)
         shake1 = np.sin(2 * pi * t * a_rand * 10) * np.exp(-(t - t0) ** 2 / sig ** 2) * a_rand
-        # plt.plot(shake0)
-        # plt.plot(shake1)
-        # plt.show()
+
         for i in range(300):
+            if i==0:
+                s = pygame.mixer.Sound("son/container.ogg")
+                s.play()
             fenetre.fill((0, 0, 0))
 
-            fenetre.blit(IMLOAD, (int(10 * shake0[i]), int(10 * shake1[i])))
-
+            fenetre.blit(IMLOAD, (-int(.1*window[0])+int(10 * shake0[i]), int(10 * shake1[i])-int(.1*window[0])))
+            fenetre.blit(IMLOAD_b, (-int(.1 * window[0]) + int(10 * shake0[max(i-10,0)]), int(10 * shake1[max(i-10,0)])-int(.1*window[0])))
+            pygame.draw.rect(fenetre, (0, 0, 0), (0, 0.5 * window[0], window[0], 0.25 * window[1]))
             pygame.display.flip()
             pygame.time.wait(1)
+
+
+        fontH = pygame.font.Font('freesansbold.ttf', int(32 * window[0] / (12 * scrnL[0])))
+        anim = 'Ok, it stopped moving, I must have arrived to the lizard men city ! Let s get out of here !'
+        linenumber = 0
+        indK = 0
+        for i in range(len(anim)+50):
+            if i<len(anim):
+                text = fontH.render(anim[i], True, (255, 255, 255))
+                text2 = fontH.render(anim[indK:i], True, (255, 255, 255))
+                textRect = text2.get_rect()
+                fenetre.blit(text, (
+                    int(window[0] * 0.05 + textRect[2]),
+                    int(window[1] * 1.01 + 32 * window[0] / (12 * scrnL[0]) * linenumber)))
+
+                if textRect[2] > int(0.9 * window[0]):
+                    indK = i
+                    linenumber += 1
+
+
+            pygame.display.flip()
+            pygame.time.wait(50)
         return 1
     return 0
 
@@ -2159,10 +2196,11 @@ def change_game(num):
         AMMO[3] += 5
 
     if num == '5_1':
-        activatedT.append(Trig_liste[6][1])
+        print(Trig_liste)
+        activatedT.append(Trig_liste[5][1])
     if num == '5_8':
-        activatedT.remove(Trig_liste[6][1])
-    if num == '5_8':
+        activatedT.remove(Trig_liste[5][1])
+    if num == '5_7':
         logL.append('doc picked')
         s = pygame.mixer.Sound("son/plop_special.ogg")
         s.play()
@@ -2459,7 +2497,7 @@ def load_level(level_name):
         #LAND0_im.set_colorkey((0, 255, 255))
     TotAr = level_arme[level]
     v = 0
-    skip = False
+    skip = True
     activatedT = []
     if not skip:
         b = animation(level - 1)
@@ -2576,8 +2614,9 @@ def load_level(level_name):
         a = 2 * i[0]
         b = 2 * i[1]
         x1 = 2 * i[2]
-        x2 = 2 * i[2] + [0, 0, 10]
+
         H = i[3]
+        x2 = 2 * i[2] + [0, 0, 10+H*0.001]
         im = 'image/flat/roof' + str(levelD[level]['flat'][i[4]]) + '.png'
         wall.append(Wall(list(a), list(b), list(x1 + [0, 0, -H]), [im, im, i[2][2]], 0, 0, 1, 0,0))
         if i[4] == 9:
@@ -3068,6 +3107,8 @@ while running == 1:
     time_in_behind=0.
     add_h=[]
 
+
+
     if moving_cam == True:
 
         Sky_view = 0
@@ -3114,7 +3155,7 @@ while running == 1:
                     IS.append(i)
 
 
-            if empty_pixel_count < 8 or i.norm > 150 or ci==wall_count-1:
+            if (empty_pixel_count < 8 ) or i.norm > 150 or ci==wall_count-1:
                 if empty_pixel_count>5:
 
                     for j in add_h:
@@ -3126,7 +3167,6 @@ while running == 1:
             elastic_count+=10
         else:
             elastic_count = max(elastic_count-10,0)
-
 
 
     if moving_cam == True:
@@ -3420,8 +3460,8 @@ while running == 1:
     time_wall.append(np.sum(time_in_render))
     time_behind.append(np.sum(time_in_behind))
     time_tot.append(milliseconds[-1]-milliseconds[0])
-    # if len(time_tot)>10:
-    #     print('fps',1000/np.mean(time_tot[-10:]))
+    if len(time_tot)>10:
+        print('fps',1000/np.mean(time_tot[-10:]),render_w)
 
     if (c3-1) % 1000 == 999 :
         averaged_time = np.round(averaged_time / 1000, 1)

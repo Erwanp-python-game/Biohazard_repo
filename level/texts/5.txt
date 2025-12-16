@@ -1,7 +1,7 @@
 {1:"Scientist: Ok, so the archives pointed out that a lot of equipment and people were moved to this abandoned mine, you've got to enter it and find out why. Again we sent some guys before you but we lost contact. You'll see that we gave you a bit more artillery this time.",
 2:"Me: Hoho this guy had some grenades, I'll take the ones left !",
 3:"Captured Scientist: I've been captured by the lizard men and working for them for 2 years. Now they are fleeing this outpost since you guys are storming in. Free me and I'll give you my notes about them and a plan to infiltrate their city.",
-4:"Me: Ok, I'll wait for the lizard to come and pick the container",
+10:"Me: Ok, I'll wait for the lizard to come and pick the container",
 5:"Me: Hmm, this pillar is weird. This old mosaic looks like the biolab logo.",
 6:"Me: Wow, this is impressive!",
 7:"Captured Scientist: Here's my journal, have a look at the plan at page 26-28",
