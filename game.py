@@ -904,6 +904,8 @@ class Thing():
             self.shield = 0
         else:
             self.shield = 1
+        self.preprocess_walk()
+        self.preprocess_attack()
 
     def calc_norm(self):
 
@@ -921,9 +923,37 @@ class Thing():
             self.im = np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
             self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
 
+    def preprocess_walk(self):
+        dict0 = {}
+        for c_ in range(4):
+            dict1={}
+            for angle_ in range(8):
+                dict1[angle_*45]=np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c_][45*angle_]), 255)
+            dict0[c_]=dict1.copy()
+        self.im_dict=dict0.copy()
+
+        dict0 = {}
+        for c_ in range(4):
+            dict1={}
+            for angle_ in range(8):
+                dict1[angle_*45]=np.where(np.sum(self.im_dict[c_][45*angle_], axis=-1) != 0, 1, 0)
+            dict0[c_]=dict1.copy()
+        self.vis_dict=dict0.copy()
+
+    def preprocess_attack(self):
+        dict0 = {}
+        for c_ in range(8):
+            dict0[c_]=np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][c_]), 255)
+        self.im_dict_attack=dict0.copy()
+        dict0 = {}
+        for c_ in range(8):
+            dict0[c_]=np.where(np.sum(self.im_dict_attack[c_], axis=-1) != 0, 1, 0)
+        self.vis_dict_attack=dict0.copy()
+
     def walk(self):
-        self.im = np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
-        self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+
+        self.im = self.im_dict[c//3][self.angle]#np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
+        self.vis = self.vis_dict[c//3][self.angle]#np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
         if self.type_M == 6 and self.shield == 0:
             im=MD[self.type_M][c // 3][self.angle].copy()
             if c%2:
@@ -1037,11 +1067,13 @@ class Thing():
         label_m=[]
         if self.attack_range and self.active and self.vie > 0:
             if self.range == 0:
-                self.im = np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][c // 4]), 255)
+                self.im = self.im_dict_attack[c//4]#np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][c // 4]), 255)
+                self.vis=self.vis_dict_attack[c//4]
             else:
-                self.im = np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][c2 // 8]), 255)
-
-            self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+                # np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][c2 // 8]), 255)
+                # self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+                self.im = self.im_dict_attack[c2//8]
+                self.vis=self.vis_dict_attack[c2//8]
 
             if self.type_M==6 and self.shield==0:
                 if self.range == 0:
@@ -1051,16 +1083,17 @@ class Thing():
                 im.blit(shield,(0,0))
                 self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
                 self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('attack')
         if (self.inline and shoot == 2 and (self.attack_range or arme != 0)) and self.vie > 0 and arme != 4:
-            self.im = np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][4]), 255)
+            self.im = self.im_dict_attack[4]#np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][4]), 255)
             if self.type_M==6 and self.shield==0:
                 im=MDa[self.type_M][4].copy()
                 im.blit(shield,(0,0))
                 self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
-
-            self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+            self.vis = self.vis_dict_attack[4]
+            #self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
             if shoot:
                 if arme==2:
                     nb_bullets=5
@@ -1094,8 +1127,8 @@ class Thing():
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('hit and move')
         if self.vie <= 0:
-            self.im = np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][4 + int(self.mort)]), 255)
-            self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+            self.im = self.im_dict_attack[4 + int(self.mort)]#np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][4 + int(self.mort)]), 255)
+            self.vis = self.vis_dict_attack[4 + int(self.mort)]#np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
             if self.mort < 4:
                 self.mort = min(self.mort + 0.5, 3)
             if self.mort == 0.5:
@@ -1168,7 +1201,8 @@ class Thing():
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('inline')
         self.time = ((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], label_m)
-        #print(np.round(self.time[0]*1000,1),self.time[1],np.round(1000*np.sum(self.time[0])))
+        # if self.type_M!=6:
+        #     print(np.round(self.time[0]*1000,1),self.time[1],np.round(1000*np.sum(self.time[0])))
         return Ar
 
 import matplotlib.pyplot as plt
@@ -2196,7 +2230,7 @@ def change_game(num):
         AMMO[3] += 5
 
     if num == '5_1':
-        print(Trig_liste)
+        # print(Trig_liste)
         activatedT.append(Trig_liste[5][1])
     if num == '5_8':
         activatedT.remove(Trig_liste[5][1])
@@ -2744,7 +2778,7 @@ time_behind = []
 plot_stats=False
 sensitivity=500
 movement=0
-
+render_w_old=0
 if level==6:
     op=[]
     for i in range(10):
@@ -3130,12 +3164,13 @@ while running == 1:
                     if len(add_h)<2:
                         add_h.append(i)
                     devant = False
-                    if CLOSED != 0:  # and h_wall.index(i)<=6: # INSTEAD CHECK IF ASSOCIATED DOOR WITH THIS FLOOR IS OPEN AND VISIBLE---COMPLICATED
-                        devant = True
+                    # if CLOSED != 0:  # and h_wall.index(i)<=6: # INSTEAD CHECK IF ASSOCIATED DOOR WITH THIS FLOOR IS OPEN AND VISIBLE---COMPLICATED
+                    #     devant = True
             render_w2 += 1
 
             if devant:
                 render_w += 1
+
                 if i.text[11:-3] not in liquid_floor:
                     rend=i.render()
                     Im[i.Ub]=rend[i.Ub]
@@ -3149,7 +3184,14 @@ while running == 1:
                     else:
                         time_in_render+=i.time[0]
                         label_t_render = i.time[1]
-
+                    # if render_w_old > 8 and c3 % 40 == 0:
+                    #     print(i.text,i.norm)
+                    #     plt.imshow(Im / 255)
+                    #     plt.show()
+                    #     plt.imshow(depth)
+                    #     plt.show()
+                    #     plt.plot(horizon)
+                    #     plt.show()
 
                 else:
                     IS.append(i)
@@ -3167,8 +3209,8 @@ while running == 1:
             elastic_count+=10
         else:
             elastic_count = max(elastic_count-10,0)
-
-
+    render_w_old=render_w
+    # print(render_w,render_w2,empty_pixel_count)
     if moving_cam == True:
         Im_cached = Im
         depth_cached = depth
@@ -3449,7 +3491,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('end')
 
-    if c3 % 1000 == 2:
+    if c3 % 100 == 2:
         milliT = np.expand_dims(milliseconds, -1)
     else:
         if c3!=1:
@@ -3460,11 +3502,11 @@ while running == 1:
     time_wall.append(np.sum(time_in_render))
     time_behind.append(np.sum(time_in_behind))
     time_tot.append(milliseconds[-1]-milliseconds[0])
-    if len(time_tot)>10:
-        print('fps',1000/np.mean(time_tot[-10:]),render_w)
+    # if len(time_tot)>10:
+    #     print('fps',1000/np.mean(time_tot[-10:]),render_w)
 
-    if (c3-1) % 1000 == 999 :
-        averaged_time = np.round(averaged_time / 1000, 1)
+    if (c3-1) % 100 == 99 :
+        averaged_time = np.round(averaged_time / 100, 1)
         milliseconds = np.mean(milliT, axis=-1)
         timelist = averaged_time#np.round((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], 1)
         sortingtime = [(x, str(y) + ' ms', str(round(100 * y / np.sum(timelist), 1)) + ' %') for y, x in

@@ -1,7 +1,8 @@
 
 
 objects on moving background (finish)
-
+shield recalculated in walk things
++ improve speed by removing make surfarray as preprocess out of objects
 
 
 
