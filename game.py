@@ -69,7 +69,7 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 5
+level = 6
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -1618,14 +1618,22 @@ def draw_hud():
 
 def draw_AMMO():
     for i in range(3):
-        u = [100, 100, 100]
-        u[i] = 250
-        pygame.draw.line(fenetre, (50, 50, 50), (int(0.8 * window[0]), window[1] + int((0.05 * i + 0.04) * window[1])),
-                         (int(0.95 * window[0]), window[1] + int((0.05 * i + 0.04) * window[1])), 20)
-        text = font.render('AMMO type ' + str(i) + '   ' + str(AMMO[i]), True, tuple(u))
-        textRect = text.get_rect()
-        textRect.topleft = (int(0.8 * window[0]), window[1] + int((0.05 * i + 0.025) * window[1]))
-        fenetre.blit(text, textRect)
+        if TotAr-1>i:
+            u = [100, 100, 100]
+            u[i] = 250
+            pygame.draw.line(fenetre, (50, 50, 50), (int(0.8 * window[0]), window[1] + int((0.05 * i + 0.04) * window[1])),
+                             (int(0.95 * window[0]), window[1] + int((0.05 * i + 0.04) * window[1])), 20)
+            text = font.render('AMMO type ' + str(i) + '   ' + str(AMMO[i]), True, tuple(u))
+            textRect = text.get_rect()
+            textRect.topleft = (int(0.8 * window[0]), window[1] + int((0.05 * i + 0.025) * window[1]))
+            fenetre.blit(text, textRect)
+    print(AMMO[3])
+    if TotAr>4:
+        pygame.draw.line(fenetre, (50, 50, 50), (int(0.97 * window[0]),window[1] + int((0.025 * 0 + 0.01) * window[1]) ),
+                         (int(0.97 * window[0]), window[1] + int((0.025 * 7 + 0.01) * window[1]) ), 20)
+        for i in range(AMMO[3]):
+            fenetre.blit(nades,(int(0.96 * window[0]), window[1] + int((0.025 * i + 0.01) * window[1])))
+
 
 
 def draw_cards():
@@ -1691,7 +1699,8 @@ c = 0
 c2 = 0
 z = 0
 Sline = 0
-
+nades=pygame.image.load('image/effects/grenade0.png')
+nades=pygame.transform.scale(nades,(int(0.025*window[0]),int(0.025*window[0])))
 f = open("image/monstD", "rb")
 M1 = pickle.load(f)
 MD = []
@@ -2140,6 +2149,7 @@ def change_game(num):
     if num == '0_V2':
         tuto = 2
         TotAr = 2
+        draw_AMMO()
         logL.append('pistol picked')
         s = pygame.mixer.Sound("son/plop_special.ogg")
         s.play()
@@ -2228,6 +2238,7 @@ def change_game(num):
     if num == '5_2':
         TotAr = 5
         AMMO[3] += 5
+        draw_AMMO()
 
     if num == '5_1':
         # print(Trig_liste)
@@ -2559,11 +2570,12 @@ def load_level(level_name):
     pygame.display.flip()
     pygame.time.wait(500)
     pygame.mouse.set_pos([window[0] // 2 - 10, window[1] // 2 + 10])
+
+    tuto = 0
+    reset_all()
     draw_hud()
     draw_cards()
     draw_vie()
-    tuto = 0
-    reset_all()
     groupD = []
     activatedT = []
     queueT = []
@@ -2586,7 +2598,7 @@ def load_level(level_name):
     AMMO[0] = max(min(TotAr - 1, 1) * 20, 0)
     AMMO[1] = max(min(TotAr - 2, 1) * 20, 0)
     AMMO[2] = max(min(TotAr - 3, 1) * 50, 0)
-    AMMO[3] = max(min(TotAr - 4, 1) * 20, 0)
+    AMMO[3] = max(min(TotAr - 4, 1) * 5, 0)
     draw_AMMO()
 
     wall = []
@@ -2994,6 +3006,7 @@ while running == 1:
             if arme == 4:
                 Boule.append(grenade(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 1.5,1., 50))
                 AMMO[arme - 1] = max(AMMO[arme - 1] - 1, 0)
+                draw_AMMO()
 
         coolD = COOLDOWN[arme]
 
