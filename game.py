@@ -70,7 +70,7 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 5
+level = 6
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -985,6 +985,28 @@ class Thing():
             dict0[c_]=dict1.copy()
         self.vis_dict=dict0.copy()
 
+        if self.type_M == 6:
+            dict0 = {}
+            for c_ in range(4):
+                dict1 = {}
+                for angle_ in range(8):
+                    IMs=MD[self.type_M][c_][45 * angle_].copy()
+                    IMs.blit(shield, (0, 0))
+                    dict1[angle_ * 45] = np.minimum(pygame.surfarray.pixels3d(IMs), 255)
+                dict0[c_] = dict1.copy()
+            self.im_dict_shield = dict0.copy()
+
+            dict0 = {}
+            for c_ in range(4):
+                dict1 = {}
+                for angle_ in range(8):
+                    dict1[angle_ * 45] = np.where(np.sum(self.im_dict_shield[c_][45 * angle_], axis=-1) != 0, 1, 0)
+                dict0[c_] = dict1.copy()
+            self.vis_dict_shield = dict0.copy()
+
+
+
+
     def preprocess_attack(self):
         dict0 = {}
         for c_ in range(8):
@@ -995,18 +1017,32 @@ class Thing():
             dict0[c_]=np.where(np.sum(self.im_dict_attack[c_], axis=-1) != 0, 1, 0)
         self.vis_dict_attack=dict0.copy()
 
+        if self.type_M == 6:
+            dict0 = {}
+            for c_ in range(8):
+                IMs=MDa[self.type_M][c_].copy()
+                IMs.blit(shield,(0,0))
+                dict0[c_] = np.minimum(pygame.surfarray.pixels3d(IMs), 255)
+            self.im_dict_attack_s = dict0.copy()
+            dict0 = {}
+            for c_ in range(8):
+                dict0[c_] = np.where(np.sum(self.im_dict_attack_s[c_], axis=-1) != 0, 1, 0)
+            self.vis_dict_attack_s = dict0.copy()
+
     def walk(self):
 
         self.im = self.im_dict[c//3][self.angle]#np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
         self.vis = self.vis_dict[c//3][self.angle]#np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
         if self.type_M == 6 and self.shield == 0:
-            im=MD[self.type_M][c // 3][self.angle].copy()
-            if c%2:
-                im.blit(shield,(0,0))
-            else:
-                im.blit(shield2, (0, 0))
-            self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
-            self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+            self.im = self.im_dict_shield[c // 3][self.angle]
+            self.vis = self.vis_dict_shield[c // 3][self.angle]
+            # im=MD[self.type_M][c // 3][self.angle].copy()
+            # if c%2:
+            #     im.blit(shield,(0,0))
+            # else:
+            #     im.blit(shield2, (0, 0))
+            # self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
+            # self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
 
     def test_behind(self):
         if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5:
@@ -1122,22 +1158,33 @@ class Thing():
 
             if self.type_M==6 and self.shield==0:
                 if self.range == 0:
-                    im=MDa[self.type_M][c // 4].copy()
+                    im=self.im_dict_attack_s[c // 4]
+                    vis=self.vis_dict_attack_s[c // 4]
                 else:
-                    im = MDa[self.type_M][c2 // 8].copy()
-                im.blit(shield,(0,0))
-                self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
-                self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+                    im = self.im_dict_attack_s[c2 // 8]
+                    vis = self.vis_dict_attack_s[c2 // 8]
+                self.im = im
+                self.vis =vis
+                # if self.range == 0:
+                #     im=MDa[self.type_M][c // 4].copy()
+                # else:
+                #     im = MDa[self.type_M][c2 // 8].copy()
+                # im.blit(shield,(0,0))
+                # self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
+                # self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('attack')
         if (self.inline and shoot == 2 and (self.attack_range or arme != 0)) and self.vie > 0 and arme != 4:
             self.im = self.im_dict_attack[4]#np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][4]), 255)
-            if self.type_M==6 and self.shield==0:
-                im=MDa[self.type_M][4].copy()
-                im.blit(shield,(0,0))
-                self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
             self.vis = self.vis_dict_attack[4]
+            if self.type_M==6 and self.shield==0:
+                self.im = self.im_dict_attack_s[4]
+                vis = self.vis_dict_attack_s[4]
+                # im=MDa[self.type_M][4].copy()
+                # im.blit(shield,(0,0))
+                # self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
+
             #self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
             if shoot:
                 if arme==2:
@@ -1298,9 +1345,9 @@ class Object():
         self.vivant = vivant
         self.color = 0
         self.group = group
-        self.U = 0
         self.preprocess_walk()
-
+        self.U=np.empty_like(Im[:,:,:-1],dtype=float)
+        self.U*=0
 
     def preprocess_walk(self):
 
@@ -1371,7 +1418,9 @@ class Object():
 
     def render(self):
         global Boule, explo, VIE, explo_pt, Killed_O, HIT,x_d
-
+        self.time=(0,0)
+        milliseconds=[time.perf_counter()*1000]
+        label_m=[]
 
         if ((self.inline and shoot == 2 and (self.norm <= 5 or arme != 0) and arme != 4) or (
                 np.linalg.norm(self.x0 - explo_pt) < 20 and explo == 1)) and self.vie > 0 and self.type_M in destr:
@@ -1394,7 +1443,7 @@ class Object():
                     s = pygame.mixer.Sound("son/aie.ogg")
                     s.play()#
 
-        if self.mort < 4 and self.vie <= 0:
+        if self.mort < 4 and self.vie <= 0:# improve
             self.im = np.minimum(pygame.surfarray.pixels3d(Mod[self.type_M][int(self.mort)]), 255)
             self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
             self.mort = min(self.mort + 1, 3)
@@ -1411,16 +1460,27 @@ class Object():
                     Xthing >= self.DX + scrnL[0]) & (Ything <= self.widthY + self.DY + scrnL[1]) & (
                              Ything >= self.DY + scrnL[1])
 
-        self.U = np.stack(((Xthing - self.DX - scrnL[0]) / self.width, (Ything - self.DY - scrnL[1]) / self.widthY),
-                          -1) * np.expand_dims(SQUARE, -1)
+        # self.U = np.stack(((Xthing - self.DX - scrnL[0]) / self.width, (Ything - self.DY - scrnL[1]) / self.widthY),
+        #                   -1) * np.expand_dims(SQUARE, -1)
+
+        # channel 0
+        self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
+        self.U[..., 0] *= SQUARE
+
+        # channel 1
+        self.U[..., 1] = (Ything - self.DY - scrnL[1]) / self.widthY
+        self.U[..., 1] *= SQUARE
+
         self.G = np.maximum((self.U * 160).astype(int), 0)
-        Ar = np.moveaxis(self.im[tuple(map(tuple, self.G.T))] * colorT, 1, 0)
+        #Ar = np.moveaxis(self.im[tuple(map(tuple, self.G.T))] * colorT, 1, 0)
+        self.Ar = self.im[self.G[..., 0], self.G[..., 1]] * colorT
         if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
-            Ar = Ar * torch_on * TORCHE ** 3
-            Ar = np.minimum(np.divide(Ar, 0.1 * self.norm ** 0.5), 255)
+            self.Ar = self.Ar * torch_on * TORCHE3
+            self.Ar /=  0.1 * np.sqrt(self.norm)
+            np.minimum(self.Ar, 255, out=self.Ar)
         else:
-            Ar = Ar * level_light
-        self.Ut = np.moveaxis(self.vis[tuple(map(tuple, self.G.T))], 1, 0)
+            self.Ar = self.Ar * level_light
+        self.Ut = self.vis[self.G[..., 0], self.G[..., 1]]
         self.shot=[]
         if shoot==1:
             x_d0=[]
@@ -1433,8 +1493,10 @@ class Object():
                 if not inline:
                     x_d0.append(x_d[i])
             x_d=x_d0
-
-        return Ar
+        milliseconds.append(time.perf_counter()*1000)
+        label_m.append('end')
+        self.time = ((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], label_m)
+        return self.Ar
 
 
 class Object_parallax():
@@ -1595,7 +1657,7 @@ class grenade(pygame.sprite.Sprite):
             self.v *= 0.5
             self.p[-1] = zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 2.4
         if (authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) or (
-                level_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) and self.cool == 0:
+                level_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) and self.cool == 0 and level_w_transp[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2]==0:
             for i in wall[:20]:
                 if i not in h_wall:
                     N = np.stack((i.a[0][0], i.b[0][0], -i.n), axis=-1)
@@ -3439,6 +3501,8 @@ while running == 1:
     render_w_o = 0
     time_in_render_e=np.array([0.,0.,0.,0.,0.,0.,0.,0.,0.,0.])
     label_t_render_e=['none']
+    time_in_render_o=np.array([0.])
+    label_t_render_o=['none']
     for i in thing:
         if i.type_M != 'BOSS':
             if i.norm > np.percentile(depth, 99):
@@ -3453,13 +3517,20 @@ while running == 1:
                 depth[mask] = i.norm
                 if i in ennemies :
                     render_w_e += 1
-                    if render_C == 1 :  # and c3==1:
+                    if render_w_e == 1 :  # and c3==1:
                         time_in_render_e = i.time[0]
                         label_t_render_e = i.time[1]
                     else:
                         time_in_render_e += i.time[0]
                         label_t_render_e = i.time[1]
-                else: render_w_o+=1
+                else:
+                    render_w_o+=1
+                    if render_w_o == 1 :  # and c3==1:
+                        time_in_render_o = i.time[0]
+                        label_t_render_o = i.time[1]
+                    else:
+                        time_in_render_o += i.time[0]
+                        label_t_render_o = i.time[1]
     milliseconds.append(time.perf_counter()*1000)
 
     label_deltat.append('things')
@@ -3624,7 +3695,7 @@ while running == 1:
     # if len(time_tot)>10:
     #     print('fps',1000/np.mean(time_tot[-10:]),render_w)
 
-    if (c3-1) % 1000 == 99 :
+    if (c3-1) % 1000 == 999 :
 
         averaged_time = np.round(averaged_time / 1000, 1)
         milliseconds = np.mean(milliT, axis=-1)
@@ -3639,10 +3710,13 @@ while running == 1:
         print('detail on wall rendering',np.sum(time_in_render),time_in_render/render_w, label_t_render)
         print('per_wall',np.sum(time_in_render)/render_w,render_w)
         render_w_e=max(1,render_w_e)
-
         print('detail on ennemies rendering', np.sum(time_in_render_e),[str(round(i,3)) for i in list(time_in_render_e / render_w_e)] , label_t_render_e)
         print('per_ennemies', np.sum(time_in_render_e) / render_w_e, render_w_e)
-        print('per objects',render_w_o)
+
+        render_w_o = max(1, render_w_o)
+        print('detail on object rendering', np.sum(time_in_render_o),
+              [str(round(i, 3)) for i in list(time_in_render_o / render_w_o)], label_t_render_o)
+        print('per_object', np.sum(time_in_render_o) / render_w_o, render_w_o)
         print('*-----------*')
         ttt = []
 
@@ -3657,7 +3731,7 @@ while running == 1:
         mean_time=np.divide(mean_time,np.maximum(count,1))
         mean_time_wall = np.divide(mean_time_wall, np.maximum(count, 1))
         if  plot_stats :
-            print(len(nb_wall), milliT.shape)
+
             fig,ax=plt.subplots(1,2)
             ax[0].scatter(nb_wall,time_wall,color='blue',label='wall')
             ax[0].scatter(nb_wall, time_behind, color='red', label='behind')
