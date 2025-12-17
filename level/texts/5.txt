@@ -12,5 +12,7 @@
 'V2':"Me: Ok so there are lizard men ! I guess they are behind the Viper organisation",
 'G2':"Me: At least they die as well...",
 'V3':"Me: This guy has an energy shield !",
-'G3':" "
+'G3':" ",
+'V4':"Me: Bugs ! Again !",
+'G4':" "
 }

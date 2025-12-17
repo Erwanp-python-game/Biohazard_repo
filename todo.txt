@@ -1,13 +1,8 @@
 
 
-objects on moving background (finish)
+objects on moving background (finish+ shift down to horizon)
+editor command to change height without generating new plane
 
-
-grenade through door opened
-
-profile object speed
-
-shield recalculated in walk things
 
 
 ----------------------------------

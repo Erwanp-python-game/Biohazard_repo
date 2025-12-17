@@ -2715,7 +2715,7 @@ def load_level(level_name):
     pygame.time.wait(50)
     pygame.display.flip()
     pygame.time.wait(3000)
-    fenetre.fill((0, 0, 0))
+    #fenetre.fill((0, 0, 0))
     pygame.display.flip()
     pygame.time.wait(500)
     pygame.mouse.set_pos([window[0] // 2 - 10, window[1] // 2 + 10])
