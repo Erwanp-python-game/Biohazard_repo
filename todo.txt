@@ -2,12 +2,13 @@
 
 objects on moving background (finish)
 
-rescale grenade icon
-grenade color
 
-improve rendering in case of liquid floor and maybe torche
+grenade through door opened
+
+profile object speed
+
 shield recalculated in walk things
-+ improve speed by removing make surfarray as preprocess out of objects
+
 
 ----------------------------------
 low priority:

@@ -59,6 +59,7 @@ TORCHE = np.expand_dims(
                                                                                                                 axis=1),
     -1)
 torch_on = 0
+TORCHE3=TORCHE ** 3
 
 R_c = np.array([-1, 0, 0])
 Vg = np.array([1, -sqrt(2) / 2]) / sqrt(3 / 2)
@@ -726,8 +727,22 @@ class Wall():
                     # assign colored pixels
                     self.Ar[Ub] = wall_vals * colorL
             else:
-                self.Ar = np.where(np.stack([self.U] * 3, axis=-1),
-                              np.moveaxis(self.wall_im[min(self.vie,2)][tuple(map(tuple, self.G.T))] * colorL, 1, 0), 0)
+                ind = min(self.vie,2)
+
+                # boolean mask
+                Ub = self.Ub
+
+                # fast coordinate extraction (no python loops)
+                gx = self.Gx[Ub]
+                gy = self.Gy[Ub]
+
+                # fast vectorized texture lookup
+                wall_vals = self.wall_im2[ind][gx, gy]
+
+                # assign colored pixels
+                self.Ar[Ub] = wall_vals * colorL
+                # self.Ar = np.where(np.stack([self.U] * 3, axis=-1),
+                #               np.moveaxis(self.wall_im[min(self.vie,2)][tuple(map(tuple, self.G.T))] * colorL, 1, 0), 0)
             milliseconds.append(time.perf_counter()*1000)
             label_m.append('render')
             # 1) Build filt quickly (no expand_dims, no all(2))
@@ -929,6 +944,11 @@ class Thing():
             self.shield = 1
         self.preprocess_walk()
         self.preprocess_attack()
+        self.Ar=np.empty_like(Im,dtype=float)
+        self.U=np.empty_like(Im[:,:,:-1],dtype=float)
+        self.U*=0
+        self.SQUARE = np.empty((160, 80), dtype=np.bool_)
+
 
     def calc_norm(self):
 
@@ -943,8 +963,10 @@ class Thing():
         A = 45 * (((atan((self.f0[1] / self.f0[0])) + self.orient - pi / 2 - ang[0] + pi / 8) // (pi / 4)) % 8)
         if A != self.angle:
             self.angle = A
-            self.im = np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
-            self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+            self.im = self.im_dict[c // 3][self.angle]  # np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
+            self.vis = self.vis_dict[c // 3][self.angle]  # np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+            # self.im = np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
+            # self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
 
     def preprocess_walk(self):
         dict0 = {}
@@ -1179,33 +1201,48 @@ class Thing():
         if explo!=0 and np.linalg.norm(self.x0 - explo_pt) < 20:
             colorT*=np.array([1,0,0])
 
-        SQUARE = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
+
+        self.SQUARE[:] = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
                     Xthing >= self.DX + scrnL[0]) & (Ything <= self.widthY + self.DY + scrnL[1]) & (
                              Ything >= self.DY + scrnL[1]).astype(bool)
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('square')
-        self.U = np.stack(((Xthing - self.DX - scrnL[0]) / self.width, (Ything - self.DY - scrnL[1]) / self.widthY),
-                          -1) * np.expand_dims(SQUARE, -1)
+
+        # self.U = np.stack(((Xthing - self.DX - scrnL[0]) / self.width, (Ything - self.DY - scrnL[1]) / self.widthY),
+        #                   -1) * np.expand_dims(SQUARE, -1)
+
+        # channel 0
+        self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
+        self.U[..., 0] *= self.SQUARE
+
+        # channel 1
+        self.U[..., 1] = (Ything - self.DY - scrnL[1]) / self.widthY
+        self.U[..., 1] *= self.SQUARE
+
+
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('U')
         self.G = np.maximum((self.U * 160).astype(int), 0)
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('G')
-        # self.Gx= self.G[..., 0]
-        # self.Gy= self.G[..., 1]
-        #
-        # Ar=self.im[self.Gx, self.Gy]*colorT
-        Ar = np.moveaxis(self.im[tuple(map(tuple, self.G.T))] * colorT, 1, 0)
+        # self.Gx=
+        # self.Gy=
+
+        self.Ar=self.im[self.G[..., 0], self.G[..., 1]]*colorT
+
+        #Ar = np.moveaxis(self.im[tuple(map(tuple, self.G.T))] * colorT, 1, 0)
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('Ar')
         if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
-            Ar = Ar * torch_on * TORCHE ** 3
-            Ar = np.minimum(np.divide(Ar, 0.1 * self.norm ** 0.5), 255)
+            self.Ar = self.Ar * torch_on * TORCHE3
+            self.Ar /=  0.1 * np.sqrt(self.norm)
+            np.minimum(self.Ar, 255, out=self.Ar)
         else:
-            Ar = Ar * level_light
+            self.Ar = self.Ar * level_light
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('light')
-        self.Ut = np.moveaxis(self.vis[tuple(map(tuple, self.G.T))], 1, 0)
+        #self.Ut = np.moveaxis(self.vis[tuple(map(tuple, self.G.T))], 1, 0)
+        self.Ut = self.vis[self.G[..., 0], self.G[..., 1]]
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('Ut')
         if shoot==1:
@@ -1226,7 +1263,7 @@ class Thing():
         self.time = ((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], label_m)
         # if self.type_M!=6:
         #     print(np.round(self.time[0]*1000,1),self.time[1],np.round(1000*np.sum(self.time[0])))
-        return Ar
+        return self.Ar
 
 import matplotlib.pyplot as plt
 class Object():
@@ -1262,6 +1299,19 @@ class Object():
         self.color = 0
         self.group = group
         self.U = 0
+        self.preprocess_walk()
+
+
+    def preprocess_walk(self):
+
+        dict1={}
+        for angle_ in range(8):
+            dict1[angle_*45]=np.minimum(pygame.surfarray.pixels3d(MO[self.type_M][45*angle_]), 255)
+        self.im_dict=dict1.copy()
+        dict1={}
+        for angle_ in range(8):
+            dict1[angle_*45]=np.where(np.sum(self.im_dict[45*angle_], axis=-1) != 0, 1, 0)
+        self.vis_dict=dict1.copy()
 
     def calc_norm(self):
         global VIE, AMMO, Picked_O, CARTE, logL
@@ -1275,12 +1325,14 @@ class Object():
         A = 45 * (((atan((self.f0[1] / self.f0[0])) + self.orient - pi / 2 - ang[0] + pi / 8) // (pi / 4)) % 8)
         if A != self.angle:
             self.angle = A
-            self.im = np.minimum(pygame.surfarray.pixels3d(MO[self.type_M][self.angle]), 255)
+            #self.im = np.minimum(pygame.surfarray.pixels3d(MO[self.type_M][self.angle]), 255)
+            self.im=self.im_dict[self.angle]
             if self.color != 0:
                 u = [0, 0, 0]
                 u[self.color - 1] = 1
                 self.im = u * self.im
-            self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+            self.vis=self.vis_dict[self.angle]
+            #self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
 
         if self.norm < 5:
             if self.type_M == 1:
@@ -1601,15 +1653,23 @@ class grenade(pygame.sprite.Sprite):
             self.imA = pygame.transform.scale(self.im[(c) % 4], (
                 min(int(Ratio*self.size / self.f0[0]), window[1] // 1), min(int(Ratio*self.size / self.f0[0]), window[1] // 1)))
 
+            colorT = light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2]
+            if light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2].sum() == 0:
+                colorT = np.array([1, 1, 1.])
+            colorT = light_modif(colorT, level, c3)
+
+            self.imb=self.imA.copy()
+            self.imb.fill(255*colorT, special_flags=BLEND_RGB_MULT)
+
             if len(IS)>0:
                 for j,i in enumerate(IS):
                     if i.U[int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))] and i.X[0,0,-1]/2<self.p[-1]:
                         colorliquid=IS_rendered[j][int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))]
-                        self.imA.fill(colorliquid, special_flags=BLEND_RGB_MULT)
+                        self.imb.fill(colorliquid, special_flags=BLEND_RGB_MULT)
 
 
             shift = min(int(self.size / self.f0[0]), window[1] // 1) // 2
-            fond.blit(self.imA, (int((window[0] // 2) * self.X) - shift, int((window[1] // 2) * self.Y) - shift))
+            fond.blit(self.imb, (int((window[0] // 2) * self.X) - shift, int((window[1] // 2) * self.Y) - shift))
 
 
 font = pygame.font.Font('freesansbold.ttf', 13)
@@ -1651,6 +1711,8 @@ def draw_AMMO():
             textRect.topleft = (int(0.8 * window[0]), window[1] + int((0.05 * i + 0.025) * window[1]))
             fenetre.blit(text, textRect)
     if TotAr>4:
+        nades = pygame.image.load('image/effects/grenade0.png')
+        nades = pygame.transform.scale(nades, (int(0.025 * window[0]), int(0.025 * window[0])))
         pygame.draw.line(fenetre, (50, 50, 50), (int(0.97 * window[0]),window[1] + int((0.025 * 0 + 0.01) * window[1]) ),
                          (int(0.97 * window[0]), window[1] + int((0.025 * 6 + 0.01) * window[1]) ), 20)
         for i in range(AMMO[3]):
@@ -2261,6 +2323,9 @@ def change_game(num):
         TotAr = 5
         AMMO[3] += 5
         draw_AMMO()
+        logL.append('grenades picked')
+        s = pygame.mixer.Sound("son/plop_special.ogg")
+        s.play()
 
     if num == '5_1':
         # print(Trig_liste)
@@ -2824,7 +2889,7 @@ if level==6:
 
 
 while running == 1:
-    moving_cam = True
+    moving_cam = False
     milliseconds = [time.perf_counter()*1000]
     fire = 0
     key = pygame.key.get_pressed()
@@ -3207,9 +3272,10 @@ while running == 1:
             render_w2 += 1
 
             if devant:
-                render_w += 1
+
 
                 if i.text[11:-3] not in liquid_floor:
+                    render_w += 1
                     rend=i.render()
                     Im[i.Ub]=rend[i.Ub]
                     # Im = i.render() + Im * (1 - np.expand_dims(i.U, -1))
@@ -3369,6 +3435,10 @@ while running == 1:
     if shoot == 1 and arme == 0:
         x_d=[(0,0)]
     y_d=x_d.copy()
+    render_w_e=0
+    render_w_o = 0
+    time_in_render_e=np.array([0.,0.,0.,0.,0.,0.,0.,0.,0.,0.])
+    label_t_render_e=['none']
     for i in thing:
         if i.type_M != 'BOSS':
             if i.norm > np.percentile(depth, 99):
@@ -3380,7 +3450,16 @@ while running == 1:
                 Im[mask] = rend_[mask]
                 #Im =  rend_* np.expand_dims(i.Ut, -1) + Im * (1 - np.expand_dims(i.Ut, -1))
 
-                depth = depth * (1 - np.expand_dims(i.Ut, -1)) + np.expand_dims(i.Ut, -1) * i.norm
+                depth[mask] = i.norm
+                if i in ennemies :
+                    render_w_e += 1
+                    if render_C == 1 :  # and c3==1:
+                        time_in_render_e = i.time[0]
+                        label_t_render_e = i.time[1]
+                    else:
+                        time_in_render_e += i.time[0]
+                        label_t_render_e = i.time[1]
+                else: render_w_o+=1
     milliseconds.append(time.perf_counter()*1000)
 
     label_deltat.append('things')
@@ -3404,7 +3483,8 @@ while running == 1:
     IS_rendered=[]
     for i in IS:
         IS_rendered.append(i.render())
-        Im = IS_rendered[-1] * 0.5 + Im * (1 - 0.5 * np.expand_dims(i.U, -1))
+        #Im = IS_rendered[-1] * 0.5 + Im * (1 - 0.5 * np.expand_dims(i.U, -1))
+        Im[i.Ub] = IS_rendered[-1][i.Ub]*0.5+Im[i.Ub]*0.5
     if fire:
         Im = np.minimum(Im + 100 * TORCHE, 255)
 
@@ -3530,7 +3610,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('end')
 
-    if c3 % 500 == 2:
+    if c3 % 1000 == 2:
         milliT = np.expand_dims(milliseconds, -1)
     else:
         if c3!=1:
@@ -3544,8 +3624,9 @@ while running == 1:
     # if len(time_tot)>10:
     #     print('fps',1000/np.mean(time_tot[-10:]),render_w)
 
-    if (c3-1) % 500 == 499 :
-        averaged_time = np.round(averaged_time / 500, 1)
+    if (c3-1) % 1000 == 99 :
+
+        averaged_time = np.round(averaged_time / 1000, 1)
         milliseconds = np.mean(milliT, axis=-1)
         timelist = averaged_time#np.round((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], 1)
         sortingtime = [(x, str(y) + ' ms', str(round(100 * y / np.sum(timelist), 1)) + ' %') for y, x in
@@ -3557,6 +3638,11 @@ while running == 1:
         print(sortingtime)
         print('detail on wall rendering',np.sum(time_in_render),time_in_render/render_w, label_t_render)
         print('per_wall',np.sum(time_in_render)/render_w,render_w)
+        render_w_e=max(1,render_w_e)
+
+        print('detail on ennemies rendering', np.sum(time_in_render_e),[str(round(i,3)) for i in list(time_in_render_e / render_w_e)] , label_t_render_e)
+        print('per_ennemies', np.sum(time_in_render_e) / render_w_e, render_w_e)
+        print('per objects',render_w_o)
         print('*-----------*')
         ttt = []
 
@@ -3571,6 +3657,7 @@ while running == 1:
         mean_time=np.divide(mean_time,np.maximum(count,1))
         mean_time_wall = np.divide(mean_time_wall, np.maximum(count, 1))
         if  plot_stats :
+            print(len(nb_wall), milliT.shape)
             fig,ax=plt.subplots(1,2)
             ax[0].scatter(nb_wall,time_wall,color='blue',label='wall')
             ax[0].scatter(nb_wall, time_behind, color='red', label='behind')
