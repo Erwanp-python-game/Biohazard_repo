@@ -1125,7 +1125,7 @@ class Thing():
 
     def explo_zone(self):
         if (np.linalg.norm(self.x0 - explo_pt) < 20 and explo == 1) and self.vie > 0:
-            self.vie -= DEGAT[4]*self.shield
+            self.vie -= explo_deg[explo_type]*self.shield
             for i in range(randint(5, 10)):
                 if self.type_M<=4:
                     Boule.append(boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(), 0.1 * random(), 2,
@@ -1417,7 +1417,7 @@ class Object():
             return False
 
     def render(self):
-        global Boule, explo, VIE, explo_pt, Killed_O, HIT,x_d
+        global Boule, explo, VIE, explo_pt, Killed_O, HIT,x_d,explo_type
         self.time=(0,0)
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
@@ -1437,8 +1437,9 @@ class Object():
                 s.play()
                 explo = 5
                 explo_pt = self.x0
+                explo_type=0
                 if self.norm < 15:
-                    VIE = VIE - DEGAT[4]/3
+                    VIE = VIE - explo_deg[explo_type]/2
                     HIT = 1
                     s = pygame.mixer.Sound("son/aie.ogg")
                     s.play()#
@@ -1684,7 +1685,7 @@ class grenade(pygame.sprite.Sprite):
                         break
 
         if self.lifetime == 50:
-            global explo, Boule, explo_pt, VIE, HIT
+            global explo, Boule, explo_pt, VIE, HIT,explo_type
             s = pygame.mixer.Sound("son/barril.ogg")
             for i in range(randint(5, 10)):
                 Boule.append(
@@ -1693,8 +1694,9 @@ class grenade(pygame.sprite.Sprite):
             s.play()
             explo = 5
             explo_pt = self.p[:-1]
+            explo_type=1
             if self.D < 15:
-                VIE = VIE - DEGAT[4]
+                VIE = VIE - explo_deg[explo_type]/2
                 HIT = 1
                 s = pygame.mixer.Sound("son/aie.ogg")
                 s.play()
@@ -1911,6 +1913,7 @@ TotAr = 1
 COOLDOWN = [10, 10, 17, 0, 10]
 REC = [0, 1, 3, 0, 0]
 DEGAT = [35, 25, 70, 30, 150]
+explo_deg=[50,DEGAT[4]]
 PREC=[0,pi/200,pi/100,pi/100]
 BULLETS=[1,1,5,1,1]
 clock = pygame.time.Clock()
