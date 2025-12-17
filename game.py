@@ -3329,7 +3329,7 @@ while running == 1:
             else:
 
                 if i.norm > 6 and i.text[11:-3] not in liquid_floor:
-                    if len(add_h)<2:
+                    if len(add_h)<2:# for more floor maybe 4 if previous empty_pixel is big
                         add_h.append(i)
                     devant = False
                     # if CLOSED != 0:  # and h_wall.index(i)<=6: # INSTEAD CHECK IF ASSOCIATED DOOR WITH THIS FLOOR IS OPEN AND VISIBLE---COMPLICATED
