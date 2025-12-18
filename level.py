@@ -164,6 +164,7 @@ type_M=0
 light_array=np.full((window[0],window[1],3),0.)
 light=0
 Clight=(1,1,1)
+add_roof=1
 def flood_fill_authorized(arr,xl):
 
 	
@@ -368,6 +369,12 @@ while running==1:
 			Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 	else:
 		ammoT=0
+
+	if key[K_h]:
+		add_roof=(add_roof+1)%2
+		print('adding roof',add_roof)
+		pygame.time.wait(300)
+
 	if key[K_c]:
 		faceA=(faceA+1)%2
 		if faceA:
@@ -954,21 +961,21 @@ while running==1:
 			seg=(seg+1)%2
 			if seg==0:
 				hmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),H,hmap)
+
 				if rot:
 					pente=((h2-h1)/(X2[1]-X1[1]))
 					alt=np.expand_dims(pente*(X[:,:,1]-X1[1]),-1)
-					col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
+					if add_roof:
+						col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
 					zmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),alt[:,:,0]+h1,zmap)
-					
-					
-					
-					
-					h_liste.append((np.array([X2[0]-X1[0],0,0]),np.array([0,X2[1]-X1[1],h2-h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
+
+					if add_roof:
+						h_liste.append((np.array([X2[0]-X1[0],0,0]),np.array([0,X2[1]-X1[1],h2-h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
 					for j,i in enumerate(wall_liste[:]):
 						x0=i[0]+50
 						y0=i[1]+x0
 						if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
-							
+
 							if -np.sign((i[1])[1]*(X2[1]-X1[1]))>0:# HERE #tuple(list(i[:-4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+i[-1])
 								wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
 							else:
@@ -976,11 +983,12 @@ while running==1:
 				else:
 					pente=((h2-h1)/(X2[0]-X1[0]))
 					alt=np.expand_dims(pente*(X[:,:,0]-X1[0]),-1)
-					col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
+					if add_roof:
+						col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
 					zmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),alt[:,:,0]+h1,zmap)
-		
-					
-					h_liste.append((np.array([X2[0]-X1[0],0,h2-h1]),np.array([0,X2[1]-X1[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
+
+					if add_roof:
+						h_liste.append((np.array([X2[0]-X1[0],0,h2-h1]),np.array([0,X2[1]-X1[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
 					for j,i in enumerate(wall_liste[:]):
 						x0=i[0]+50
 						y0=i[1]+x0
@@ -990,7 +998,8 @@ while running==1:
 								wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
 							else:
 								wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
-				col[(X1[0]+X2[0])//2,(X1[1]+X2[1])//2]=col_t[texture]
+				if add_roof:
+					col[(X1[0]+X2[0])//2,(X1[1]+X2[1])//2]=col_t[texture]
 			
 		if clic[2]==1:
 			#if seg:
@@ -998,7 +1007,11 @@ while running==1:
 			seg=0
 			
 		if seg:
-			pygame.draw.rect(fenetre,[(50*(height))%255,100,100],(5*X2-5*np.array([x,y]),mouse-5*X2+5*np.array([x,y])))
+			if add_roof:
+				pygame.draw.rect(fenetre,[(50*(height))%255,100,100],(5*X2-5*np.array([x,y]),mouse-5*X2+5*np.array([x,y])))
+			else:
+				pygame.draw.rect(fenetre, [(50 * (height)) % 255, 255, 100],
+								 (5 * X2 - 5 * np.array([x, y]), mouse - 5 * X2 + 5 * np.array([x, y])))
 		
 	if select==0 and plafond==0 and light==1 and Monstre==0 and trigger==0 and lift==0 and stair==0:
 		if clic[0]==1:

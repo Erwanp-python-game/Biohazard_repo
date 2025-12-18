@@ -1,12 +1,11 @@
 
 
 objects on moving background (finish+ shift down to horizon)
-editor command to change height without generating new plane
 
 boss invulnerable a envoyer dans incinérateur
 objet bouton incinérateur
 
-
+mecano lezard
 
 
 
