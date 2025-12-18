@@ -2677,7 +2677,7 @@ def check_trigger():
 
 
 def load_level(level_name):
-    global level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     level = int(level_name)
     if level==5:
         SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel1.png'))
@@ -2692,6 +2692,14 @@ def load_level(level_name):
         SKY0_im = pygame.image.load('image/ciel/ciel2.png')
         LAND0_im = pygame.image.load('image/ciel/lanscape2.png')
         #LAND0_im.set_colorkey((0, 255, 255))
+
+        op = []
+        for i in range(10):
+            xra = np.random.randint(-5000, 1000)
+            yra = np.random.randint(200, 3000)
+            signra = (-1) ** randint(0, 1)
+            op.append(Object_parallax([317 - 1000 + xra, 266 + yra * signra, 200], 0))
+
     TotAr = level_arme[level]
     v = 0
     skip = True
@@ -2943,13 +2951,7 @@ plot_stats=False
 sensitivity=500
 movement=0
 render_w_old=0
-if level==6:
-    op=[]
-    for i in range(10):
-        xra=np.random.randint(-5000,1000)
-        yra=np.random.randint(200,3000)
-        signra=(-1)**randint(0,1)
-        op.append(Object_parallax([317-1000+xra,266+yra*signra,200],0))
+
 
 
 
