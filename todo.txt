@@ -22,7 +22,7 @@ more destructible obj
 
 BUG
 
-
+bug -> issue with normal in walls with a cut
 bug -> test_behind when looking up in high ceiling room (small bug no easy to fix)
 
 

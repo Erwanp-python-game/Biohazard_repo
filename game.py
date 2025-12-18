@@ -3202,6 +3202,7 @@ while running == 1:
                         previous=i.inter[1]
 
 
+
         trans=trans-(abs(np.dot(trans@ Rp, No)) * No)@ rot_plan(-ang[0])
 
         x = x - trans @ Rp
@@ -3329,7 +3330,7 @@ while running == 1:
             else:
 
                 if i.norm > 6 and i.text[11:-3] not in liquid_floor:
-                    if len(add_h)<2:# for more floor maybe 4 if previous empty_pixel is big
+                    if len(add_h)<6:# for more floor maybe 4 if previous empty_pixel is big
                         add_h.append(i)
                     devant = False
                     # if CLOSED != 0:  # and h_wall.index(i)<=6: # INSTEAD CHECK IF ASSOCIATED DOOR WITH THIS FLOOR IS OPEN AND VISIBLE---COMPLICATED
@@ -3367,20 +3368,25 @@ while running == 1:
                     IS.append(i)
 
 
-            if (empty_pixel_count < 8 ) or i.norm > 150 or ci==wall_count-1:
-                if empty_pixel_count>5:
+            if (empty_pixel_count < 4 ) or i.norm > 150 or ci==wall_count-1:
+                if empty_pixel_count>4:
 
                     for j in add_h:
                         rend = j.render()
                         Im[j.Ub] = rend[j.Ub]
                         render_w+=1
+                        empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+                        if (empty_pixel_count < 4):
+                            break
                 break
         if render_w2>wall_count-10:
             elastic_count+=10
         else:
             elastic_count = max(elastic_count-10,0)
     render_w_old=render_w
-    # print(render_w,render_w2,empty_pixel_count)
+
+
+
     if moving_cam == True:
         Im_cached = Im
         depth_cached = depth
