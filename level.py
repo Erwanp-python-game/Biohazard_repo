@@ -1064,7 +1064,9 @@ while running==1:
 			surf.blit(B,(5*(mouse[0]//5)-5+5*x,5*(mouse[1]//5)-5+5*y))
 			surf.blit(text,(5*(mouse[0]//5)-5+5*x,5*(mouse[1]//5)-5+5*y))
 			pygame.time.wait(300)
-			
+	if select==0 and plafond==0 and light==0 and Monstre and trigger==0 and lift==0 and stair==0:
+		if levelD[int(name)]['obj'][type_M]==28 and M_O==0:
+			pygame.draw.circle(fenetre, [200, 200, 200], mouse+20*np.array([np.cos(orientation-pi/2),np.sin(orientation-pi/2)]), 20, 2)
 	if select==0 and plafond==0 and light==0 and Monstre==0 and trigger==0 and lift==1:
 		pygame.draw.rect(fenetre,[200,200,200],(mouse[0]-12,mouse[1]-12,24,24),2)
 		if clic[0]==1:

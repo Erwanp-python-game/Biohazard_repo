@@ -26,3 +26,5 @@ Editor controls:
 -press c to change seconf face
 -press a to place lift
 -press g to place teleport
+-h to change hieght of wall only
+-b for orientation of objects

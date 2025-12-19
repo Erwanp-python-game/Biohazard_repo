@@ -117,9 +117,14 @@ def plane(a,b,X):
     return S
 
 def explo_zone(R,dist):
-    white = np.array([[[1, 1, 1]]])
-    yellow=np.array([[[1,1,0]]])
-    red=np.array([[[1,0,0]]])
+    if explo_type!=2:
+        white = np.array([[[1, 1, 1]]])
+        yellow=np.array([[[1,1,0]]])
+        red=np.array([[[1,0,0]]])
+    else:
+        white = np.array([[[1, 1, 1]]])
+        yellow=np.array([[[1,1,1]]])
+        red=np.array([[[0.5,0.5,1]]])
     #color=yellow*(1-(dist/R))+red*(dist/R)
     color = np.where(dist<R/2,white*(1-(2*dist/R))+yellow*(2*dist/R),yellow*(1-(2*(dist-0.5*R)/R))+red*(2*(dist-0.5*R)/R))
     return color
@@ -1747,10 +1752,12 @@ def draw_vie():
 
 
 def draw_hud():
-    global back, font, code1, code2, fontC
+    global back, font, code1, code2, fontC,incinerate,incinerate2
     fontC = pygame.font.Font('freesansbold.ttf', int(32 * window[0] / (12 * scrnL[0])))
     code1 = pygame.transform.scale(code01, (int(0.8 * window[1]), int(0.16 * window[1])))
     code2 = pygame.transform.scale(code02, (int(0.8 * window[1]), int(0.16 * window[1])))
+    incinerate = pygame.transform.scale(incinerate, (int(0.8 * window[1]), int(0.16 * window[1])))
+    incinerate2 = pygame.transform.scale(incinerate2, (int(0.8 * window[1]), int(0.16 * window[1])))
     font = pygame.font.Font('freesansbold.ttf', int(13 * window[0] / (12 * scrnL[0])))
     back = pygame.transform.scale(back, ((int(0.8 * window[1]), int(10 * window[1]))))
     fenetre.blit(
@@ -1913,7 +1920,7 @@ TotAr = 1
 COOLDOWN = [10, 10, 17, 0, 10]
 REC = [0, 1, 3, 0, 0]
 DEGAT = [35, 25, 70, 30, 150]
-explo_deg=[50,DEGAT[4]]
+explo_deg=[50,DEGAT[4],5000]
 PREC=[0,pi/200,pi/100,pi/100]
 BULLETS=[1,1,5,1,1]
 clock = pygame.time.Clock()
@@ -2882,6 +2889,10 @@ def load_level(level_name):
             if thing[-1].type_M == 1:
                 difficulty_var[3] +=20
 
+
+
+
+
     if 0 in groupD:
         groupD.remove(0)
 
@@ -2909,6 +2920,8 @@ LAND0_im.set_colorkey((0,255,255))
 BLOOD = pygame.transform.scale(pygame.image.load('image/effects/blood.png'), window)
 code01 = pygame.image.load('image/Interface/code.png')
 code02 = pygame.image.load('image/Interface/code2.png')
+incinerate = pygame.image.load('image/Interface/incinerate.png')
+incinerate2 = pygame.image.load('image/Interface/incinerate2.png')
 shield=pygame.image.load('image/effects/shield.png').convert_alpha()
 shield2=pygame.image.load('image/effects/shield2.png').convert_alpha()
 ttt = []
@@ -2917,7 +2930,7 @@ explo = 0
 explo_pt = np.array([0., 0.])
 Sky_view = 0
 ang = (1e-5, 0)
-
+explo_cool=0
 draw_hud()
 L0 = []
 load_level(str(level))
@@ -3458,7 +3471,7 @@ while running == 1:
         S = S.repeat(2, axis=1)
         D_e=np.expand_dims(((S[:, :, 0]) ** 2 + (S[:, :, 1]) ** 2)**0.5,-1)
         Im = np.where((explo_R < 4 * explo+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,explo_R), Im)
-        Im = np.where((np.expand_dims(S[:, :, 2],-1)<depth)& (D_e<(4*explo)+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,D_e), Im)
+        Im = np.where((np.expand_dims(S[:, :, 2],-1)>0)&(np.expand_dims(S[:, :, 2],-1)<depth)& (D_e<(4*explo)+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,D_e), Im)
 
         # if explo==4:
         #     plt.imshow(Im/255)
@@ -3514,6 +3527,8 @@ while running == 1:
     label_t_render_e=['none']
     time_in_render_o=np.array([0.])
     label_t_render_o=['none']
+    incinerate_show = False
+    explo_cool = max(0,explo_cool-1)
     for i in thing:
         if i.type_M != 'BOSS':
             if i.norm > np.percentile(depth, 99):
@@ -3535,6 +3550,16 @@ while running == 1:
                         time_in_render_e += i.time[0]
                         label_t_render_e = i.time[1]
                 else:
+                    if i.type_M == 28 and i.norm<10:
+                        incinerate_show=True
+
+                        if key[K_RETURN] and explo_cool==0:
+                            s = pygame.mixer.Sound("son/barril.ogg")
+                            s.play()
+                            explo_pt=i.x0+np.array([np.cos(-i.orient+pi/2),np.sin(-i.orient+pi/2)])*20
+                            explo=5
+                            explo_type=2
+                            explo_cool=100
                     render_w_o+=1
                     if render_w_o == 1 :  # and c3==1:
                         time_in_render_o = i.time[0]
@@ -3643,6 +3668,11 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('blit image')
+    if incinerate_show:
+        if explo_cool==0:
+            fenetre.blit(incinerate, (int(0.5 * window[0] - 0.4 * window[1]), int(0.84 * window[1])))
+        else:
+            fenetre.blit(incinerate2, (int(0.5 * window[0] - 0.4 * window[1]), int(0.84 * window[1])))
 
     if code_show:
         if code_show2 == 0:
