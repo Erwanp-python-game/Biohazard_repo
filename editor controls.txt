@@ -28,3 +28,4 @@ Editor controls:
 -press g to place teleport
 -h to change hieght of wall only
 -b for orientation of objects
+-j to make only slope with no roof

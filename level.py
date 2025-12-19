@@ -339,6 +339,7 @@ sel_stairs=[]
 font2 = pygame.font.Font('freesansbold.ttf', 10)
 lift=0
 stair=0
+slope=0
 
 Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 Amp.fill(255*np.array(Clight),special_flags=BLEND_RGB_MULT)
@@ -373,6 +374,10 @@ while running==1:
 	if key[K_h]:
 		add_roof=(add_roof+1)%2
 		print('adding roof',add_roof)
+		pygame.time.wait(300)
+	if key[K_j]:
+		slope=(slope+1)%2
+		print('slope',slope)
 		pygame.time.wait(300)
 
 	if key[K_c]:
@@ -971,15 +976,16 @@ while running==1:
 
 					if add_roof:
 						h_liste.append((np.array([X2[0]-X1[0],0,0]),np.array([0,X2[1]-X1[1],h2-h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
-					for j,i in enumerate(wall_liste[:]):
-						x0=i[0]+50
-						y0=i[1]+x0
-						if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
+					if slope == 0:
+						for j,i in enumerate(wall_liste[:]):
+							x0=i[0]+50
+							y0=i[1]+x0
+							if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
 
-							if -np.sign((i[1])[1]*(X2[1]-X1[1]))>0:# HERE #tuple(list(i[:-4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+i[-1])
-								wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
-							else:
-								wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
+								if -np.sign((i[1])[1]*(X2[1]-X1[1]))>0:# HERE #tuple(list(i[:-4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+i[-1])
+									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
+								else:
+									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
 				else:
 					pente=((h2-h1)/(X2[0]-X1[0]))
 					alt=np.expand_dims(pente*(X[:,:,0]-X1[0]),-1)
@@ -989,15 +995,16 @@ while running==1:
 
 					if add_roof:
 						h_liste.append((np.array([X2[0]-X1[0],0,h2-h1]),np.array([0,X2[1]-X1[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
-					for j,i in enumerate(wall_liste[:]):
-						x0=i[0]+50
-						y0=i[1]+x0
-						if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
-							#HERE
-							if -np.sign((i[1])[0]*(X2[0]-X1[0]))>0:
-								wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
-							else:
-								wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
+					if slope==0:
+						for j,i in enumerate(wall_liste[:]):
+							x0=i[0]+50
+							y0=i[1]+x0
+							if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
+								#HERE
+								if -np.sign((i[1])[0]*(X2[0]-X1[0]))>0:
+									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
+								else:
+									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
 				if add_roof:
 					col[(X1[0]+X2[0])//2,(X1[1]+X2[1])//2]=col_t[texture]
 			

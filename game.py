@@ -287,6 +287,7 @@ class Wall():
         if self.a[0][0][-1] == 0 and self.b[0][0][-1] == 0:
             self.ID = str(int((self.X[0][0][0] + 0.5 * self.b[0][0][0] + 0.5 * self.a[0][0][0]) // 2 + 50)) + ',' + str(
                 int((self.X[0][0][1] + 0.5 * self.b[0][0][1] + 0.5 * self.a[0][0][1]) // 2 + 50))
+
         self.TTT0 = []
         self.TTT1 = []
         self.TTT2 = []
@@ -321,8 +322,13 @@ class Wall():
                 self.X_middle[:,:,0]=self.X[:,:,0]-np.sin(self.angle0)*np.sin(angle1)*(2.5)
                 self.X_middle[:, :, 1] = self.X[:, :, 1] - np.sin(self.angle0) * np.cos(angle1) * (2.5)
 
-        self.a_sliced = self.a[::2, ::2]
-        self.b_sliced = self.b[::2, ::2]
+        self.linked=[]
+        self.overlap=1.01
+        if self.a[0][0][-1] == 0 and self.b[0][0][-1] == 0:
+            self.overlap=1.0
+        # print(self.a[0,0,:],self.a[0,0,:]/np.linalg.norm(self.a[0,0,:]))
+        self.a_sliced = self.a[::2, ::2]* self.overlap
+        self.b_sliced = self.b[::2, ::2]* self.overlap
         self.X_sliced = self.X[::2, ::2]
         h, w, _ = self.a_sliced.shape
         if not hasattr(self, "_M"):
@@ -605,8 +611,8 @@ class Wall():
 
         M = self._M
         B = self._B
-        M[..., 0] = self.a_sliced * 1.01
-        M[..., 1 ] = self.b_sliced * 1.01
+        M[..., 0] = self.a_sliced
+        M[..., 1 ] = self.b_sliced
         M[..., 2] = -v_
 
         # --- fill B in-place ---
@@ -765,8 +771,8 @@ class Wall():
 
             # 4) Vectorized Xl construction (remove expand_dims, use broadcasting)
             self.Xl_small[:] = (
-                    self.S[::2, ::2, 0, None] * (self.a * 1.01) +
-                    self.S[::2, ::2, 1, None] * (self.b * 1.01) +
+                    self.S[::2, ::2, 0, None] * (self.a * self.overlap) +
+                    self.S[::2, ::2, 1, None] * (self.b * self.overlap) +
                     self.X
             )
 
@@ -2875,6 +2881,27 @@ def load_level(level_name):
     [i.texture(2 + int(np.linalg.norm(i.a) / 500), 2 + int(np.linalg.norm(i.b) / 500)) for i in
      wall[-2 * len(level_h) - lenH:]]
     h_wall = wall[-2 * len(level_h) - lenH:]
+
+    for i in wall:
+        print('----')
+        if i not in h_wall:
+            count_w=0
+            for j in h_wall:
+                V1=i.X[0,0,:-1]-j.X[0,0,:-1]
+                V2 = i.X[0, 0, :-1]+i.a[0, 0, :-1]+i.b[0, 0, :-1]-j.X[0,0,:-1]
+                d1x=np.dot(V1,j.a[0,0,:-1])
+                d1y=np.dot(V1,j.b[0,0,:-1])
+                #print(np.linalg.norm(j.a[0,0,:-1])**2,d1x,np.linalg.norm(j.b[0,0,:-1])**2,d1y)
+
+                if np.linalg.norm(j.a[0,0,:-1])**2>=d1x>=0 and np.linalg.norm(j.b[0,0,:-1])**2>=d1y>=0:
+                    print(i.text,j.text)
+                    count_w+=1
+                    i.linked.append(j.ID)
+            if count_w==0:
+                print(i.text)
+
+
+
     zmap = zmap.T
     thing = []
     if level == 3:
@@ -3352,7 +3379,7 @@ while running == 1:
 
     time_in_behind=0.
     add_h=[]
-
+    link_h=[]
 
 
     if moving_cam == True:
@@ -3382,7 +3409,7 @@ while running == 1:
             render_w2 += 1
 
             if devant:
-
+                link_h+=i.linked
 
                 if i.text[11:-3] not in liquid_floor:
                     render_w += 1
@@ -3430,7 +3457,7 @@ while running == 1:
         else:
             elastic_count = max(elastic_count-10,0)
     render_w_old=render_w
-
+    print(set(link_h))
 
 
     if moving_cam == True:
