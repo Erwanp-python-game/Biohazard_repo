@@ -381,9 +381,11 @@ class Wall():
             self.format = 120 * np.array([np.linalg.norm(self.a[0][0]) / 10, np.linalg.norm(self.b[0][0]) / 10])
         if self.text == 'image/wall/wall29.png':
             self.format = 120 * np.array([1, np.linalg.norm(self.b[0][0]) / 30])
-
+    def reset_rend(self):
+        self.rendered = False
     def calc_norm(self):# IMPROVE FOR SLANTED
         global moving_cam
+
         if len(self.wall_im)>1 or len(self.wall_im2)>1:
             moving_cam=True
         N = np.stack((self.a_old[0][0], self.b_old[0][0], -self.n), axis=-1)
@@ -598,6 +600,7 @@ class Wall():
         self.Ub[:] = self.U
     def render(self):
         global depth, POS, Sky_view,explo_R
+        self.rendered=True
         self.time=(0,0)
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
@@ -2883,7 +2886,7 @@ def load_level(level_name):
     h_wall = wall[-2 * len(level_h) - lenH:]
 
     for i in wall:
-        print('----')
+
         if i not in h_wall:
             count_w=0
             for j in h_wall:
@@ -2891,14 +2894,15 @@ def load_level(level_name):
                 V2 = i.X[0, 0, :-1]+i.a[0, 0, :-1]+i.b[0, 0, :-1]-j.X[0,0,:-1]
                 d1x=np.dot(V1,j.a[0,0,:-1])
                 d1y=np.dot(V1,j.b[0,0,:-1])
+                d2x=np.dot(V2,j.a[0,0,:-1])
+                d2y=np.dot(V2,j.b[0,0,:-1])
                 #print(np.linalg.norm(j.a[0,0,:-1])**2,d1x,np.linalg.norm(j.b[0,0,:-1])**2,d1y)
 
-                if np.linalg.norm(j.a[0,0,:-1])**2>=d1x>=0 and np.linalg.norm(j.b[0,0,:-1])**2>=d1y>=0:
-                    print(i.text,j.text)
+                if np.linalg.norm(j.a[0,0,:-1])**2>=d1x>=0 and np.linalg.norm(j.b[0,0,:-1])**2>=d1y>=0 and np.linalg.norm(j.a[0,0,:-1])**2>=d2x>=0 and np.linalg.norm(j.b[0,0,:-1])**2>=d2y>=0:
+
                     count_w+=1
                     i.linked.append(j.ID)
-            if count_w==0:
-                print(i.text)
+
 
 
 
@@ -3307,6 +3311,7 @@ while running == 1:
     # print(time.time()*1000-milliseconds[0])------until there same time small and big
 
     [i.calc_norm() for i in wall[0:20]]
+    [i.reset_rend() for i in h_wall[0:10]]
     if c2 == 0:
         [i.calc_norm() for i in wall]
     [i.calc_norm() for i in thing[0:20] if i.type_M != 'BOSS']
@@ -3380,7 +3385,7 @@ while running == 1:
     time_in_behind=0.
     add_h=[]
     link_h=[]
-
+    ID0=''
 
     if moving_cam == True:
         v_ = screenV[::2, ::2]
@@ -3401,15 +3406,23 @@ while running == 1:
             else:
 
                 if i.norm > 6 and i.text[11:-3] not in liquid_floor:
-                    if len(add_h)<6:# for more floor maybe 4 if previous empty_pixel is big
+                    # if len(add_h)<6:# for more floor maybe 4 if previous empty_pixel is big
+                    #     add_h.append(i)
+                    if i.ID in link_h:
                         add_h.append(i)
+
                     devant = False
                     # if CLOSED != 0:  # and h_wall.index(i)<=6: # INSTEAD CHECK IF ASSOCIATED DOOR WITH THIS FLOOR IS OPEN AND VISIBLE---COMPLICATED
                     #     devant = True
+                else:
+                    ID0=i.ID
             render_w2 += 1
 
             if devant:
-                link_h+=i.linked
+                if i.door==0:
+
+                    link_h+=i.linked
+
 
                 if i.text[11:-3] not in liquid_floor:
                     render_w += 1
@@ -3440,24 +3453,25 @@ while running == 1:
 
 
             if (empty_pixel_count < 4 ) or i.norm > 150 or ci==wall_count-1:
-
+                # print([k.rendered for k in h_wall if k.ID in link_h])
+                add_h+=[k for k in h_wall if k.ID in link_h and k.rendered==False]
                 if empty_pixel_count>4 :
 
                     for j in add_h:
-
+                        # print(j.ID,ID0,j.norm)
                         rend = j.render()
                         Im[j.Ub] = rend[j.Ub]
                         render_w+=1
                         empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
-                        if (empty_pixel_count < 4):
-                            break
+                        # if (empty_pixel_count < 4):
+                        #     break
                 break
         if render_w2>wall_count-10:
             elastic_count+=10
         else:
             elastic_count = max(elastic_count-10,0)
     render_w_old=render_w
-    print(set(link_h))
+    # print(set(link_h),len(add_h),empty_pixel_count,ci)
 
 
     if moving_cam == True:
