@@ -1509,6 +1509,7 @@ class Object_parallax():
     def __init__(self, x0, type_M):
         self.RA = 500.
         self.x0 = x0[:-1]
+        self.decal=0.
         self.norm = np.linalg.norm(self.x0 - x + [1, 0])
         self.width = 2 * scrnL[0] / self.norm
         self.widthY = 2 * scrnL[0] / self.norm
@@ -1516,11 +1517,17 @@ class Object_parallax():
         self.DY = 0
         self.type_M = levelD[level]['obj_parallax'][type_M]
         self.im=pygame.image.load('./image/obj_parallax/O_%s.png'%str(self.type_M)).convert_alpha()
-
+        if self.type_M==1:
+            self.im2 = pygame.image.load('./image/obj_parallax/O_%s.1.png' % str(self.type_M)).convert_alpha()
+            self.im3 = pygame.image.load('./image/obj_parallax/O_%s.2.png' % str(self.type_M)).convert_alpha()
         self.z = x0[-1]
+        self.erupt=0
 
 
     def calc_norm(self):
+        if x[1]<600 and x[1]>300 and self.decal==0:
+            self.x0=self.x0+x
+            self.decal=1
         self.f0 = (self.x0 - x) @ rot_plan(-ang[0])
         self.norm = np.linalg.norm(self.x0 - x)
         self.width = self.RA * 2 * scrnL[0] / self.f0[0]
@@ -1529,7 +1536,10 @@ class Object_parallax():
         self.DY = -(self.RA * scrnL[0] * 1.7 - 5 * scrnL[0]) / self.f0[0] - scrnL[1] * tan(ang[1]) / TAN1 - (
                     2 * scrnL[1] * (z - self.z) / self.f0[0]) / TAN1
 
-        self.x0+=np.array([3,0])
+        self.x0+=np.array([10,0])
+
+        if self.x0[0]>10000:
+            self.x0[0]=self.x0[0]-20000
 
 
     def test_behind(self):
@@ -1540,10 +1550,25 @@ class Object_parallax():
 
     def affiche(self):
         if self.test_behind():
-            self.imA = pygame.transform.scale(self.im, (int(2*scrnL[0]*self.RA/self.f0[0]),int(2*scrnL[0]*self.RA/self.f0[0])))
+            if self.type_M==1:
+                if randint(0,100)==0:
+                    self.erupt=2
+                if self.erupt==0:
+                    self.imA = pygame.transform.scale(self.im, (int(2*scrnL[0]*self.RA/self.f0[0]),int(2*scrnL[0]*self.RA/self.f0[0])))
+                if self.erupt==1:
+                    self.imA = pygame.transform.scale(self.im2, (
+                    int(2 * scrnL[0] * self.RA / self.f0[0]), int(2 * scrnL[0] * self.RA / self.f0[0])))
+                if self.erupt==2:
+                    self.imA = pygame.transform.scale(self.im3, (
+                    int(2 * scrnL[0] * self.RA / self.f0[0]), int(2 * scrnL[0] * self.RA / self.f0[0])))
+                self.erupt=max(0,self.erupt-0.5)
+
+            else:
+                self.imA = pygame.transform.scale(self.im, (
+                int(2 * scrnL[0] * self.RA / self.f0[0]), int(2 * scrnL[0] * self.RA / self.f0[0])))
             transparency = 255 * min(1, (2000/self.f0[0]))
             self.imA.fill((255,255,255,transparency), special_flags=BLEND_RGBA_MULT)
-            fond.blit(self.imA,  (self.DX+ scrnL[0],  self.DY+ scrnL[1]))
+            fond.blit(self.imA,  (self.DX+ scrnL[0], 0.3*scrnL[1]+ self.DY+ scrnL[1]))
 
 
 class boule(pygame.sprite.Sprite):
@@ -2701,11 +2726,12 @@ def load_level(level_name):
         #LAND0_im.set_colorkey((0, 255, 255))
 
         op = []
-        for i in range(10):
-            xra = np.random.randint(-5000, 1000)
-            yra = np.random.randint(200, 3000)
+        for i in range(30):
+            xra = np.random.randint(-10000, 10000)
+            yra = np.random.randint(200, 10000)
             signra = (-1) ** randint(0, 1)
-            op.append(Object_parallax([317 - 1000 + xra, 266 + yra * signra, 200], 0))
+            rr=1-min(randint(0,5),1)
+            op.append(Object_parallax([ xra, yra * signra, 200], rr))
 
     TotAr = level_arme[level]
     v = 0
@@ -2969,6 +2995,7 @@ render_w_old=0
 
 
 while running == 1:
+
     moving_cam = False
     milliseconds = [time.perf_counter()*1000]
     fire = 0
@@ -3050,6 +3077,8 @@ while running == 1:
     h_wall.sort(key=lambda s: s.norm)
     thing.sort(key=lambda s: s.norm)
     ennemies.sort(key=lambda s: s.norm)
+    if level==6:
+        op.sort(key=lambda s: -s.norm)
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('sorting')
 

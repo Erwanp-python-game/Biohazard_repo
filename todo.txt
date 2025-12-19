@@ -1,9 +1,6 @@
 
 
-objects on moving background (finish+ shift down to horizon)
-
 boss invulnerable a envoyer dans incinérateur
-objet bouton incinérateur
 
 mecano lezard
 
@@ -20,6 +17,7 @@ biolance as final weapon
 more destructible obj
 
 BUG
+
 
 bug -> issue with normal in walls with a cut
 bug -> test_behind when looking up in high ceiling room (small bug no easy to fix)
