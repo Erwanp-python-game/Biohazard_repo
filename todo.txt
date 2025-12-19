@@ -4,8 +4,8 @@ boss invulnerable a envoyer dans incinérateur
 
 mecano lezard
 
-
-
+to place walls inside a room and check that not hidden by back walls -> check when image is full if any more walls with middle point<max(horizon[horizon!=100])
+check the len of add_h in level 6 to debug why sometime not showing
 ----------------------------------
 low priority:
 

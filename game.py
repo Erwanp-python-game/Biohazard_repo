@@ -3413,9 +3413,11 @@ while running == 1:
 
 
             if (empty_pixel_count < 4 ) or i.norm > 150 or ci==wall_count-1:
-                if empty_pixel_count>4:
+
+                if empty_pixel_count>4 :
 
                     for j in add_h:
+
                         rend = j.render()
                         Im[j.Ub] = rend[j.Ub]
                         render_w+=1
