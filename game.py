@@ -351,6 +351,11 @@ class Wall():
         self.S0_ = np.full((Im[::2, ::2, 0].shape), 0.)
         self.S1_=np.full((Im[::2,::2,0].shape), 0.)
         self.filt=np.empty(self.Ub.shape, dtype=bool)
+        self.rendered=False
+
+        if self.a[0][0][2]<5 and self.a[0][0][2]>0:
+            self.window=True
+            print(self.text,'fix window mode for walls smaller than 5 in height')
     def opendoor(self, door):
         Imdeco = pygame.image.load(self.text)
         verrou = self.verrou
@@ -3794,7 +3799,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('end')
 
-    if c3 % 1000 == 2:
+    if c3 % 100 == 2:
         milliT = np.expand_dims(milliseconds, -1)
     else:
         if c3!=1:
@@ -3806,11 +3811,11 @@ while running == 1:
     time_behind.append(np.sum(time_in_behind))
     time_tot.append(milliseconds[-1]-milliseconds[0])
     # if len(time_tot)>10:
-    #     print('fps',1000/np.mean(time_tot[-10:]),render_w)
+    #     print('fps',1000/np.mean(time_tot[-10:]),render_w,len(add_h))
 
-    if (c3-1) % 1000 == 999 :
+    if (c3-1) % 100 == 99 :
 
-        averaged_time = np.round(averaged_time / 1000, 1)
+        averaged_time = np.round(averaged_time / 100, 1)
         milliseconds = np.mean(milliT, axis=-1)
         timelist = averaged_time#np.round((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], 1)
         sortingtime = [(x, str(y) + ' ms', str(round(100 * y / np.sum(timelist), 1)) + ' %') for y, x in
