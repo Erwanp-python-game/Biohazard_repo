@@ -31,6 +31,7 @@ screen = np.full((*scrnL, 6), 0.0)
 depth = np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 POS = np.full((2 * scrnL[0], 2 * scrnL[1]), 1000.0)
 horizon = np.full((scrnL[0], 1), 100.0)
+horizon2 = np.full((scrnL[0], 1), 10000.0)
 Ang = np.full((*scrnL, 2), 0.0)
 I = np.indices(scrnL)
 I_n = np.divide(np.moveaxis((np.indices(scrnL)), 0, 2) - 0.5 * scrnL, scrnL[1])
@@ -155,6 +156,7 @@ class Wall():
         Imdeco2 = pygame.image.load(self.text2)
         if deco != 0:
             freq2 = int(0.5 + np.linalg.norm(self.a[0][0]) / 10)
+            freq2=max(freq2,1)
             if levelD[level]['deco'][deco - 1] in z_tileable_deco:
                 freq2 = 1
             Imdeco = pygame.transform.scale(Imdeco, (120 * freq, 120 * freq2))
@@ -211,6 +213,7 @@ class Wall():
                 Imdeco = Im_t
                 if deco != 0:
                     freq2 = int(0.5 + np.linalg.norm(self.a[0][0]) / 10)
+                    freq2 = max(freq2, 1)
                     if levelD[level]['deco'][deco - 1] in z_tileable_deco:
                         freq2 = 1
                     Imdeco = pygame.transform.scale(Imdeco, (120 * freq, 120 * freq2))
@@ -250,6 +253,7 @@ class Wall():
                 Imdeco2 = Im_t
                 if deco != 0:
                     freq2 = int(0.5 + np.linalg.norm(self.a[0][0]) / 10)
+                    freq2 = max(freq2, 1)
                     if levelD[level]['deco'][deco - 1] in z_tileable_deco:
                         freq2 = 1
                     Imdeco2 = pygame.transform.scale(Imdeco2, (120 * freq, 120 * freq2))
@@ -287,6 +291,7 @@ class Wall():
         if self.a[0][0][-1] == 0 and self.b[0][0][-1] == 0:
             self.ID = str(int((self.X[0][0][0] + 0.5 * self.b[0][0][0] + 0.5 * self.a[0][0][0]) // 2 + 50)) + ',' + str(
                 int((self.X[0][0][1] + 0.5 * self.b[0][0][1] + 0.5 * self.a[0][0][1]) // 2 + 50))
+
 
         self.TTT0 = []
         self.TTT1 = []
@@ -353,10 +358,10 @@ class Wall():
         self.filt=np.empty(self.Ub.shape, dtype=bool)
         self.rendered=False
 
-
+        self.inside = False
         if self.a[0][0][2]<5 and self.a[0][0][2]>0:
-            self.window=True
-            print(self.text,'fix window mode for walls smaller than 10 in height')
+            self.inside=True
+            print(self.text,'fix window mode for walls smaller than 10 in height',self.ID,self.text,self.deco)
     def opendoor(self, door):
         Imdeco = pygame.image.load(self.text)
         verrou = self.verrou
@@ -476,7 +481,6 @@ class Wall():
             Xb = (self.X_middle[0][0][0:-1] + self.b_middle[0][0][0:-1] - x) @ Rp0
 
 
-
         if ((Xa[0] > 1 and Xb[0] > 1) or (self.Id[0] < 1 and self.Id[0] > 0 and self.Id[1] > 1) or (
                 self.Ig[0] < 1 and self.Ig[0] > 0 and self.Ig[1] > 1)) or self.door != 0:
 
@@ -488,16 +492,20 @@ class Wall():
                 return True
             else:
 
-                global horizon
+                global horizon,horizon2
 
                 B0 = self.b_old[:, 0, :-1].copy()
                 X0 = self.X_old[:, 0, :-1].copy()
 
+                if self.inside:
+                    horizon0=np.minimum(horizon,horizon2)
+                else:
+                    horizon0=horizon
                 self.M0 = np.stack((B0, -screen[:, 24, 3:-1] @ Rp), axis=-1)  # -------------- PB à résoudre pièce haute
                 self.A0 = -X0 + (screen[:, 24, :2] - x) @ Rp + x
                 self.S0 = (np.linalg.solve(self.M0, self.A0))
                 self.U0 = np.where(
-                    np.all(self.S0 <= horizon, axis=-1) & np.all(self.S0 > 0, axis=-1) & np.all(self.S0[:, :-1] < 1, axis=-1), 1, 0)
+                    np.all(self.S0 <= horizon0, axis=-1) & np.all(self.S0 > 0, axis=-1) & np.all(self.S0[:, :-1] < 1, axis=-1), 1, 0)
 
 
                 if self.angle0<0:
@@ -523,7 +531,7 @@ class Wall():
                         np.all(self.S1 <= horizon, axis=-1) & np.all(self.S1 > 0, axis=-1) & np.all(self.S1[:, :-1] < 1, axis=-1), 1, 0)
 
 
-                if self.window == 0:
+                if self.window == 0 and self.inside==False:
                     if self.angle0!=0:
 
                         horizon = self.S1[:, -1:] * np.expand_dims(self.U1, -1) + horizon * (
@@ -531,6 +539,11 @@ class Wall():
                     else:
                         horizon = self.S0[:, -1:] * np.expand_dims(self.U0, -1) + horizon * (
                                     1 - np.expand_dims(self.U0, -1))
+
+                if self.inside:
+                    horizon2 = self.S0[:, -1:] * np.expand_dims(self.U0, -1) + horizon2 * (
+                            1 - np.expand_dims(self.U0, -1))
+
 
                 if np.sum(self.U0) > 0:
                     milliseconds.append(time.perf_counter()*1000)
@@ -607,6 +620,7 @@ class Wall():
         self.Ub[:] = self.U
     def render(self):
         global depth, POS, Sky_view,explo_R
+
         self.rendered=True
         self.time=(0,0)
         milliseconds=[time.perf_counter()*1000]
@@ -2867,6 +2881,7 @@ def load_level(level_name):
 
     lenH = 0
     for i in level_h:
+
         a = 2 * i[0]
         b = 2 * i[1]
         x1 = 2 * i[2]
@@ -2874,7 +2889,8 @@ def load_level(level_name):
         H = i[3]
         x2 = 2 * i[2] + [0, 0, 10+H*0.001]
         im = 'image/flat/roof' + str(levelD[level]['flat'][i[4]]) + '.png'
-        wall.append(Wall(list(a), list(b), list(x1 + [0, 0, -H]), [im, im, i[2][2]], 0, 0, 1, 0,0))
+        if len(i)==5:
+            wall.append(Wall(list(a), list(b), list(x1 + [0, 0, -H]), [im, im, i[2][2]], 0, 0, 1, 0,0))
         if i[4] == 9:
             wall[-1].transp = 1
         liquid=[i.split('r')[1][:-1] for i in liquid_floor]
@@ -2891,7 +2907,7 @@ def load_level(level_name):
     h_wall = []
     [i.texture(2 + int(np.linalg.norm(i.a) / 500), 2 + int(np.linalg.norm(i.b) / 500)) for i in
      wall[-2 * len(level_h) - lenH:]]
-    h_wall = wall[-2 * len(level_h) - lenH:]
+    h_wall = wall[-2 * len(level_h) - lenH+1:]
 
     for i in wall:
 
@@ -3004,6 +3020,7 @@ pygame.mixer.music.play(-1)
 depth = np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 explo_R=np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 horizon = np.full((scrnL[0], 1), 10000.0)
+horizon2 = np.full((scrnL[0], 1), 10000.0)
 POS = np.full((2 * scrnL[0], 2 * scrnL[1]), 1000.0)
 code_show = 0
 code_show2 = 0
@@ -3053,6 +3070,7 @@ while running == 1:
     Im = Im * 0
     depth = depth * 0 + 100.
     horizon = horizon * 0 + 10000.
+    horizon2 = horizon2 * 0 + 10000.
     POS = POS * 0 + 1000.
     explo_R=explo_R*0+1000
     trans = np.array([0.0, 0.0])
@@ -3434,6 +3452,7 @@ while running == 1:
 
 
                 if i.text[11:-3] not in liquid_floor:
+
                     render_w += 1
                     rend=i.render()
                     Im[i.Ub]=rend[i.Ub]
@@ -3468,6 +3487,7 @@ while running == 1:
 
                     for j in add_h:
                         if j.rendered==False:
+
                             rend = j.render()
                             Im[j.Ub] = rend[j.Ub]
                             render_w_add+=1
@@ -3484,17 +3504,19 @@ while running == 1:
         [i.calc_normfast() for i in add_h if i.rendered == False]
         add_h2=[i for i in add_h if i.normf<max(horizon[horizon!=10000.]) and i.rendered==False]
         for j in add_h2:
-            if j.rendered == False:
+            if j.rendered == False and j in h_wall:
                 rend = j.render()
                 Im[j.Ub] = rend[j.Ub]
                 render_w_add2 += 1
                 empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+
     render_sup_wall=0
     for ci,i in enumerate( wall[cw:cw+10]):
         if i.rendered == False and i.test_behind() and i not in h_wall:
             render_sup_wall+=1
             rend = i.render()
             Im[i.Ub] = rend[i.Ub]
+
 
 
     # print(render_w,render_w_add,render_w_add2,render_sup_wall)
@@ -3505,11 +3527,13 @@ while running == 1:
         depth_cached = depth
         POS_cached = POS
         horizon_cached = horizon
+        horizon_cached2 = horizon2
     else:
         Im = Im_cached
         depth = depth_cached
         POS = POS_cached
         horizon = horizon_cached
+        horizon2 = horizon_cached2
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')

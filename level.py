@@ -975,7 +975,11 @@ while running==1:
 					zmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),alt[:,:,0]+h1,zmap)
 
 					if add_roof:
-						h_liste.append((np.array([X2[0]-X1[0],0,0]),np.array([0,X2[1]-X1[1],h2-h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
+						if slope==0:
+							h_liste.append((np.array([X2[0]-X1[0],0,0]),np.array([0,X2[1]-X1[1],h2-h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
+						else:
+							h_liste.append((np.array([X2[0] - X1[0], 0, 0]), np.array([0, X2[1] - X1[1], h2 - h1]),
+											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
 					if slope == 0:
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50
@@ -994,7 +998,11 @@ while running==1:
 					zmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),alt[:,:,0]+h1,zmap)
 
 					if add_roof:
-						h_liste.append((np.array([X2[0]-X1[0],0,h2-h1]),np.array([0,X2[1]-X1[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
+						if slope==0:
+							h_liste.append((np.array([X2[0]-X1[0],0,h2-h1]),np.array([0,X2[1]-X1[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
+						else:
+							h_liste.append((np.array([X2[0] - X1[0], 0, h2 - h1]), np.array([0, X2[1] - X1[1], 0]),
+											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
 					if slope==0:
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50

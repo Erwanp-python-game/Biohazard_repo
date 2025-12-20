@@ -9,11 +9,13 @@ option in editor to avoid putting an upper plane to make a roof
 
 correct issue of freq2 being 0 with walls with small height
 
-show possible walls that have a center closer than horizon if map has been fully filled, check the next 15 walls and add_h
+
 find a way to not render the inside roof and floor when they are covered by outer walls (ex container), or else keep it with fast exit after calculating self.U
+
 
 identify walls that are smaller than 10 in z and render them without filling horizon (maybe filling horizon 2 to make them hide the others with same height)
 h<10 is arbitrary -> rooms cannot support inside walls with h>10 and h<Hroom
+
 
 when making a platform do not set the wall value to one
 
