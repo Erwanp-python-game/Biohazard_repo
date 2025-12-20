@@ -3820,7 +3820,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('end')
 
-    if c3 % 100 == 2:
+    if c3 % 1000 == 2:
         milliT = np.expand_dims(milliseconds, -1)
     else:
         if c3!=1:
@@ -3834,9 +3834,9 @@ while running == 1:
     # if len(time_tot)>10:
     #     print('fps',1000/np.mean(time_tot[-10:]),render_w,len(add_h))
 
-    if (c3-1) % 100 == 99 :
+    if (c3-1) % 1000 == 999 :
 
-        averaged_time = np.round(averaged_time / 100, 1)
+        averaged_time = np.round(averaged_time / 1000, 1)
         milliseconds = np.mean(milliT, axis=-1)
         timelist = averaged_time#np.round((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], 1)
         sortingtime = [(x, str(y) + ' ms', str(round(100 * y / np.sum(timelist), 1)) + ' %') for y, x in
