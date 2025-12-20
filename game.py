@@ -70,7 +70,7 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 5
+level = 6
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -416,6 +416,7 @@ class Wall():
         #     self.add=(add0+add1+add2+add3)/4
         #     self.norm+=self.add*1e-3
         self.inter=V
+        self.reset_rend()
 
     def calc_normfast(self):
         self.normf = np.linalg.norm(self.X_middle[0][0][:-1] + 0.5 * self.a_middle[0][0][:-1] + 0.5 * self.b_middle[0][0][:-1] - R_c[:-1])
@@ -680,7 +681,8 @@ class Wall():
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('contour')
 
-        if np.sum(self.U) < 5:
+        #print('before exit', self.text,np.sum(self.U))
+        if np.sum(self.U) < 25:
             return np.full((2 * scrnL[0], 2 * scrnL[1], 1), 0)
         else:
             Ue = np.expand_dims(self.U, -1)
@@ -3392,7 +3394,7 @@ while running == 1:
     add_h=[]
     link_h=[]
     ID0=''
-
+    cw=0
     if moving_cam == True:
         v_ = screenV[::2, ::2]
         p_ = screenP[::2, ::2]
@@ -3400,6 +3402,7 @@ while running == 1:
         IS = []
         empty_pixel_count=128000
         for ci,i in enumerate(wall[0:wall_count]):
+            cw+=1
             devant = True
             if i not in h_wall:
                 devant = i.test_behind()
@@ -3459,26 +3462,43 @@ while running == 1:
 
 
             if (empty_pixel_count < 4 ) or i.norm > 150 or ci==wall_count-1:
-                # print([k.rendered for k in h_wall if k.ID in link_h])
+                render_w_add=0
                 add_h+=[k for k in h_wall if k.ID in link_h and k.rendered==False]
                 if empty_pixel_count>4 :
 
                     for j in add_h:
-                        # print(j.ID,ID0,j.norm)
-                        rend = j.render()
-                        Im[j.Ub] = rend[j.Ub]
-                        render_w+=1
-                        empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
-                        # if (empty_pixel_count < 4):
-                        #     break
+                        if j.rendered==False:
+                            rend = j.render()
+                            Im[j.Ub] = rend[j.Ub]
+                            render_w_add+=1
+                            empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+
                 break
         if render_w2>wall_count-10:
             elastic_count+=10
         else:
             elastic_count = max(elastic_count-10,0)
     render_w_old=render_w
-    # print(set(link_h),len(add_h),empty_pixel_count,ci)
+    render_w_add2=0
+    if empty_pixel_count<4 and (horizon!=10000).any():
+        [i.calc_normfast() for i in add_h if i.rendered == False]
+        add_h2=[i for i in add_h if i.normf<max(horizon[horizon!=10000.]) and i.rendered==False]
+        for j in add_h2:
+            if j.rendered == False:
+                rend = j.render()
+                Im[j.Ub] = rend[j.Ub]
+                render_w_add2 += 1
+                empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+    render_sup_wall=0
+    for ci,i in enumerate( wall[cw:cw+10]):
+        if i.rendered == False and i.test_behind() and i not in h_wall:
+            render_sup_wall+=1
+            rend = i.render()
+            Im[i.Ub] = rend[i.Ub]
 
+
+    print(render_w,render_w_add,render_w_add2,render_sup_wall)
+    render_w=render_w+render_w_add+render_w_add2+render_sup_wall
 
     if moving_cam == True:
         Im_cached = Im
