@@ -288,7 +288,8 @@ class Wall():
         self.ID = str(int((self.X[0][0][0] + 0.5 * self.b[0][0][0]) // 2 + 50)) + ',' + str(
             int((self.X[0][0][1] + 0.5 * self.b[0][0][1]) // 2 + 50))
         self.transp = 0
-        if self.a[0][0][-1] == 0 and self.b[0][0][-1] == 0:
+
+        if (self.a[0][0][-1] == 0 and self.b[0][0][-1] == 0) or (self.text.split('/')[1]=='flat'):
             self.ID = str(int((self.X[0][0][0] + 0.5 * self.b[0][0][0] + 0.5 * self.a[0][0][0]) // 2 + 50)) + ',' + str(
                 int((self.X[0][0][1] + 0.5 * self.b[0][0][1] + 0.5 * self.a[0][0][1]) // 2 + 50))
 
@@ -2880,6 +2881,7 @@ def load_level(level_name):
     [i.texture(5, 5) for i in wall]
 
     lenH = 0
+    app=0
     for i in level_h:
 
         a = 2 * i[0]
@@ -2890,6 +2892,7 @@ def load_level(level_name):
         x2 = 2 * i[2] + [0, 0, 10+H*0.001]
         im = 'image/flat/roof' + str(levelD[level]['flat'][i[4]]) + '.png'
         if len(i)==5:
+            app+=1
             wall.append(Wall(list(a), list(b), list(x1 + [0, 0, -H]), [im, im, i[2][2]], 0, 0, 1, 0,0))
         if i[4] == 9:
             wall[-1].transp = 1
@@ -2897,17 +2900,21 @@ def load_level(level_name):
         if str(levelD[level]['flat'][i[4]]) in liquid:  # WARNING TO FINISH
             lenH += 1
             im = 'image/flat/L_floor' + str(levelD[level]['flat'][i[4]]) + '.png'
+            app += 1
             wall.append(Wall(list(-a), list(b), list(a + x2), [im, im, i[2][2]], 0, 0, 1, 0,0))
             im = 'image/flat/floor' + str(levelD[level]['flat'][i[4]]) + '.png'
+            app += 1
             wall.append(Wall(list(-a), list(b), list(a + x2 + [0, 0, -2]), [im, im, i[2][2]], 0, 0, 1, 0,0))
         else:
             im = 'image/flat/floor' + str(levelD[level]['flat'][i[4]]) + '.png'
+            app += 1
             wall.append(Wall(list(-a), list(b), list(a + x2), [im, im, i[2][2]], 0, 0, 1, 0,0))
 
     h_wall = []
     [i.texture(2 + int(np.linalg.norm(i.a) / 500), 2 + int(np.linalg.norm(i.b) / 500)) for i in
-     wall[-2 * len(level_h) - lenH:]]
-    h_wall = wall[-2 * len(level_h) - lenH+1:]
+     wall[-app:]]
+    h_wall = wall[-app:]
+
 
     for i in wall:
 
@@ -3414,6 +3421,7 @@ while running == 1:
     ID0=''
     cw=0
     if moving_cam == True:
+
         v_ = screenV[::2, ::2]
         p_ = screenP[::2, ::2]
         Sky_view = 0

@@ -242,6 +242,7 @@ def flood_fill(arr,xl,wall_liste,col):
 		V=0.5*(i[0]+i[1])
 		if xl[0]<max(X1[0],X2[0]) and xl[1]<max(X1[1],X2[1]) and xl[0]>min(X1[0],X2[0]) and xl[1]>min(X1[1],X2[1]):
 			clef=str(int(X1[0]+V[0]))+','+str(int(X1[1]+V[1]))
+
 			if clef not in light_wall.keys():
 				light_wall[clef]=[str(xl[0])+','+str(xl[1])]
 				light_color[clef]=col
