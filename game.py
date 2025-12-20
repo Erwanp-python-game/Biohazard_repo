@@ -3497,7 +3497,7 @@ while running == 1:
             Im[i.Ub] = rend[i.Ub]
 
 
-    print(render_w,render_w_add,render_w_add2,render_sup_wall)
+    # print(render_w,render_w_add,render_w_add2,render_sup_wall)
     render_w=render_w+render_w_add+render_w_add2+render_sup_wall
 
     if moving_cam == True:
