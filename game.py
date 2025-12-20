@@ -70,7 +70,7 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 6
+level = 5
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -353,9 +353,10 @@ class Wall():
         self.filt=np.empty(self.Ub.shape, dtype=bool)
         self.rendered=False
 
+
         if self.a[0][0][2]<5 and self.a[0][0][2]>0:
             self.window=True
-            print(self.text,'fix window mode for walls smaller than 5 in height')
+            print(self.text,'fix window mode for walls smaller than 10 in height')
     def opendoor(self, door):
         Imdeco = pygame.image.load(self.text)
         verrou = self.verrou
