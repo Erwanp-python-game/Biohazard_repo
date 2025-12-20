@@ -11,6 +11,8 @@ h<10 is arbitrary -> rooms cannot support inside walls with h>10 and h<Hroom
 
 when making a platform do not set the wall value to one
 
+check the height of platform
+
 ----------------------------------
 low priority:
 
