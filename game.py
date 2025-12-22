@@ -71,7 +71,7 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 6
+level = 4
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -359,6 +359,7 @@ class Wall():
         self.filt=np.empty(self.Ub.shape, dtype=bool)
         self.rendered=False
 
+        self.height_rel=[]
         self.inside = False
         if self.a[0][0][2]<5 and self.a[0][0][2]>0:
             self.inside=True
@@ -621,7 +622,8 @@ class Wall():
         self.Ub[:] = self.U
     def render(self):
         global depth, POS, Sky_view,explo_R
-
+        if len(self.height_rel)>0:
+            print(self.height_rel)
         self.rendered=True
         self.time=(0,0)
         milliseconds=[time.perf_counter()*1000]
@@ -2920,6 +2922,7 @@ def load_level(level_name):
 
         if i not in h_wall:
             count_w=0
+
             for j in h_wall:
                 V1=i.X[0,0,:-1]-j.X[0,0,:-1]
                 V2 = i.X[0, 0, :-1]+i.a[0, 0, :-1]+i.b[0, 0, :-1]-j.X[0,0,:-1]
@@ -2933,6 +2936,10 @@ def load_level(level_name):
 
                     count_w+=1
                     i.linked.append(j.ID)
+
+                    if j.text.split('/')[-1][:4]=='roof' and j.X[0,0,2]<i.X[0,0,2]:
+                        print(j.X[0,0,2],j.text,j.ID,i.X[0,0,2],i.text,i.ID,i.deco)# check when plafond is stairs and choose what to do with door, check if the two roof are one inside the other or not
+                        i.height_rel.append((j.X[0,0,2],j.text,j.ID,i.X[0,0,2],i.text,i.ID,i.deco))
 
 
 
@@ -3050,7 +3057,7 @@ time_wall = []
 time_tot=[]
 time_behind = []
 plot_stats=False
-sensitivity=500
+sensitivity=500#500
 movement=0
 render_w_old=0
 
