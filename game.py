@@ -31,7 +31,8 @@ screen = np.full((*scrnL, 6), 0.0)
 depth = np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 POS = np.full((2 * scrnL[0], 2 * scrnL[1]), 1000.0)
 horizon = np.full((scrnL[0], 1), 100.0)
-horizon2 = np.full((scrnL[0], 1), 10000.0)
+heigh_list=[]
+horizon2 = np.full((scrnL[0], len(heigh_list)), 10000.0)
 Ang = np.full((*scrnL, 2), 0.0)
 I = np.indices(scrnL)
 I_n = np.divide(np.moveaxis((np.indices(scrnL)), 0, 2) - 0.5 * scrnL, scrnL[1])
@@ -66,7 +67,7 @@ R_c = np.array([-1, 0, 0])
 Vg = np.array([1, -sqrt(2) / 2]) / sqrt(3 / 2)
 Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 
-
+height_list=[]
 
 setting = {}
 setting['smooth'] = False
@@ -100,7 +101,7 @@ def source_pos(code):
 # xq=[x[0]/2+50,x[1]/2+50]
 # xR=[int(xq[0]),int(xq[1])]
 # xfin=xR
-# #print(autho[xR[1]-2:xR[1]-2+2][xR[0]-2:xR[0]+2])
+
 # for i in [-2,-1,0,1,2]:
 # for j in [-2,-1,0,1,2]:
 # if (i!=0 or j!=0) and autho[xR[1]+j][xR[0]+i]==2:
@@ -108,7 +109,7 @@ def source_pos(code):
 # if D<=d:
 # d=D
 # xfin=[xR[0]+i,xR[1]+j]
-# #print(autho[xR[1]+j][xR[0]+i])
+
 # return xfin
 def plane(a,b,X):
     M = np.stack((a * 1.1, b * 1.1, -screenV), axis=-1)
@@ -332,7 +333,7 @@ class Wall():
         self.overlap=1.01
         if self.a[0][0][-1] == 0 and self.b[0][0][-1] == 0:
             self.overlap=1.0
-        # print(self.a[0,0,:],self.a[0,0,:]/np.linalg.norm(self.a[0,0,:]))
+
         self.a_sliced = self.a[::2, ::2]* self.overlap
         self.b_sliced = self.b[::2, ::2]* self.overlap
         self.X_sliced = self.X[::2, ::2]
@@ -361,9 +362,7 @@ class Wall():
 
         self.height_rel=[]
         self.inside = False
-        if self.a[0][0][2]<5 and self.a[0][0][2]>0:
-            # self.inside=True
-            print(self.text,'fix window mode for walls smaller than 10 in height',self.ID,self.text,self.deco)
+
     def opendoor(self, door):
         Imdeco = pygame.image.load(self.text)
         verrou = self.verrou
@@ -439,7 +438,7 @@ class Wall():
         #
         # Sang=np.arctan2(rap[0], rap[1])
         # Sang0 = np.arctan2(rap0[0], rap0[1])
-        # print(Sang,Sang0,t,No)
+
 
 
         x_ = self.X_middle[0][0][0]
@@ -500,7 +499,14 @@ class Wall():
                 X0 = self.X_old[:, 0, :-1].copy()
 
                 if self.inside:
-                    horizon0=np.minimum(horizon,horizon2)
+                    h=0
+                    if self.X[0,0,2] in height_list:
+                        h=height_list.index(self.X[0,0,2])
+                    if h>0:
+
+                        horizon0=np.minimum(horizon,np.min(horizon2[:,:h+1],axis=1)[:,None])
+                    else:
+                        horizon0 = np.minimum(horizon, horizon2[:, 0, None])
                 else:
                     horizon0=horizon
                 self.M0 = np.stack((B0, -screen[:, 24, 3:-1] @ Rp), axis=-1)  # -------------- PB à résoudre pièce haute
@@ -543,8 +549,9 @@ class Wall():
                                     1 - np.expand_dims(self.U0, -1))
 
                 if self.inside:
-                    horizon2 = self.S0[:, -1:] * np.expand_dims(self.U0, -1) + horizon2 * (
-                            1 - np.expand_dims(self.U0, -1))
+
+                    horizon2[:,h] = (self.S0[:, -1:] * np.expand_dims(self.U0, -1) + horizon2[:,h,None] * (
+                            1 - np.expand_dims(self.U0, -1)))[:,0]
 
 
                 if np.sum(self.U0) > 0:
@@ -622,8 +629,7 @@ class Wall():
         self.Ub[:] = self.U
     def render(self):
         global depth, POS, Sky_view,explo_R
-        if len(self.height_rel)>0:
-            print(self.height_rel)
+
         self.rendered=True
         self.time=(0,0)
         milliseconds=[time.perf_counter()*1000]
@@ -2743,7 +2749,7 @@ def check_trigger():
 
 
 def load_level(level_name):
-    global op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     level = int(level_name)
     if level==5:
         SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel1.png'))
@@ -2967,6 +2973,11 @@ def load_level(level_name):
             if i.inside:
                 print(i.X[0, 0, 2], i.text, i.ID,i.deco)
 
+    height_list = [i.X[0][0][2] for i in wall if i.inside ]
+    height_list=list(set(height_list))
+    height_list.sort()
+
+    horizon2 = np.full((scrnL[0], len(heigh_list)), 10000.0)
 
     zmap = zmap.T
     thing = []
@@ -3058,7 +3069,7 @@ pygame.mixer.music.play(-1)
 depth = np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 explo_R=np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 horizon = np.full((scrnL[0], 1), 10000.0)
-horizon2 = np.full((scrnL[0], 1), 10000.0)
+horizon2 = np.full((scrnL[0], len(height_list)), 10000.0)
 POS = np.full((2 * scrnL[0], 2 * scrnL[1]), 1000.0)
 code_show = 0
 code_show2 = 0

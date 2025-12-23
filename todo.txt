@@ -6,8 +6,7 @@ mecano lezard blood
 
 
 
-h<10 is arbitrary -> rooms cannot support inside walls with h>10 and h<Hroom
-
+walls that should be considered as inside are indentified-> fix horizon to take all inside heights into account
 
 when making a platform do not set the wall value to one
 
