@@ -71,7 +71,7 @@ Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 4
+level = 6
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -362,7 +362,7 @@ class Wall():
         self.height_rel=[]
         self.inside = False
         if self.a[0][0][2]<5 and self.a[0][0][2]>0:
-            self.inside=True
+            # self.inside=True
             print(self.text,'fix window mode for walls smaller than 10 in height',self.ID,self.text,self.deco)
     def opendoor(self, door):
         Imdeco = pygame.image.load(self.text)
@@ -2922,7 +2922,7 @@ def load_level(level_name):
 
         if i not in h_wall:
             count_w=0
-
+            h_wall_temp=[]
             for j in h_wall:
                 V1=i.X[0,0,:-1]-j.X[0,0,:-1]
                 V2 = i.X[0, 0, :-1]+i.a[0, 0, :-1]+i.b[0, 0, :-1]-j.X[0,0,:-1]
@@ -2937,11 +2937,35 @@ def load_level(level_name):
                     count_w+=1
                     i.linked.append(j.ID)
 
-                    if j.text.split('/')[-1][:4]=='roof' and j.X[0,0,2]<i.X[0,0,2]:
-                        print(j.X[0,0,2],j.text,j.ID,i.X[0,0,2],i.text,i.ID,i.deco)# check when plafond is stairs and choose what to do with door, check if the two roof are one inside the other or not
+                    if j.text.split('/')[-1][:4]=='roof' and j.a[0,0,2]==0 and j.b[0,0,2]==0:
+                        # check when plafond is stairs and choose what to do with door, check if the two roof are one inside the other or not
+                        h_wall_temp.append(j)
+                        if j.X[0,0,2]<i.X[0,0,2]:
+                            i.inside=True
                         i.height_rel.append((j.X[0,0,2],j.text,j.ID,i.X[0,0,2],i.text,i.ID,i.deco))
+            if len(i.height_rel)>1:
+                for k in h_wall_temp:
+                    for j in h_wall_temp:
+                        if j.X[0, 0, 2] < i.X[0, 0, 2]:
+                            if j!=k:# checking k inside j
+                                V1 = k.X[0, 0, :-1] - j.X[0, 0, :-1]
+                                V2 = k.X[0, 0, :-1] + k.a[0, 0, :-1] + k.b[0, 0, :-1] - j.X[0, 0, :-1]
+                                d1x = np.dot(V1, j.a[0, 0, :-1])
+                                d1y = np.dot(V1, j.b[0, 0, :-1])
+                                d2x = np.dot(V2, j.a[0, 0, :-1])
+                                d2y = np.dot(V2, j.b[0, 0, :-1])
 
+                                if np.linalg.norm(j.a[0, 0, :-1]) ** 2 >= d1x >= 0 and np.linalg.norm(
+                                        j.b[0, 0, :-1]) ** 2 >= d1y >= 0 and np.linalg.norm(
+                                        j.a[0, 0, :-1]) ** 2 >= d2x >= 0 and np.linalg.norm(
+                                        j.b[0, 0, :-1]) ** 2 >= d2y >= 0 :
 
+                                    i.inside=True
+                                else:
+
+                                    i.inside=False
+            if i.inside:
+                print(i.X[0, 0, 2], i.text, i.ID,i.deco)
 
 
     zmap = zmap.T
