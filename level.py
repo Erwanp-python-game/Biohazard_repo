@@ -981,6 +981,36 @@ while running==1:
 						else:
 							h_liste.append((np.array([X2[0] - X1[0], 0, 0]), np.array([0, X2[1] - X1[1], h2 - h1]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
+							if pente==0:
+								print('platform')
+								X1p=[]
+								X2p=[]
+								X1p.append(np.array([X1[0],X1[1]]))
+								X2p.append(np.array([X2[0],X1[1]]))
+
+								X1p.append(np.array([X2[0],X1[1]]))
+								X2p.append(np.array([X2[0],X2[1]]))
+
+								X1p.append(np.array([X2[0],X2[1]]))
+								X2p.append(np.array([X1[0],X2[1]]))
+
+								X1p.append(np.array([X1[0],X2[1]]))
+								X2p.append(np.array([X1[0],X1[1]]))
+								
+								for xx in range(len(X1p)):
+									b = (X1p[xx][0] - X2p[xx][0]) * X1p[xx][1] - X1p[xx][0] * (X1p[xx][1] - X2p[xx][1])
+									a = (X1p[xx][1] - X2p[xx][1])
+									c = (X1p[xx][0] - X2p[xx][0])
+	
+									wall_liste.append((
+													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door, -2.5, 0, -2.5*2-(5+2*h1),
+													  deco, freq, phase, slant))
+									col = np.where(np.expand_dims(
+										(np.absolute(c * X[:, :, 1] - a * X[:, :, 0] - b) < 0.5 * (abs(a) + abs(c))) & (
+													X[:, :, 0] <= max(X1p[xx][0], X2p[xx][0]) + 0) & (
+													X[:, :, 1] <= max(X1p[xx][1], X2p[xx][1]) + 0) & (
+													X[:, :, 1] >= min(X1p[xx][1], X2p[xx][1]) - 0) & (
+													X[:, :, 0] >= min(X1p[xx][0], X2p[xx][0]) - 0) & (level_w == 0), -1), CC, col)
 					if slope == 0:
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50
@@ -1004,6 +1034,8 @@ while running==1:
 						else:
 							h_liste.append((np.array([X2[0] - X1[0], 0, h2 - h1]), np.array([0, X2[1] - X1[1], 0]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
+							if pente==0:
+								print('platform')
 					if slope==0:
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50
