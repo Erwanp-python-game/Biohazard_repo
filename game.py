@@ -31,8 +31,8 @@ screen = np.full((*scrnL, 6), 0.0)
 depth = np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 POS = np.full((2 * scrnL[0], 2 * scrnL[1]), 1000.0)
 horizon = np.full((scrnL[0], 1), 100.0)
-heigh_list=[]
-horizon2 = np.full((scrnL[0], len(heigh_list)), 10000.0)
+height_list=[]
+horizon2 = np.full((scrnL[0], len(height_list)), 10000.0)
 Ang = np.full((*scrnL, 2), 0.0)
 I = np.indices(scrnL)
 I_n = np.divide(np.moveaxis((np.indices(scrnL)), 0, 2) - 0.5 * scrnL, scrnL[1])
@@ -72,7 +72,7 @@ height_list=[]
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 6
+level = 5
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -2749,7 +2749,8 @@ def check_trigger():
 
 
 def load_level(level_name):
-    global horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    CARTE = [0, 0, 0]
     level = int(level_name)
     if level==5:
         SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel1.png'))
@@ -2946,10 +2947,10 @@ def load_level(level_name):
                     if j.text.split('/')[-1][:4]=='roof' and j.a[0,0,2]==0 and j.b[0,0,2]==0:
                         # check when plafond is stairs and choose what to do with door, check if the two roof are one inside the other or not
                         h_wall_temp.append(j)
-                        if j.X[0,0,2]<i.X[0,0,2]:
+                        if j.X[0,0,2]<i.X[0,0,2]:# if wall smaller than roof then in inside
                             i.inside=True
                         i.height_rel.append((j.X[0,0,2],j.text,j.ID,i.X[0,0,2],i.text,i.ID,i.deco))
-            if len(i.height_rel)>1:
+            if len(i.height_rel)>1:# if multiple roofs check if they are included one into the other and with a smaller one
                 for k in h_wall_temp:
                     for j in h_wall_temp:
                         if j.X[0, 0, 2] < i.X[0, 0, 2]:
@@ -2977,7 +2978,7 @@ def load_level(level_name):
     height_list=list(set(height_list))
     height_list.sort()
 
-    horizon2 = np.full((scrnL[0], len(heigh_list)), 10000.0)
+    horizon2 = np.full((scrnL[0], len(height_list)), 10000.0)
 
     zmap = zmap.T
     thing = []
@@ -3069,6 +3070,7 @@ pygame.mixer.music.play(-1)
 depth = np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 explo_R=np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 horizon = np.full((scrnL[0], 1), 10000.0)
+
 horizon2 = np.full((scrnL[0], len(height_list)), 10000.0)
 POS = np.full((2 * scrnL[0], 2 * scrnL[1]), 1000.0)
 code_show = 0
@@ -3506,6 +3508,7 @@ while running == 1:
                     render_w += 1
                     rend=i.render()
                     Im[i.Ub]=rend[i.Ub]
+
                     # Im = i.render() + Im * (1 - np.expand_dims(i.U, -1))
 
                     empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
@@ -3536,7 +3539,7 @@ while running == 1:
                 if empty_pixel_count>4 :
 
                     for j in add_h:
-                        if j.rendered==False:
+                        if j.rendered==False and j.text[11:-3] not in liquid_floor:
 
                             rend = j.render()
                             Im[j.Ub] = rend[j.Ub]
@@ -3554,7 +3557,7 @@ while running == 1:
         [i.calc_normfast() for i in add_h if i.rendered == False]
         add_h2=[i for i in add_h if i.normf<max(horizon[horizon!=10000.]) and i.rendered==False]
         for j in add_h2:
-            if j.rendered == False and j in h_wall:
+            if j.rendered == False and j in h_wall and j.text[11:-3] not in liquid_floor:
                 rend = j.render()
                 Im[j.Ub] = rend[j.Ub]
                 render_w_add2 += 1

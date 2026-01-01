@@ -4,15 +4,15 @@ boss invulnerable a envoyer dans incinérateur
 
 mecano lezard blood
 
-
-
 test two platforms
 
 when making a platform do not set the wall value to one
 
-check the height of platform
+make platform mode in editor
 
-check why 10 walls in green walls
+check why 10 walls in green walls level 6
+
+check if horizon 2 is working
 
 ----------------------------------
 low priority:
