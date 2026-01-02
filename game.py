@@ -538,6 +538,15 @@ class Wall():
                     self.U0 = np.where(
                         np.all(self.S1 <= horizon, axis=-1) & np.all(self.S1 > 0, axis=-1) & np.all(self.S1[:, :-1] < 1, axis=-1), 1, 0)
 
+                if self.door_deco:
+                    ind = c // (12 // len(self.wall_im))
+                    indx=(((1-self.S0[:,0]) * self.format[1]) % self.borne[1]).astype(int)
+                    blocked=(np.sum(self.wall_im[ind][60, indx, :],axis=-1)!=0)
+                    # print(blocked.shape,blocked,horizon.shape,self.U0.astype(bool).shape)
+                    # print(horizon[blocked].shape,self.S0[blocked,1,None].shape)
+                    blocked=blocked&self.U0.astype(bool)
+                    horizon[blocked]=self.S0[blocked,1,None]
+
 
                 if self.window == 0 and self.inside==False:
                     if self.angle0!=0:
@@ -3572,7 +3581,7 @@ while running == 1:
 
 
 
-    # print(render_w,render_w_add,render_w_add2,render_sup_wall)
+    #print(render_w,render_w_add,render_w_add2,render_sup_wall)
     render_w=render_w+render_w_add+render_w_add2+render_sup_wall
 
     if moving_cam == True:
