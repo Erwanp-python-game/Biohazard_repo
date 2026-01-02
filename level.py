@@ -289,7 +289,7 @@ def write_options():
 	textRect.topleft = (5, step)
 	fenetre.blit(text,textRect)
 	step+=15
-	text = font.render('floor mode  '+active[1-plafond]+' heigh '+str(height)+' on/off key return value key +/-', True, (100+155*(plafond),100+155*(plafond),100+155*(plafond)))
+	text = font.render('floor mode  '+active[1-plafond]+' heigh '+str(-2*height)+' on/off key return value key +/-', True, (100+155*(plafond),100+155*(plafond),100+155*(plafond)))
 	textRect = text.get_rect()
 	textRect.topleft = (5, step)
 	fenetre.blit(text,textRect)
@@ -942,10 +942,10 @@ while running==1:
 	
 	if select==0 and plafond and light==0 and Monstre==0 and trigger==0 and lift==0 and stair==0:
 		if key[K_KP_PLUS]:
-			height=height+1
+			height=height-0.5
 			pygame.time.wait(300)
 		if key[K_KP_MINUS]:
-			height=height-1
+			height=height+0.5
 			pygame.time.wait(300)
 			
 		if key[K_p]:

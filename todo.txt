@@ -5,9 +5,7 @@ boss invulnerable a envoyer dans incinérateur
 mecano lezard blood
 
 
-make platform mode in editor
-
-when making a platform do not set the wall value to one
+test platform made with editor
 
 test two platforms
 
