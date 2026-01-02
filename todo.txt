@@ -5,16 +5,6 @@ boss invulnerable a envoyer dans incinérateur
 mecano lezard blood
 
 
-test platform made with editor
-
-test two platforms
-
-
-check why 10 walls in green walls level 6
-
-improve how openings are hiding walls behind
-
-
 ----------------------------------
 low priority:
 
