@@ -548,7 +548,7 @@ class Wall():
                     horizon[blocked]=self.S0[blocked,1,None]
 
 
-                if self.window == 0 and self.inside==False:
+                if (self.window == 0 or self.sky!=0) and self.inside==False:
                     if self.angle0!=0:
 
                         horizon = self.S1[:, -1:] * np.expand_dims(self.U1, -1) + horizon * (
@@ -3556,14 +3556,14 @@ while running == 1:
                 add_h+=[k for k in h_wall if k.ID in link_h and k.rendered==False]
 
                 if empty_pixel_count>4 :
-
                     for j in add_h:
                         if j.rendered==False and j.text[11:-3] not in liquid_floor:
-
                             rend = j.render()
                             Im[j.Ub] = rend[j.Ub]
                             render_w_add+=1
-                            empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+                            time_in_render += j.time[0]
+                            label_t_render = j.time[1]
+                empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
 
                 break
 
@@ -3578,13 +3578,13 @@ while running == 1:
         render_w_add2=0
         if empty_pixel_count<4 and (horizon!=10000).any():
             [i.calc_normfast() for i in add_h if i.rendered == False]
-            add_h2=[i for i in add_h if i.normf<max(horizon[horizon!=10000.]) and i.rendered==False]
+            add_h2=[i for i in add_h if i.normf<max(horizon[horizon!=10000.]) and i.rendered==False and i.text[11:-3] not in liquid_floor and i in h_wall]
             for j in add_h2:
-                if j.rendered == False and j in h_wall and j.text[11:-3] not in liquid_floor:
-                    rend = j.render()
-                    Im[j.Ub] = rend[j.Ub]
-                    render_w_add2 += 1
-                    empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+
+                rend = j.render()
+                Im[j.Ub] = rend[j.Ub]
+                render_w_add2 += 1
+                    #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
 
         render_sup_wall=0
         for ci,i in enumerate( wall[cw:cw+10]):
@@ -3595,7 +3595,7 @@ while running == 1:
 
 
 
-    #print(render_w,render_w_add,render_w_add2,render_sup_wall)
+        #print(render_w,render_w_add,render_w_add2,render_sup_wall)
     render_w=render_w+render_w_add+render_w_add2+render_sup_wall
 
     if moving_cam == True:
