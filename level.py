@@ -341,7 +341,7 @@ font2 = pygame.font.Font('freesansbold.ttf', 10)
 lift=0
 stair=0
 slope=0
-
+erase=1
 Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 Amp.fill(255*np.array(Clight),special_flags=BLEND_RGB_MULT)
 while running==1:
@@ -551,6 +551,11 @@ while running==1:
 		plafond=0
 		Monstre=0
 		lift=0
+		erase=1
+		pygame.time.wait(300)
+	if key[K_k] and select:
+		erase = (erase + 1) % 2
+		print('erase',erase)
 		pygame.time.wait(300)
 	if key[K_r]:
 		if plafond:
@@ -644,14 +649,15 @@ while running==1:
 				a=(xs[1]-ys[1])
 				c=(xs[0]-ys[0])
 				col=np.where(np.expand_dims((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(xs[0],ys[0])+0)&(X[:,:,1]<=max(xs[1],ys[1])+0)&(X[:,:,1]>=min(xs[1],ys[1])-0)&(X[:,:,0]>=min(xs[0],ys[0])-0),-1) ,[0,0,0],col)
-				level_w=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(xs[0],ys[0])+0)&(X[:,:,1]<=max(xs[1],ys[1])+0)&(X[:,:,1]>=min(xs[1],ys[1])-0)&(X[:,:,0]>=min(xs[0],ys[0])-0) ,0,level_w)
-				level_w_transp = np.where((np.absolute(c * X[:, :, 1] - a * X[:, :, 0] - b) < 0.5 * (abs(a) + abs(c))) & (
-							X[:, :, 0] <= max(xs[0], ys[0]) + 0) & (X[:, :, 1] <= max(xs[1], ys[1]) + 0) & (
-											   X[:, :, 1] >= min(xs[1], ys[1]) - 0) & (
-											   X[:, :, 0] >= min(xs[0], ys[0]) - 0), 0, level_w_transp)
-				if door==0:
-					authorized=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(xs[0],ys[0])+0)&(X[:,:,1]<=max(xs[1],ys[1])+0)&(X[:,:,1]>=min(xs[1],ys[1])-0)&(X[:,:,0]>=min(xs[0],ys[0])-0) ,0,authorized)
-				
+				if erase:
+					level_w=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(xs[0],ys[0])+0)&(X[:,:,1]<=max(xs[1],ys[1])+0)&(X[:,:,1]>=min(xs[1],ys[1])-0)&(X[:,:,0]>=min(xs[0],ys[0])-0) ,0,level_w)
+					level_w_transp = np.where((np.absolute(c * X[:, :, 1] - a * X[:, :, 0] - b) < 0.5 * (abs(a) + abs(c))) & (
+								X[:, :, 0] <= max(xs[0], ys[0]) + 0) & (X[:, :, 1] <= max(xs[1], ys[1]) + 0) & (
+												   X[:, :, 1] >= min(xs[1], ys[1]) - 0) & (
+												   X[:, :, 0] >= min(xs[0], ys[0]) - 0), 0, level_w_transp)
+					if door==0:
+						authorized=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(xs[0],ys[0])+0)&(X[:,:,1]<=max(xs[1],ys[1])+0)&(X[:,:,1]>=min(xs[1],ys[1])-0)&(X[:,:,0]>=min(xs[0],ys[0])-0) ,0,authorized)
+
 				if np.sum(level_w[xs[0]-1:xs[0]+2,xs[1]-1:xs[1]+2])>0:
 					col[xs[0],xs[1]]=[0,255,0]
 				else:
@@ -1001,10 +1007,12 @@ while running==1:
 									b = (X1p[xx][0] - X2p[xx][0]) * X1p[xx][1] - X1p[xx][0] * (X1p[xx][1] - X2p[xx][1])
 									a = (X1p[xx][1] - X2p[xx][1])
 									c = (X1p[xx][0] - X2p[xx][0])
-	
 									wall_liste.append((
-													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door, -2.5, 0, -2.5*2-(5+2*h1),
+													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door, h1+2.5, 0, 0,
 													  deco, freq, phase, slant))
+									# wall_liste.append((
+									# 				  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door, -2.5, 0, -2.5*2-(5+2*h1),
+									# 				  deco, freq, phase, slant))
 									col = np.where(np.expand_dims(
 										(np.absolute(c * X[:, :, 1] - a * X[:, :, 0] - b) < 0.5 * (abs(a) + abs(c))) & (
 													X[:, :, 0] <= max(X1p[xx][0], X2p[xx][0]) + 0) & (

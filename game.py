@@ -3397,7 +3397,7 @@ while running == 1:
     # print(time.time()*1000-milliseconds[0])------until there same time small and big
 
     [i.calc_norm() for i in wall[0:20]]
-    [i.reset_rend() for i in h_wall[0:10]]
+    [i.reset_rend() for i in h_wall[0:20]]
     if c2 == 0:
         [i.calc_norm() for i in wall]
     [i.calc_norm() for i in thing[0:20] if i.type_M != 'BOSS']
@@ -3499,6 +3499,7 @@ while running == 1:
                     if i.ID in link_h:
                         add_h.append(i)
 
+
                     devant = False
                     # if CLOSED != 0:  # and h_wall.index(i)<=6: # INSTEAD CHECK IF ASSOCIATED DOOR WITH THIS FLOOR IS OPEN AND VISIBLE---COMPLICATED
                     #     devant = True
@@ -3544,7 +3545,9 @@ while running == 1:
 
             if (empty_pixel_count < 4 ) or i.norm > 150 or ci==wall_count-1:
                 render_w_add=0
+
                 add_h+=[k for k in h_wall if k.ID in link_h and k.rendered==False]
+
                 if empty_pixel_count>4 :
 
                     for j in add_h:
