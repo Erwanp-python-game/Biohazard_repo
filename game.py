@@ -714,6 +714,7 @@ class Wall():
         label_m.append('contour')
 
         #print('before exit', self.text,np.sum(self.U))
+        #print(cw,self.text, self.ID, np.sum(self.U),self.window,self.inside,self.angle0)
         if np.sum(self.U) < 25:
             return np.full((2 * scrnL[0], 2 * scrnL[1], 1), 0)
         else:
@@ -3473,6 +3474,7 @@ while running == 1:
     link_h=[]
     ID0=''
     cw=0
+    max_depth=1000
     if moving_cam == True:
 
         v_ = screenV[::2, ::2]
@@ -3481,6 +3483,7 @@ while running == 1:
         IS = []
         empty_pixel_count=128000
         for ci,i in enumerate(wall[0:wall_count]):
+
             cw+=1
             devant = True
             if i not in h_wall:
@@ -3517,11 +3520,14 @@ while running == 1:
 
                     render_w += 1
                     rend=i.render()
-                    Im[i.Ub]=rend[i.Ub]
 
+                    Im[i.Ub]=rend[i.Ub]
+                    if np.min(depth)!=100:
+                        max_depth=np.max(depth[depth!=100])
                     # Im = i.render() + Im * (1 - np.expand_dims(i.U, -1))
 
                     empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+                    #print(empty_pixel_count,cw,i.text)
                     #print(i.time[0])
                     if render_w==1 :#and c3==1:
 
@@ -3543,7 +3549,8 @@ while running == 1:
                     IS.append(i)
 
 
-            if (empty_pixel_count < 4 ) or i.norm > 150 or ci==wall_count-1:
+            if (empty_pixel_count < 4 ) or i.norm>150 or ci==wall_count-1:
+
                 render_w_add=0
 
                 add_h+=[k for k in h_wall if k.ID in link_h and k.rendered==False]
@@ -3559,28 +3566,32 @@ while running == 1:
                             empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
 
                 break
+
         if render_w2>wall_count-10:
-            elastic_count+=10
+            elastic_count += 10
+            if render_w_add>0 and empty_pixel_count<4:
+                elastic_count -= 10
         else:
             elastic_count = max(elastic_count-10,0)
     render_w_old=render_w
-    render_w_add2=0
-    if empty_pixel_count<4 and (horizon!=10000).any():
-        [i.calc_normfast() for i in add_h if i.rendered == False]
-        add_h2=[i for i in add_h if i.normf<max(horizon[horizon!=10000.]) and i.rendered==False]
-        for j in add_h2:
-            if j.rendered == False and j in h_wall and j.text[11:-3] not in liquid_floor:
-                rend = j.render()
-                Im[j.Ub] = rend[j.Ub]
-                render_w_add2 += 1
-                empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+    if moving_cam == True:
+        render_w_add2=0
+        if empty_pixel_count<4 and (horizon!=10000).any():
+            [i.calc_normfast() for i in add_h if i.rendered == False]
+            add_h2=[i for i in add_h if i.normf<max(horizon[horizon!=10000.]) and i.rendered==False]
+            for j in add_h2:
+                if j.rendered == False and j in h_wall and j.text[11:-3] not in liquid_floor:
+                    rend = j.render()
+                    Im[j.Ub] = rend[j.Ub]
+                    render_w_add2 += 1
+                    empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
 
-    render_sup_wall=0
-    for ci,i in enumerate( wall[cw:cw+10]):
-        if i.rendered == False and i.test_behind() and i not in h_wall:
-            render_sup_wall+=1
-            rend = i.render()
-            Im[i.Ub] = rend[i.Ub]
+        render_sup_wall=0
+        for ci,i in enumerate( wall[cw:cw+10]):
+            if i.rendered == False and i.test_behind() and i not in h_wall:
+                render_sup_wall+=1
+                rend = i.render()
+                Im[i.Ub] = rend[i.Ub]
 
 
 
@@ -3909,7 +3920,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('end')
 
-    if c3 % 1000 == 2:
+    if c3 % 100 == 2:
         milliT = np.expand_dims(milliseconds, -1)
     else:
         if c3!=1:
@@ -3923,9 +3934,9 @@ while running == 1:
     # if len(time_tot)>10:
     #     print('fps',1000/np.mean(time_tot[-10:]),render_w,len(add_h))
 
-    if (c3-1) % 1000 == 999 :
+    if (c3-1) % 100 == 99 :
 
-        averaged_time = np.round(averaged_time / 1000, 1)
+        averaged_time = np.round(averaged_time / 100, 1)
         milliseconds = np.mean(milliT, axis=-1)
         timelist = averaged_time#np.round((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], 1)
         sortingtime = [(x, str(y) + ' ms', str(round(100 * y / np.sum(timelist), 1)) + ' %') for y, x in
