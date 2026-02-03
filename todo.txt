@@ -1,5 +1,6 @@
 
 
+
 boss invulnerable a envoyer dans incinérateur
 
 mecano lezard blood
@@ -21,5 +22,8 @@ BUG
 bug -> issue with normal in walls with a cut
 bug -> test_behind when looking up in high ceiling room (small bug no easy to fix)
 bug -> sky is not hiding walls that are behind in horizon, make sense for roof maybe not for walls
+
+
+test intersect the walls and then at the end get the pixel values (how do I deal with transparency)
 
 
