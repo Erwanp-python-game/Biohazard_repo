@@ -3618,8 +3618,8 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')
     if len(wall_rend)>0:
-        S_g=np.stack([i.S for i in wall_rend],axis=0)
-        #print(S_g.shape)
+        S_g=np.stack([i.S for i in wall_rend],axis=0)#0.5ms
+
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('glob_walls')
