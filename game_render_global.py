@@ -3091,7 +3091,7 @@ render_w_old=0
 
 while running == 1:
 
-    moving_cam = False
+    moving_cam = True
     milliseconds = [time.perf_counter()*1000]
     fire = 0
     key = pygame.key.get_pressed()
