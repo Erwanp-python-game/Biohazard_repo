@@ -695,7 +695,8 @@ class Wall():
         label_m.append('upscale')
 
         self.compute_mask_fast()
-
+        wall_index[self.Ub] = len(wall_rend)
+        depth[..., 0][self.Ub] = self.S[:, :, -1][self.Ub]
 
         if (shoot == 1 or self.explo) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco!=0:
             if self.breakable() or self.explo:
@@ -719,128 +720,128 @@ class Wall():
             if self.transp:
                 Sky_view = 1
                 return -1 * np.dstack((Ue, Ue, Ue))
-            self.G=np.full((self.U.shape[0],self.U.shape[1],2),0)
-            self.G[self.Ub]=np.mod(
-                np.maximum(((1 - self.S[:, :, :-1][self.Ub]) * self.format).astype(int), 0) + int(self.phase * c3 * 0.5),
-                self.borne)
+            # self.G=np.full((self.U.shape[0],self.U.shape[1],2),0)
+            # self.G[self.Ub]=np.mod(
+            #     np.maximum(((1 - self.S[:, :, :-1][self.Ub]) * self.format).astype(int), 0) + int(self.phase * c3 * 0.5),
+            #     self.borne)
 
 
             milliseconds.append(time.perf_counter()*1000)
             label_m.append('indexing')
 
-            colorL = [1, 1, 1]
-            if self.ID in light_color.keys():
-                colorL = np.round(np.maximum(np.array(light_color[self.ID]), 0.1), 2)
-
-            colorL = light_modif(colorL, level, c3)
-
-            x_ = self.X[0][0][0]
-            y_ = self.X[0][0][1]
-            a_ = self.b[0][0][0]
-            b_ = self.b[0][0][1]
-            side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
-            self.Ar[:]=self.Ar*0.
-            self.Gx[:] = self.G[..., 0]
-            self.Gy[:] = self.G[..., 1]
-
-            if levelD[level]['deco'][self.deco - 1] not in deco_destruc:
-                if side < 0:
-                    ind = c // (12 // len(self.wall_im))
-
-                    # boolean mask
-                    Ub = self.Ub
-
-                    # fast coordinate extraction (no python loops)
-                    gx = self.Gx[Ub]
-                    gy = self.Gy[Ub]
-
-                    # fast vectorized texture lookup
-                    wall_vals = self.wall_im[ind][gx, gy]
-
-                    # assign colored pixels
-                    self.Ar[Ub] = wall_vals * colorL
-
-                else:
-                    ind2 = c // (12 // len(self.wall_im))
-
-                    # boolean mask
-                    Ub = self.Ub
-
-                    # fast coordinate extraction (no python loops)
-                    gx = self.Gx[Ub]
-                    gy = self.Gy[Ub]
-
-                    # fast vectorized texture lookup
-                    wall_vals = self.wall_im2[ind2][gx, gy]
-
-                    # assign colored pixels
-                    self.Ar[Ub] = wall_vals * colorL
-            else:
-                ind = min(self.vie,2)
-
-                # boolean mask
-                Ub = self.Ub
-
-                # fast coordinate extraction (no python loops)
-                gx = self.Gx[Ub]
-                gy = self.Gy[Ub]
-
-                # fast vectorized texture lookup
-                wall_vals = self.wall_im2[ind][gx, gy]
-
-                # assign colored pixels
-                self.Ar[Ub] = wall_vals * colorL
+            # colorL = [1, 1, 1]
+            # if self.ID in light_color.keys():
+            #     colorL = np.round(np.maximum(np.array(light_color[self.ID]), 0.1), 2)
+            #
+            # colorL = light_modif(colorL, level, c3)
+            #
+            # x_ = self.X[0][0][0]
+            # y_ = self.X[0][0][1]
+            # a_ = self.b[0][0][0]
+            # b_ = self.b[0][0][1]
+            # side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
+            # self.Ar[:]=self.Ar*0.
+            # self.Gx[:] = self.G[..., 0]
+            # self.Gy[:] = self.G[..., 1]
+            #
+            # if levelD[level]['deco'][self.deco - 1] not in deco_destruc:
+            #     if side < 0:
+            #         ind = c // (12 // len(self.wall_im))
+            #
+            #         # boolean mask
+            #         Ub = self.Ub
+            #
+            #         # fast coordinate extraction (no python loops)
+            #         gx = self.Gx[Ub]
+            #         gy = self.Gy[Ub]
+            #
+            #         # fast vectorized texture lookup
+            #         wall_vals = self.wall_im[ind][gx, gy]
+            #
+            #         # assign colored pixels
+            #         self.Ar[Ub] = wall_vals * colorL
+            #
+            #     else:
+            #         ind2 = c // (12 // len(self.wall_im))
+            #
+            #         # boolean mask
+            #         Ub = self.Ub
+            #
+            #         # fast coordinate extraction (no python loops)
+            #         gx = self.Gx[Ub]
+            #         gy = self.Gy[Ub]
+            #
+            #         # fast vectorized texture lookup
+            #         wall_vals = self.wall_im2[ind2][gx, gy]
+            #
+            #         # assign colored pixels
+            #         self.Ar[Ub] = wall_vals * colorL
+            # else:
+            #     ind = min(self.vie,2)
+            #
+            #     # boolean mask
+            #     Ub = self.Ub
+            #
+            #     # fast coordinate extraction (no python loops)
+            #     gx = self.Gx[Ub]
+            #     gy = self.Gy[Ub]
+            #
+            #     # fast vectorized texture lookup
+            #     wall_vals = self.wall_im2[ind][gx, gy]
+            #
+            #     # assign colored pixels
+            #     self.Ar[Ub] = wall_vals * colorL
 
             milliseconds.append(time.perf_counter()*1000)
             label_m.append('render')
-            # 1) Build filt quickly (no expand_dims, no all(2))
-            self.filt[:] = ~(self.Ar == 0).all(axis=2)
-
-            # filt is (H, W) boolean
-
-            # 2) If needed, write depth in masked locations
-            if self.text[11:-3] not in liquid_floor:
-                depth[..., 0][self.filt] = self.S[:, :, -1][self.filt]
-
-            # 3) Update U
-            self.U &= self.filt  # faster than multiply and no temp arrays
-            self.Ub[:] = self.U  # already boolean so no .astype(bool)
-            wall_index[self.Ub] = len(wall_rend)
-            # 4) Vectorized Xl construction (remove expand_dims, use broadcasting)
-            self.Xl_small[:] = (
-                    self.S[::2, ::2, 0, None] * (self.a * self.overlap) +
-                    self.S[::2, ::2, 1, None] * (self.b * self.overlap) +
-                    self.X
-            )
-
-            # Upscale 2× using np.repeat once (repeat twice is slow)
-
-            self.Xl = cv2.resize(self.Xl_small,None,fx=2,fy=2,interpolation=cv2.INTER_LINEAR)
+            # # 1) Build filt quickly (no expand_dims, no all(2))
+            # self.filt[:] = ~(self.Ar == 0).all(axis=2)
+            #
+            # # filt is (H, W) boolean
+            #
+            # # 2) If needed, write depth in masked locations
+            # if self.text[11:-3] not in liquid_floor:
+            #     depth[..., 0][self.filt] = self.S[:, :, -1][self.filt]
+            #
+            # # 3) Update U
+            # self.U &= self.filt  # faster than multiply and no temp arrays
+            # self.Ub[:] = self.U  # already boolean so no .astype(bool)
+            #
+            # # 4) Vectorized Xl construction (remove expand_dims, use broadcasting)
+            # self.Xl_small[:] = (
+            #         self.S[::2, ::2, 0, None] * (self.a * self.overlap) +
+            #         self.S[::2, ::2, 1, None] * (self.b * self.overlap) +
+            #         self.X
+            # )
+            #
+            # # Upscale 2× using np.repeat once (repeat twice is slow)
+            #
+            # self.Xl = cv2.resize(self.Xl_small,None,fx=2,fy=2,interpolation=cv2.INTER_LINEAR)
 
             # 5) Make D fast
-            self.Da[:] =1000.#
+            # self.Da[:] =1000.#
             milliseconds.append(time.perf_counter() * 1000)
             label_m.append('global clipping')
 
 
-            if self.ID in light_wall.keys():
-                Y0 = [np.linalg.norm(source_pos(i) - R_c) for i in light_wall[self.ID]]
-                X0 = [x for _, x in sorted(zip(Y0, light_wall[self.ID]))]
-                for i in X0[:min(len(X0), 4)]:
-                    Xsource = source_pos(i)#+np.array([10*sin(c3/100),10*sin(c3/100),0.])
-                    self.Da[self.Ub] = np.minimum(self.Da[self.Ub], np.linalg.norm(self.Xl[self.Ub] - Xsource, axis=-1))
-                POS[self.Ub] = self.Da[self.Ub]
-                self.Ar = self.Ar * level_light
-            else:
-                self.Da[self.Ub] = np.minimum(self.Da[self.Ub], (np.linalg.norm(self.Xl[self.Ub] - R_c, axis=-1) ** 0.5))
-                POS[self.Ub] = self.Da[self.Ub]
-                self.Ar = self.Ar * torch_on * TORCHE ** 3
-            if explo!=0:
-                explo_R=np.minimum(explo_R,np.expand_dims(np.linalg.norm(self.Xl - np.array([explo_pt[0],explo_pt[1],0.]), axis=-1)*self.U+100*(1-self.U),-1))
-            if explo==4:
-                self.explo=np.sum(explo_R<20)
-            else:
-                self.explo=0
+            # if self.ID in light_wall.keys():
+            #     Y0 = [np.linalg.norm(source_pos(i) - R_c) for i in light_wall[self.ID]]
+            #     X0 = [x for _, x in sorted(zip(Y0, light_wall[self.ID]))]
+            #     for i in X0[:min(len(X0), 4)]:
+            #         Xsource = source_pos(i)#+np.array([10*sin(c3/100),10*sin(c3/100),0.])
+            #         self.Da[self.Ub] = np.minimum(self.Da[self.Ub], np.linalg.norm(self.Xl[self.Ub] - Xsource, axis=-1))
+            #     POS[self.Ub] = self.Da[self.Ub]
+            #     self.Ar = self.Ar * level_light
+            # else:
+            #     self.Da[self.Ub] = np.minimum(self.Da[self.Ub], (np.linalg.norm(self.Xl[self.Ub] - R_c, axis=-1) ** 0.5))
+            #     POS[self.Ub] = self.Da[self.Ub]
+            #     self.Ar = self.Ar * torch_on * TORCHE ** 3
+            # if explo!=0:
+            #     explo_R=np.minimum(explo_R,np.expand_dims(np.linalg.norm(self.Xl - np.array([explo_pt[0],explo_pt[1],0.]), axis=-1)*self.U+100*(1-self.U),-1))
+            # if explo==4:
+            #     self.explo=np.sum(explo_R<20)
+            # else:
+            #     self.explo=0
 
 
             milliseconds.append(time.perf_counter()*1000)
@@ -3500,12 +3501,15 @@ while running == 1:
                     render_w += 1
                     rend=i.render()
                     wall_rend.append(i)
-                    Im[i.Ub]=rend[i.Ub]
+                    # Im[i.Ub]=rend[i.Ub]
                     if np.min(depth)!=100:
                         max_depth=np.max(depth[depth!=100])
                     # Im = i.render() + Im * (1 - np.expand_dims(i.U, -1))
 
-                    empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+                    #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+
+                    empty_pixel_count = np.sum((depth == 100).astype(int))
+
                     #print(empty_pixel_count,cw,i.text)
                     #print(i.time[0])
                     if render_w==1 :#and c3==1:
@@ -3539,12 +3543,12 @@ while running == 1:
                         if j.rendered==False and j.text[11:-3] not in liquid_floor:
                             rend = j.render()
                             wall_rend.append(j)
-                            Im[j.Ub] = rend[j.Ub]
+                            # Im[j.Ub] = rend[j.Ub]
                             render_w_add+=1
                             time_in_render += j.time[0]
                             label_t_render = j.time[1]
-                empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
-
+                #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+                empty_pixel_count = np.sum((depth == 100).astype(int))
                 break
 
         if render_w2>wall_count-10:
@@ -3563,7 +3567,7 @@ while running == 1:
 
                 rend = j.render()
                 wall_rend.append(j)
-                Im[j.Ub] = rend[j.Ub]
+                # Im[j.Ub] = rend[j.Ub]
                 render_w_add2 += 1
                     #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
 
@@ -3573,11 +3577,11 @@ while running == 1:
                 render_sup_wall+=1
                 rend = i.render()
                 wall_rend.append(i)
-                Im[i.Ub] = rend[i.Ub]
+                # Im[i.Ub] = rend[i.Ub]
 
 
 
-        #print(render_w,render_w_add,render_w_add2,render_sup_wall)
+    #print(render_w,render_w_add,render_w_add2,render_sup_wall,empty_pixel_count)
     render_w=render_w+render_w_add+render_w_add2+render_sup_wall
 
 
@@ -3600,13 +3604,22 @@ while running == 1:
             plt.imshow(wall_index)
             plt.show()
 
-        #Im=texture
 
-        for i in wall_rend:
+        Im=texture
+        Xsource_g=np.empty((4,len(wall_rend),3))
+        for cg,i in enumerate(wall_rend):
             if i.ID in light_wall.keys():
                 Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
                 X0 = [x for _, x in sorted(zip(Y0, light_wall[i.ID]))]
-                print(X0)
+                Xsource_g[:,cg,:] = np.array([source_pos(X0[k])  if k<len(X0) else np.array([1e9,0.,0.]) for k in range(4)])
+        a_g=np.array([i.a[0,0,:] for i in wall_rend])
+        b_g = np.array([i.b[0, 0, :] for i in wall_rend])
+        x_g = np.array([i.X[0, 0, :] for i in wall_rend])
+
+        Xl=S_g_r[:,:,0,None]*a_g[wall_index,:]+S_g_r[:,:,1,None]*b_g[wall_index,:]+x_g[wall_index,:]
+        POS=np.amin(np.linalg.norm( Xl[None,:,:,:]-Xsource_g[:,wall_index,:],axis=-1),axis=0)
+
+
 
     if moving_cam == True:
         Im_cached = Im
