@@ -133,6 +133,7 @@ def explo_zone(R,dist):
 
 class Wall():
     def __init__(self, u, v, w, text, door, deco, freq, phase,slant):
+
         self.a = np.full((scrnL[0], scrnL[1], 3), u)
         self.b = np.full((scrnL[0], scrnL[1], 3), v)
         self.X = np.full((scrnL[0], scrnL[1], 3), w)
@@ -610,6 +611,7 @@ class Wall():
             return False
 
     def compute_mask_fast(self):
+
         S = self.S  # local bind
         d = depth[:,:,0]  # local bind
 
@@ -636,8 +638,9 @@ class Wall():
 
         # fill Ub without allocation
         self.Ub[:] = self.U
+
     def render(self):
-        global depth, POS, Sky_view,explo_R
+        global depth, POS, Sky_view,explo_R,wall_index
 
         self.rendered=True
         self.time=(0,0)
@@ -690,14 +693,9 @@ class Wall():
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('upscale')
-        # S = self.S
-        # mask1 = ((S <= depth) & (S > 0)).all(axis=-1)
-        # mask2 = (S[..., :-1] < 1).all(axis=-1)
-        # self.U = mask1 & mask2
-        #
-        #
-        # self.Ub[:] = self.U.astype(bool)
+
         self.compute_mask_fast()
+
 
         if (shoot == 1 or self.explo) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco!=0:
             if self.breakable() or self.explo:
@@ -709,12 +707,11 @@ class Wall():
                     self.X=self.X*0
                     self.X_sliced = self.X[::2, ::2]
                     self.X_middle = self.X_middle * 0
-            #print(self.breakable(),self.text,self.deco,levelD[level]['deco'][self.deco - 1])
+
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('contour')
 
-        #print('before exit', self.text,np.sum(self.U))
-        #print(cw,self.text, self.ID, np.sum(self.U),self.window,self.inside,self.angle0)
+
         if np.sum(self.U) < 25:
             return np.full((2 * scrnL[0], 2 * scrnL[1], 1), 0)
         else:
@@ -727,10 +724,7 @@ class Wall():
                 np.maximum(((1 - self.S[:, :, :-1][self.Ub]) * self.format).astype(int), 0) + int(self.phase * c3 * 0.5),
                 self.borne)
 
-            # self.G = np.mod(
-            #     np.maximum(((1 - self.S[:, :, :-1]) * self.format).astype(int), 0) + int(self.phase * c3 * 0.5),
-            #     self.borne)
-            # print(self.G.shape)
+
             milliseconds.append(time.perf_counter()*1000)
             label_m.append('indexing')
 
@@ -796,8 +790,7 @@ class Wall():
 
                 # assign colored pixels
                 self.Ar[Ub] = wall_vals * colorL
-                # self.Ar = np.where(np.stack([self.U] * 3, axis=-1),
-                #               np.moveaxis(self.wall_im[min(self.vie,2)][tuple(map(tuple, self.G.T))] * colorL, 1, 0), 0)
+
             milliseconds.append(time.perf_counter()*1000)
             label_m.append('render')
             # 1) Build filt quickly (no expand_dims, no all(2))
@@ -812,7 +805,7 @@ class Wall():
             # 3) Update U
             self.U &= self.filt  # faster than multiply and no temp arrays
             self.Ub[:] = self.U  # already boolean so no .astype(bool)
-
+            wall_index[self.Ub] = len(wall_rend)
             # 4) Vectorized Xl construction (remove expand_dims, use broadcasting)
             self.Xl_small[:] = (
                     self.S[::2, ::2, 0, None] * (self.a * self.overlap) +
@@ -827,23 +820,6 @@ class Wall():
             # 5) Make D fast
             self.Da[:] =1000.#
             milliseconds.append(time.perf_counter() * 1000)
-            # filt = 1 - np.expand_dims((self.Ar == 0).all(2), -1)
-            # filt=filt.astype(bool)
-            # if self.text[11:-3] not in liquid_floor:
-            #     #depth = np.where(Ue * (filt), self.S[:, :, -1:], depth)
-            #     depth[filt]=self.S[:, :, -1:][filt]
-            # #self.U=self.U*filt[:,:,0]
-            # self.U = self.U * filt[:, :, 0]
-            # self.Ub[:] = self.U.astype(bool)
-            # Xl = ((np.expand_dims(self.S[::2, ::2, 0], -1) * self.a*1.01 + np.expand_dims(self.S[::2, ::2, 1],
-            #                                                                          -1) * self.b*1.01 + self.X).repeat(2,
-            #                                                                                                        axis=0).repeat(
-            #     2, axis=1)) * Ue
-            #
-            #
-            # #POS = (POS * (1 - self.U))
-            # D = np.full((2 * scrnL[0], 2 * scrnL[1]), 1000.0)
-
             label_m.append('global clipping')
 
 
@@ -3078,6 +3054,7 @@ load_level(str(level))
 pygame.mixer.music.play(-1)
 
 depth = np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
+wall_index = np.full((2 * scrnL[0], 2 * scrnL[1]), 0)
 explo_R=np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 horizon = np.full((scrnL[0], 1), 10000.0)
 
@@ -3130,6 +3107,7 @@ while running == 1:
     check_trigger()
     Im = Im * 0
     depth = depth * 0 + 100.
+    wall_index*=0
     horizon = horizon * 0 + 10000.
     horizon2 = horizon2 * 0 + 10000.
     POS = POS * 0 + 1000.
@@ -3602,6 +3580,34 @@ while running == 1:
         #print(render_w,render_w_add,render_w_add2,render_sup_wall)
     render_w=render_w+render_w_add+render_w_add2+render_sup_wall
 
+
+
+    milliseconds.append(time.perf_counter()*1000)
+    label_deltat.append('walls')
+
+    if len(wall_rend)>0:
+        S_g=np.stack([i.S for i in wall_rend],axis=0)#0.5msz
+        wall_im_g=np.concatenate([i.wall_im[0][:120,:120,:] for i in wall_rend],axis=0)
+        format_g=np.stack([i.format for i in wall_rend],axis=0)
+        i_, j_ = np.indices(wall_index.shape)
+        S_g_r=S_g[wall_index,i_,j_]
+        G_g=np.mod(np.maximum(((1 - S_g_r[:, :, :-1]) * format_g[wall_index,:]).astype(int), 0),120)
+
+        texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]]
+        if key[K_p]:
+            plt.imshow(texture)
+            plt.show()
+            plt.imshow(wall_index)
+            plt.show()
+
+        #Im=texture
+
+        for i in wall_rend:
+            if i.ID in light_wall.keys():
+                Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
+                X0 = [x for _, x in sorted(zip(Y0, light_wall[i.ID]))]
+                print(X0)
+
     if moving_cam == True:
         Im_cached = Im
         depth_cached = depth
@@ -3614,13 +3620,6 @@ while running == 1:
         POS = POS_cached
         horizon = horizon_cached
         horizon2 = horizon_cached2
-
-    milliseconds.append(time.perf_counter()*1000)
-    label_deltat.append('walls')
-    if len(wall_rend)>0:
-        S_g=np.stack([i.S for i in wall_rend],axis=0)#0.5ms
-
-
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('glob_walls')
 
