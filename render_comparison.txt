@@ -1,0 +1,2 @@
+25 murs 43ms | global render 05/02
+25 murs 55ms limit of 42ms is 17 walls | 1 by 1 wall render

@@ -133,7 +133,9 @@ def explo_zone(R,dist):
 
 class Wall():
     def __init__(self, u, v, w, text, door, deco, freq, phase,slant):
-
+        self.freq=freq
+        self.phase=phase
+        #(freq - 1 - phase)
         self.a = np.full((scrnL[0], scrnL[1], 3), u)
         self.b = np.full((scrnL[0], scrnL[1], 3), v)
         self.X = np.full((scrnL[0], scrnL[1], 3), w)
@@ -156,23 +158,21 @@ class Wall():
 
         Imdeco = pygame.image.load(self.text)
         Imdeco2 = pygame.image.load(self.text2)
+
+
+        Imdeco = pygame.transform.scale(Imdeco, (120 * 2, 120 ))
+        Imdeco2 = pygame.transform.scale(Imdeco2, (120 * 2, 120 ))
+        for i in range(2):
+            Imdeco.blit(pygame.image.load(text[0]), (120 * i, 0))
+            Imdeco2.blit(pygame.image.load(text[1]), (120 * i, 0))
+
         if deco != 0:
-            freq2 = int(0.5 + np.linalg.norm(self.a[0][0]) / 10)
-            freq2=max(freq2,1)
-            if levelD[level]['deco'][deco - 1] in z_tileable_deco:
-                freq2 = 1
-            Imdeco = pygame.transform.scale(Imdeco, (120 * freq, 120 * freq2))
-            Imdeco2 = pygame.transform.scale(Imdeco2, (120 * freq, 120 * freq2))
-            for i in range(freq):
-                for j in range(freq2):
-                    Imdeco.blit(pygame.image.load(text[0]), (120 * i, 120 * (j)))
-                    Imdeco2.blit(pygame.image.load(text[1]), (120 * i, 120 * (j)))
             if text[2] == 'A' or text[2] == 'AB':
                 Imdeco.blit(pygame.image.load('image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.png'),
-                            (120 * (freq - 1 - phase), 120 * (freq2 - 1)))
+                            (0 , 0))
             if text[2] == 'B' or text[2] == 'AB':
                 Imdeco2.blit(pygame.image.load('image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.png'),
-                             (120 * (freq - 1 - phase), 120 * (freq2 - 1)))
+                             (0 , 0))
         if door > 1 and door < 5:
             verrou = pygame.image.load('image/deco/verrou.png')
             if door == 2:
@@ -214,19 +214,14 @@ class Wall():
                     Im_t = pygame.image.load(text[0])
                 Imdeco = Im_t
                 if deco != 0:
-                    freq2 = int(0.5 + np.linalg.norm(self.a[0][0]) / 10)
-                    freq2 = max(freq2, 1)
-                    if levelD[level]['deco'][deco - 1] in z_tileable_deco:
-                        freq2 = 1
-                    Imdeco = pygame.transform.scale(Imdeco, (120 * freq, 120 * freq2))
-                    for i in range(freq):
-                        for j in range(freq2):
-                            Imdeco.blit(Im_t, (120 * i, 120 * j))
+                    Imdeco = pygame.transform.scale(Imdeco, (120 * 2, 0 ))
+                    for i in range(2):
+                        Imdeco.blit(Im_t, (120 , 120 * i))
                     deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.png'
                     if (len(files_d) > 1):
                         deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.' + str(
                             min(k, len(files_d) - 2) + 1) + '.png'
-                    Imdeco.blit(pygame.image.load(deco_name), (120 * (freq - 1 - phase), 120 * (freq2 - 1)))
+                    Imdeco.blit(pygame.image.load(deco_name), (0 , 0))
                 if door > 1 and door < 5:
                     verrou = pygame.image.load('image/deco/verrou.png')
                     if door == 2:
@@ -254,19 +249,15 @@ class Wall():
                     Im_t = pygame.image.load(text[1])
                 Imdeco2 = Im_t
                 if deco != 0:
-                    freq2 = int(0.5 + np.linalg.norm(self.a[0][0]) / 10)
-                    freq2 = max(freq2, 1)
-                    if levelD[level]['deco'][deco - 1] in z_tileable_deco:
-                        freq2 = 1
-                    Imdeco2 = pygame.transform.scale(Imdeco2, (120 * freq, 120 * freq2))
-                    for i in range(freq):
-                        for j in range(freq2):
-                            Imdeco2.blit(Im_t, (120 * i, 120 * j))
+
+                    Imdeco2 = pygame.transform.scale(Imdeco2, (120 * 2, 120 ))
+                    for i in range(2):
+                        Imdeco2.blit(Im_t, (120 * i, 0))
                     deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.png'
                     if (len(files_d) > 1):
                         deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.' + str(
                             min(k, len(files_d) - 2) + 1) + '.png'
-                    Imdeco2.blit(pygame.image.load(deco_name), (120 * (freq - 1 - phase), 120 * (freq2 - 1)))
+                    Imdeco2.blit(pygame.image.load(deco_name), (0 , 0))
                 if door > 1 and door < 5:
                     verrou = pygame.image.load('image/deco/verrou.png')
                     if door == 2:
@@ -3081,7 +3072,7 @@ nb_wall = []
 time_wall = []
 time_tot=[]
 time_behind = []
-plot_stats=False
+plot_stats=True
 sensitivity=500#500
 movement=0
 render_w_old=0
@@ -3591,13 +3582,20 @@ while running == 1:
 
     if len(wall_rend)>0:
         S_g=np.stack([i.S for i in wall_rend],axis=0)#0.5msz
-        wall_im_g=np.concatenate([i.wall_im[0][:120,:120,:] for i in wall_rend],axis=0)
+
+        wall_im_g=np.concatenate([i.wall_im[0] for i in wall_rend],axis=0)
+        freq_g=np.array([i.freq for i in wall_rend])
+        phase_g = np.array([i.phase if i.freq!=1 else i.phase for i in wall_rend])
+
         format_g=np.stack([i.format for i in wall_rend],axis=0)
         i_, j_ = np.indices(wall_index.shape)
         S_g_r=S_g[wall_index,i_,j_]
-        G_g=np.mod(np.maximum(((1 - S_g_r[:, :, :-1]) * format_g[wall_index,:]).astype(int), 0),120)
-
-        texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]]
+        u=((1 - S_g_r[:, :, :-1]) * format_g[wall_index,:]).astype(int)
+        G_g=np.mod(np.maximum(u, 0),120)
+        print(freq_g,phase_g)
+        # plt.imshow(((u[:,:,1]//120)%freq_g[wall_index])==0)
+        # plt.show()
+        texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]+120*((((u[:,:,1]//120)%freq_g[wall_index])+phase_g[wall_index])==0)]
         if key[K_p]:
             plt.imshow(texture)
             plt.show()
@@ -3942,7 +3940,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('end')
 
-    if c3 % 100 == 2:
+    if c3 % 500 == 2:
         milliT = np.expand_dims(milliseconds, -1)
     else:
         if c3!=1:
@@ -3956,9 +3954,9 @@ while running == 1:
     # if len(time_tot)>10:
     #     print('fps',1000/np.mean(time_tot[-10:]),render_w,len(add_h))
 
-    if (c3-1) % 100 == 99 :
+    if (c3-1) % 500 == 499 :
 
-        averaged_time = np.round(averaged_time / 100, 1)
+        averaged_time = np.round(averaged_time / 500, 1)
         milliseconds = np.mean(milliT, axis=-1)
         timelist = averaged_time#np.round((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], 1)
         sortingtime = [(x, str(y) + ' ms', str(round(100 * y / np.sum(timelist), 1)) + ' %') for y, x in
@@ -4010,14 +4008,15 @@ while running == 1:
 
 
             dataT=milliT - np.roll(milliT, 1,axis=0)
-            fig2, ax2 = plt.subplots(4, 5)
-            for i in range(4):
+            fig2, ax2 = plt.subplots(5, 5)
+            for i in range(5):
                 ax2[i][0].set_ylabel('time in ms')
                 for j in range(5):
-                    ax2[i][j].set_title(label_deltat[i*5+j])
-                    ax2[i][j].scatter(nb_wall[1:],dataT[1+i*5+j,:])
-                    ax2[3][j].set_xlabel('nb_wall')
-                    ax2[i][j].hlines(1000 / 24, 0, max(nb_wall),color='red')
+                    if i*5+j<len(label_deltat):
+                        ax2[i][j].set_title(label_deltat[i*5+j])
+                        ax2[i][j].scatter(nb_wall[1:],dataT[1+i*5+j,:])
+                        ax2[3][j].set_xlabel('nb_wall')
+                        ax2[i][j].hlines(1000 / 24, 0, max(nb_wall),color='red')
 
             plt.show()
         nb_wall=[]
