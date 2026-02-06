@@ -359,6 +359,12 @@ class Wall():
         self.height_rel=[]
         self.inside = False
 
+        self.colorL = np.array([1., 1, 1])
+        if self.ID in light_color.keys():
+            self.colorL = np.round(np.maximum(np.array(light_color[self.ID]), 0.1), 2)
+
+
+
     def opendoor(self, door):
         Imdeco = pygame.image.load(self.text)
         verrou = self.verrou
@@ -538,10 +544,9 @@ class Wall():
                     ind = c // (12 // len(self.wall_im))
                     indx=(((1-self.S0[:,0]) * self.format[1]) % self.borne[1]).astype(int)
                     blocked=(np.sum(self.wall_im[ind][60, indx, :],axis=-1)!=0)
-                    # print(blocked.shape,blocked,horizon.shape,self.U0.astype(bool).shape)
-                    # print(horizon[blocked].shape,self.S0[blocked,1,None].shape)
                     blocked=blocked&self.U0.astype(bool)
                     horizon[blocked]=self.S0[blocked,1,None]
+                    print('correct indexing and make it general for transparent images')
 
 
                 if (self.window == 0 or self.sky!=0) and self.inside==False:
@@ -698,6 +703,10 @@ class Wall():
 
             texture = self.wall_im[0][G_g[:, :, 0], G_g[:, :, 1] + 120 * ((((-u[:, :, 1] // 120 + self.phase_-self.freq+1) % self.freq)) == 0) * (u[:, :, 0] < 120 + 1000 * self.tile_z)]
             self.Ub=self.Ub&(texture.any(axis=-1)!=0)
+            if key[K_o]:
+                plt.imshow(self.Ub)
+                plt.show()
+
 
         wall_index[self.Ub] = len(wall_rend)
         depth[..., 0][self.Ub] = self.S[:, :, -1][self.Ub]
@@ -2962,8 +2971,7 @@ def load_level(level_name):
                                 else:
 
                                     i.inside=False
-            if i.inside:
-                print(i.X[0, 0, 2], i.text, i.ID,i.deco)
+
 
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
@@ -3562,6 +3570,7 @@ while running == 1:
         else:
             elastic_count = max(elastic_count-10,0)
     render_w_old=render_w
+
     if moving_cam == True:
         render_w_add2=0
         if empty_pixel_count<4 and (horizon!=10000).any():
@@ -3592,7 +3601,7 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')
-
+    print(len(wall_rend))
     if len(wall_rend)>0:
         S_g=np.stack([i.S for i in wall_rend],axis=0)#0.5msz
 
@@ -3600,6 +3609,7 @@ while running == 1:
         freq_g=np.array([i.freq for i in wall_rend])
         phase_g = np.array([i.phase_-i.freq+1  for i in wall_rend])
         tile_z_g=np.array([i.tile_z  for i in wall_rend])
+        light_g=np.array([light_modif(i.colorL, level, c3) for i in wall_rend])
 
         format_g=np.stack([i.format for i in wall_rend],axis=0)
         i_, j_ = np.indices(wall_index.shape)
@@ -3608,10 +3618,11 @@ while running == 1:
         G_g=np.mod(np.maximum(u, 0),120)
 
 
-        texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]+120*((((-u[:,:,1]//120+phase_g[wall_index])%freq_g[wall_index]))==0)*(u[:,:,0]<120+1000*tile_z_g[wall_index])]
+        texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]+120*((((-u[:,:,1]//120+phase_g[wall_index])%freq_g[wall_index]))==0)*(u[:,:,0]<120+1000*tile_z_g[wall_index])]*light_g[wall_index]
         if key[K_p]:
-
-            plt.imshow(texture)
+            plt.plot(horizon)
+            plt.show()
+            plt.imshow(light_g[wall_index])
             plt.show()
             plt.imshow(wall_index)
             plt.show()

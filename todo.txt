@@ -1,5 +1,10 @@
 
-
+finish global render
+-improve transp with transp buffer + indexing in test_behind
+-explo
+-side
+-animated
+-liquids
 
 boss invulnerable a envoyer dans incinérateur
 
@@ -24,6 +29,6 @@ bug -> test_behind when looking up in high ceiling room (small bug no easy to fi
 bug -> sky is not hiding walls that are behind in horizon, make sense for roof maybe not for walls
 
 
-test intersect the walls and then at the end get the pixel values (how do I deal with transparency)
+
 
 
