@@ -134,7 +134,11 @@ def explo_zone(R,dist):
 class Wall():
     def __init__(self, u, v, w, text, door, deco, freq, phase,slant):
         self.freq=freq
-        self.phase=phase
+        self.phase_=phase
+        if levelD[level]['deco'][deco - 1] in z_tileable_deco:
+            self.tile_z=1
+        else:
+            self.tile_z = 0
         #(freq - 1 - phase)
         self.a = np.full((scrnL[0], scrnL[1], 3), u)
         self.b = np.full((scrnL[0], scrnL[1], 3), v)
@@ -189,14 +193,14 @@ class Wall():
         IM = np.where(np.expand_dims(((IM - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM)
         IM = np.where(np.expand_dims(((IM - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM)
         self.window = np.sum(IM <= -1)
-        self.sky = self.sky = self.sky or np.sum(IM <= -2)
+        self.sky = self.sky or np.sum(IM <= -2)
         self.wall_im = [np.flip(np.minimum(IM + 1, 255), (0, 1))]
 
         IM2 = np.transpose(pygame.surfarray.pixels3d(Imdeco2), (1, 0, 2))
         IM2 = np.where(np.expand_dims(((IM2 - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM2)
         IM2 = np.where(np.expand_dims(((IM2 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM2)
         self.wall_im2 = [np.flip(np.minimum(IM2 + 1, 255), (0, 1))]
-        self.sky = self.sky = self.sky or np.sum(IM2 <= -2)
+        self.sky = self.sky or np.sum(IM2 <= -2)
 
         self.phase = 0
         if self.text[11:-3] in liquid_floor:
@@ -597,7 +601,7 @@ class Wall():
         ind = c // (12 // len(self.wall_im))
         if self.Ig[0]<1 and self.Ig[0]>0:
 
-            return np.sum(self.wall_im[ind][60,int((1-self.Ig[0])*self.format[1])%self.borne[1],:])!=0
+            return np.sum(self.wall_im[ind][60,int((1-self.Ig[0])*self.format[1])%120+120*(int(-(1-self.Ig[0])*self.format[1]//120+(self.phase_-self.freq+1))%self.freq==0),:])!=0
         else:
             return False
 
@@ -686,6 +690,15 @@ class Wall():
         label_m.append('upscale')
 
         self.compute_mask_fast()
+
+        if not(self.sky) and self.window:
+            print('change texture to bool map')
+            u = ((1 - self.S[ :,:, :-1]) * self.format).astype(int)
+            G_g = np.mod(np.maximum(u, 0), 120)
+
+            texture = self.wall_im[0][G_g[:, :, 0], G_g[:, :, 1] + 120 * ((((-u[:, :, 1] // 120 + self.phase_-self.freq+1) % self.freq)) == 0) * (u[:, :, 0] < 120 + 1000 * self.tile_z)]
+            self.Ub=self.Ub&(texture.any(axis=-1)!=0)
+
         wall_index[self.Ub] = len(wall_rend)
         depth[..., 0][self.Ub] = self.S[:, :, -1][self.Ub]
 
@@ -3585,18 +3598,19 @@ while running == 1:
 
         wall_im_g=np.concatenate([i.wall_im[0] for i in wall_rend],axis=0)
         freq_g=np.array([i.freq for i in wall_rend])
-        phase_g = np.array([i.phase if i.freq!=1 else i.phase for i in wall_rend])
+        phase_g = np.array([i.phase_-i.freq+1  for i in wall_rend])
+        tile_z_g=np.array([i.tile_z  for i in wall_rend])
 
         format_g=np.stack([i.format for i in wall_rend],axis=0)
         i_, j_ = np.indices(wall_index.shape)
         S_g_r=S_g[wall_index,i_,j_]
         u=((1 - S_g_r[:, :, :-1]) * format_g[wall_index,:]).astype(int)
         G_g=np.mod(np.maximum(u, 0),120)
-        print(freq_g,phase_g)
-        # plt.imshow(((u[:,:,1]//120)%freq_g[wall_index])==0)
-        # plt.show()
-        texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]+120*((((u[:,:,1]//120)%freq_g[wall_index])+phase_g[wall_index])==0)]
+
+
+        texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]+120*((((-u[:,:,1]//120+phase_g[wall_index])%freq_g[wall_index]))==0)*(u[:,:,0]<120+1000*tile_z_g[wall_index])]
         if key[K_p]:
+
             plt.imshow(texture)
             plt.show()
             plt.imshow(wall_index)
