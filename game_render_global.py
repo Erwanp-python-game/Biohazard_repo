@@ -72,7 +72,7 @@ height_list=[]
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 6
+level = 3
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -223,11 +223,13 @@ class Wall():
                     Im_t = pygame.image.load(self.text[:-4] + '.' + str(min(k, len(files) - 2) + 1) + '.png')
                 else:
                     Im_t = pygame.image.load(text[0])
-                Imdeco = Im_t
+
+                Imdeco = Im_t.copy()
+                Imdeco = pygame.transform.scale(Imdeco, (120 * 2, 120))
                 if deco != 0:
-                    Imdeco = pygame.transform.scale(Imdeco, (120 * 2, 0 ))
+
                     for i in range(2):
-                        Imdeco.blit(Im_t, (120 , 120 * i))
+                        Imdeco.blit(pygame.image.load(text[0]), (120*i , 0))
                     deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.png'
                     if (len(files_d) > 1):
                         deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.' + str(
@@ -260,12 +262,14 @@ class Wall():
                     Im_t = pygame.image.load(self.text2[:-4] + '.' + str(min(k, len(files) - 2) + 1) + '.png')
                 else:
                     Im_t = pygame.image.load(text[1])
-                Imdeco2 = Im_t
+
+                Imdeco2 = Im_t.copy()
+                Imdeco2 = pygame.transform.scale(Imdeco2, (120 * 2, 120))
                 if deco != 0:
 
-                    Imdeco2 = pygame.transform.scale(Imdeco2, (120 * 2, 120 ))
+
                     for i in range(2):
-                        Imdeco2.blit(Im_t, (120 * i, 0))
+                        Imdeco2.blit(pygame.image.load(self.text2), (120 * i, 0))
                     deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.png'
                     if (len(files_d) > 1):
                         deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.' + str(
@@ -559,8 +563,10 @@ class Wall():
 
                     blocked = self.trans_im[ind][60, G_g + 120 * ((((-u // 120 + self.phase_ - self.freq + 1) % self.freq)) == 0)]
                     blocked=blocked&self.U0.astype(bool)
-                    horizon[blocked]=self.S0[blocked,1,None]
-
+                    if not(self.inside):
+                        horizon[blocked]=self.S0[blocked,1,None]
+                    else:
+                        horizon2[blocked, h]=self.S0[blocked,1]
 
 
 
@@ -573,7 +579,7 @@ class Wall():
                         horizon = self.S0[:, -1:] * np.expand_dims(self.U0, -1) + horizon * (
                                     1 - np.expand_dims(self.U0, -1))
 
-                if self.inside:
+                if self.inside and (self.window == 0 or self.sky!=0):
 
                     horizon2[:,h] = (self.S0[:, -1:] * np.expand_dims(self.U0, -1) + horizon2[:,h,None] * (
                             1 - np.expand_dims(self.U0, -1)))[:,0]
@@ -1362,12 +1368,11 @@ class Thing():
                 if not inline:
                     x_d0.append(x_d[i])
             x_d=x_d0
-        #print(x_d,y_d,np.sum(self.Ut[int(scrnL[0]*(1+2*x_d) - gun_width):int(scrnL[0]*(1+2*x_d) + gun_width), int(2 * scrnL[1]*(1+2*y_d) // 2 - gun_width):int(2 * scrnL[1]*(1+2*y_d) // 2 + gun_width)]))
+
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('inline')
         self.time = ((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], label_m)
-        # if self.type_M!=6:
-        #     print(np.round(self.time[0]*1000,1),self.time[1],np.round(1000*np.sum(self.time[0])))
+
         return self.Ar
 
 import matplotlib.pyplot as plt
@@ -1662,7 +1667,7 @@ class boule(pygame.sprite.Sprite):
             s = pygame.mixer.Sound("son/aie.ogg")
             s.play()
             return True
-        #print(authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2],level_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2],level_w_transp[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2])
+
         if (authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 0 or (
                 level_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1 and
                 authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 2 and level_w_transp[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2]==0)) or (self.p[-1] - z) > 5 + \
@@ -2478,7 +2483,7 @@ def change_game(num):
         s.play()
 
     if num == '5_1':
-        # print(Trig_liste)
+
         activatedT.append(Trig_liste[5][1])
     if num == '5_8':
         activatedT.remove(Trig_liste[5][1])
@@ -2663,7 +2668,7 @@ def show_doc():
 
 def check_trigger():
     global startmsg, indk, Sline, groupD, v, activatedT
-    # print(queueT,startmsg,activatedT)
+
     for i in Trig_liste:
         if np.linalg.norm(2 * (i[0] - 50) - x) < 10 and (i[1] not in activatedT):
             Sline = 0
@@ -2869,7 +2874,7 @@ def load_level(level_name):
     light_color = pickle.load(f)
     light_array = pickle.load(f)
     Trig_liste = pickle.load(f)
-    # print(Trig_liste)
+
     pickle.load(f)
     lifts = pickle.load(f)
     stairs = pickle.load(f)
@@ -2950,7 +2955,7 @@ def load_level(level_name):
                 d1y=np.dot(V1,j.b[0,0,:-1])
                 d2x=np.dot(V2,j.a[0,0,:-1])
                 d2y=np.dot(V2,j.b[0,0,:-1])
-                #print(np.linalg.norm(j.a[0,0,:-1])**2,d1x,np.linalg.norm(j.b[0,0,:-1])**2,d1y)
+
 
                 if np.linalg.norm(j.a[0,0,:-1])**2>=d1x>=0 and np.linalg.norm(j.b[0,0,:-1])**2>=d1y>=0 and np.linalg.norm(j.a[0,0,:-1])**2>=d2x>=0 and np.linalg.norm(j.b[0,0,:-1])**2>=d2y>=0:
 
@@ -3399,7 +3404,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('gun_clicks_and_keys')
 
-    # print(time.time()*1000-milliseconds[0])------until there same time small and big
+
 
     [i.calc_norm() for i in wall[0:20]]
     [i.reset_rend() for i in h_wall[0:20]]
@@ -3535,8 +3540,7 @@ while running == 1:
 
                     empty_pixel_count = np.sum((depth == 100).astype(int))
 
-                    #print(empty_pixel_count,cw,i.text)
-                    #print(i.time[0])
+
                     if render_w==1 :#and c3==1:
 
                         time_in_render=i.time[0]
@@ -3544,14 +3548,7 @@ while running == 1:
                     else:
                         time_in_render+=i.time[0]
                         label_t_render = i.time[1]
-                    # if render_w_old > 8 and c3 % 40 == 0:
-                    #     print(i.text,i.norm)
-                    #     plt.imshow(Im / 255)
-                    #     plt.show()
-                    #     plt.imshow(depth)
-                    #     plt.show()
-                    #     plt.plot(horizon)
-                    #     plt.show()
+
 
                 else:
                     IS.append(i)
@@ -3614,11 +3611,12 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')
-    print(len(wall_rend))
+
     if len(wall_rend)>0:
         S_g=np.stack([i.S for i in wall_rend],axis=0)#0.5msz
-
-        wall_im_g=np.concatenate([i.wall_im[0] for i in wall_rend],axis=0)
+        print([i.wall_im[c // (12 // len(i.wall_im))].shape for i in wall_rend])
+        print([i.wall_im[0].shape for i in wall_rend])
+        wall_im_g=np.concatenate([i.wall_im[c // (12 // len(i.wall_im))] for i in wall_rend],axis=0)
         freq_g=np.array([i.freq for i in wall_rend])
         phase_g = np.array([i.phase_-i.freq+1  for i in wall_rend])
         tile_z_g=np.array([i.tile_z  for i in wall_rend])
@@ -3828,7 +3826,7 @@ while running == 1:
                              1 - np.expand_dims(L0[0].Ut, -1))
             depth = depth * (1 - np.expand_dims(L0[0].Ut, -1)) + np.expand_dims(L0[0].Ut, -1) * L0[0].norm
 
-    #print(colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]),colorGUN , tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]))
+
     if colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]):
         colorGUN = tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2])
         GUN_im = MG1[arme][0].copy()
@@ -3984,8 +3982,7 @@ while running == 1:
     time_wall.append(np.sum(time_in_render))
     time_behind.append(np.sum(time_in_behind))
     time_tot.append(milliseconds[-1]-milliseconds[0])
-    # if len(time_tot)>10:
-    #     print('fps',1000/np.mean(time_tot[-10:]),render_w,len(add_h))
+
 
     if (c3-1) % 500 == 499 :
 
