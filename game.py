@@ -188,14 +188,15 @@ class Wall():
         IM = np.where(np.expand_dims(((IM - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM)
         IM = np.where(np.expand_dims(((IM - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM)
         self.window = np.sum(IM <= -1)
-        self.sky = self.sky = self.sky or np.sum(IM <= -2)
+        self.sky  = self.sky or np.sum(IM <= -2)
         self.wall_im = [np.flip(np.minimum(IM + 1, 255), (0, 1))]
+
 
         IM2 = np.transpose(pygame.surfarray.pixels3d(Imdeco2), (1, 0, 2))
         IM2 = np.where(np.expand_dims(((IM2 - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM2)
         IM2 = np.where(np.expand_dims(((IM2 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM2)
         self.wall_im2 = [np.flip(np.minimum(IM2 + 1, 255), (0, 1))]
-        self.sky = self.sky = self.sky or np.sum(IM2 <= -2)
+        self.sky  = self.sky or np.sum(IM2 <= -2)
 
         self.phase = 0
         if self.text[11:-3] in liquid_floor:
@@ -542,8 +543,7 @@ class Wall():
                     ind = c // (12 // len(self.wall_im))
                     indx=(((1-self.S0[:,0]) * self.format[1]) % self.borne[1]).astype(int)
                     blocked=(np.sum(self.wall_im[ind][60, indx, :],axis=-1)!=0)
-                    # print(blocked.shape,blocked,horizon.shape,self.U0.astype(bool).shape)
-                    # print(horizon[blocked].shape,self.S0[blocked,1,None].shape)
+
                     blocked=blocked&self.U0.astype(bool)
                     horizon[blocked]=self.S0[blocked,1,None]
 

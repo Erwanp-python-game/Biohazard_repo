@@ -189,18 +189,25 @@ class Wall():
             Imdeco.blit(verrou, (0, 0))
             Imdeco2.blit(verrou, (0, 0))
         self.sky = 0
+        self.window=0
         IM = np.transpose(pygame.surfarray.pixels3d(Imdeco), (1, 0, 2))
         IM = np.where(np.expand_dims(((IM - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM)
         IM = np.where(np.expand_dims(((IM - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM)
         self.window = np.sum(IM <= -1)
         self.sky = self.sky or np.sum(IM <= -2)
         self.wall_im = [np.flip(np.minimum(IM + 1, 255), (0, 1))]
+        if self.window and not(self.sky):
+            self.trans_im=[np.flip((IM!=-1).all(axis=-1), (0, 1))]
+
 
         IM2 = np.transpose(pygame.surfarray.pixels3d(Imdeco2), (1, 0, 2))
         IM2 = np.where(np.expand_dims(((IM2 - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM2)
         IM2 = np.where(np.expand_dims(((IM2 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM2)
         self.wall_im2 = [np.flip(np.minimum(IM2 + 1, 255), (0, 1))]
         self.sky = self.sky or np.sum(IM2 <= -2)
+        self.window =self.window or np.sum(IM <= -1)
+        if self.window and not(self.sky):
+            self.trans_im2=[np.flip((IM2!=-1).all(axis=-1), (0, 1))]
 
         self.phase = 0
         if self.text[11:-3] in liquid_floor:
@@ -240,9 +247,11 @@ class Wall():
                 IM = np.transpose(pygame.surfarray.pixels3d(Imdeco), (1, 0, 2))
                 IM = np.where(np.expand_dims(((IM - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM)
                 IM = np.where(np.expand_dims(((IM - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM)
-                self.window = np.sum(IM <= -1)
+                self.window =self.window or np.sum(IM <= -1)
                 self.sky = self.sky or np.sum(IM <= -2)
                 self.wall_im.append(np.flip(np.minimum(IM + 1, 255), (0, 1)))
+                if self.window and not (self.sky):
+                    self.trans_im .append(np.flip((IM != -1).all(axis=-1), (0, 1)))
 
         files2 = [filename for filename in os.listdir(self.text2[:11]) if filename.startswith(self.text2[11:-3])]
         if (len(files2) > 1) or (len(files_d) > 1):
@@ -277,7 +286,10 @@ class Wall():
                 IM2 = np.where(np.expand_dims(((IM2 - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM2)
                 IM2 = np.where(np.expand_dims(((IM2 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM2)
                 self.sky = self.sky or np.sum(IM2 <= -2)
+                self.window = self.window or np.sum(IM2 <= -1)
                 self.wall_im2.append(np.flip(np.minimum(IM2 + 1, 255), (0, 1)))
+                if self.window and not (self.sky):
+                    self.trans_im2 .append(np.flip((IM2 != -1).all(axis=-1), (0, 1)))
 
 
         self.U = np.array([0])
@@ -540,13 +552,16 @@ class Wall():
                     self.U0 = np.where(
                         np.all(self.S1 <= horizon, axis=-1) & np.all(self.S1 > 0, axis=-1) & np.all(self.S1[:, :-1] < 1, axis=-1), 1, 0)
 
-                if self.door_deco:
+                if self.window and not(self.sky):
                     ind = c // (12 // len(self.wall_im))
-                    indx=(((1-self.S0[:,0]) * self.format[1]) % self.borne[1]).astype(int)
-                    blocked=(np.sum(self.wall_im[ind][60, indx, :],axis=-1)!=0)
+                    u = ((1 - self.S0[ :, 0]) * self.format[1]).astype(int)
+                    G_g = np.mod(np.maximum(u, 0), 120)
+
+                    blocked = self.trans_im[ind][60, G_g + 120 * ((((-u // 120 + self.phase_ - self.freq + 1) % self.freq)) == 0)]
                     blocked=blocked&self.U0.astype(bool)
                     horizon[blocked]=self.S0[blocked,1,None]
-                    print('correct indexing and make it general for transparent images')
+
+
 
 
                 if (self.window == 0 or self.sky!=0) and self.inside==False:
@@ -697,15 +712,13 @@ class Wall():
         self.compute_mask_fast()
 
         if not(self.sky) and self.window:
-            print('change texture to bool map')
+
             u = ((1 - self.S[ :,:, :-1]) * self.format).astype(int)
             G_g = np.mod(np.maximum(u, 0), 120)
 
-            texture = self.wall_im[0][G_g[:, :, 0], G_g[:, :, 1] + 120 * ((((-u[:, :, 1] // 120 + self.phase_-self.freq+1) % self.freq)) == 0) * (u[:, :, 0] < 120 + 1000 * self.tile_z)]
-            self.Ub=self.Ub&(texture.any(axis=-1)!=0)
-            if key[K_o]:
-                plt.imshow(self.Ub)
-                plt.show()
+            texture = self.trans_im[0][G_g[:, :, 0], G_g[:, :, 1] + 120 * ((((-u[:, :, 1] // 120 + self.phase_-self.freq+1) % self.freq)) == 0) * (u[:, :, 0] < 120 + 1000 * self.tile_z)]
+            self.Ub=self.Ub&(texture)
+
 
 
         wall_index[self.Ub] = len(wall_rend)
@@ -3619,13 +3632,7 @@ while running == 1:
 
 
         texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]+120*((((-u[:,:,1]//120+phase_g[wall_index])%freq_g[wall_index]))==0)*(u[:,:,0]<120+1000*tile_z_g[wall_index])]*light_g[wall_index]
-        if key[K_p]:
-            plt.plot(horizon)
-            plt.show()
-            plt.imshow(light_g[wall_index])
-            plt.show()
-            plt.imshow(wall_index)
-            plt.show()
+
 
 
         Im=texture
@@ -3658,6 +3665,7 @@ while running == 1:
         horizon2 = horizon_cached2
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('glob_walls')
+
 
     # #NUMBA ATTEMPT
     # wall_a=[]

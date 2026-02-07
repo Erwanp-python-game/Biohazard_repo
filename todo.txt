@@ -1,10 +1,11 @@
 
 finish global render
--improve transp with transp buffer + indexing in test_behind
+
 -explo
--side
--animated
+-side A/B (even for transp_im)
+-animated (even for transp_im)
 -liquids
+-test_behind transp for inside wall
 
 boss invulnerable a envoyer dans incinérateur
 
