@@ -1,11 +1,12 @@
 
 finish global render
 
--explo
--side A/B (even for transp_im and cross wall)
--animated (even for transp_im and cross wall)
--liquids
 
+-explo
+-liquids
+-be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
+
+test new rendering where check all the test_behind vertical walls and then add the linked roof and floor (same method as inside but reverted) then render in batch
 
 boss invulnerable a envoyer dans incinérateur
 

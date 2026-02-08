@@ -72,7 +72,7 @@ height_list=[]
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 6
+level = 5
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -380,7 +380,7 @@ class Wall():
         self.colorL = np.array([1., 1, 1])
         if self.ID in light_color.keys():
             self.colorL = np.round(np.maximum(np.array(light_color[self.ID]), 0.1), 2)
-
+        self.side=1.
 
 
     def opendoor(self, door):
@@ -401,6 +401,7 @@ class Wall():
         #
         # self.wall_im[0] = np.flip(np.minimum(IM + 1, 255), (0, 1))
         IM = np.transpose(pygame.surfarray.pixels3d(Imdeco), (1, 0, 2))
+
         self.wall_im[0] = np.flip(np.minimum(IM, 255), (0, 1))
         return 0
 
@@ -480,6 +481,12 @@ class Wall():
 
     def test_behind(self):
         milliseconds = [time.perf_counter()*1000]
+        x_ = self.X[0][0][0]
+        y_ = self.X[0][0][1]
+        a_ = self.b[0][0][0]
+        b_ = self.b[0][0][1]
+        self.side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
+
         if self.angle0 < 0:
             Mg = np.stack((self.b_old[0][0][0:-1], -Vg @ Rp), axis=-1)
             self.Ig = np.linalg.solve(Mg, x - self.X_old[0][0][0:-1])
@@ -559,11 +566,15 @@ class Wall():
                         np.all(self.S1 <= horizon, axis=-1) & np.all(self.S1 > 0, axis=-1) & np.all(self.S1[:, :-1] < 1, axis=-1), 1, 0)
 
                 if self.window and not(self.sky):
-                    ind = c // (12 // len(self.wall_im))
+                    if self.side<0:
+                        t_im=self.trans_im
+                    else:
+                        t_im=self.trans_im2
+                    ind = c // (12 // len(t_im))
                     u = ((1 - self.S0[ :, 0]) * self.format[1]).astype(int)
                     G_g = np.mod(np.maximum(u, 0), 120)
 
-                    blocked = 1-np.any(1-self.trans_im[ind][:, G_g + 120 * ((((-u // 120 + self.phase_ - self.freq + 1) % self.freq)) == 0)],axis=0)
+                    blocked = 1-np.any(1-t_im[ind][:, G_g + 120 * ((((-u // 120 + self.phase_ - self.freq + 1) % self.freq)) == 0)],axis=0)
                     blocked=blocked&self.U0.astype(bool)
                     if not(self.inside):
                         horizon[blocked]=self.S0[blocked,1,None]
@@ -626,10 +637,15 @@ class Wall():
         self.Ig = np.linalg.solve(Mg, x - self.X[0][0][0:-1])
 
 
-        ind = c // (12 // len(self.wall_im))
-        if self.Ig[0]<1 and self.Ig[0]>0:
 
-            return np.sum(self.wall_im[ind][60,int((1-self.Ig[0])*self.format[1])%120+120*(int(-(1-self.Ig[0])*self.format[1]//120+(self.phase_-self.freq+1))%self.freq==0),:])!=0
+        if self.Ig[0]<1 and self.Ig[0]>0:
+            if self.side < 0:
+                w_im = self.wall_im
+                ind = c // (12 // len(self.wall_im))
+            else:
+                w_im = self.wall_im2
+                ind = c // (12 // len(self.wall_im2))
+            return np.sum(self.w_im[ind][60,int((1-self.Ig[0])*self.format[1])%120+120*(int(-(1-self.Ig[0])*self.format[1]//120+(self.phase_-self.freq+1))%self.freq==0),:])!=0
         else:
             return False
 
@@ -723,8 +739,17 @@ class Wall():
 
             u = ((1 - self.S[ :,:, :-1]) * self.format).astype(int)
             G_g = np.mod(np.maximum(u, 0), 120)
-
-            texture = self.trans_im[0][G_g[:, :, 0], G_g[:, :, 1] + 120 * ((((-u[:, :, 1] // 120 + self.phase_-self.freq+1) % self.freq)) == 0) * (u[:, :, 0] < 120 + 1000 * self.tile_z)]
+            if self.side < 0:
+                w_im = self.wall_im
+                t_im = self.trans_im
+            else:
+                w_im = self.wall_im2
+                t_im = self.trans_im2
+            if levelD[level]['deco'][self.deco - 1] not in deco_destruc:
+                ind = c // (12 // len(t_im))
+            else:
+                ind=min(self.vie,2)
+            texture = t_im[ind][G_g[:, :, 0], G_g[:, :, 1] + 120 * ((((-u[:, :, 1] // 120 + self.phase_-self.freq+1) % self.freq)) == 0) * (u[:, :, 0] < 120 + 1000 * self.tile_z)]
             self.Ub=self.Ub&(texture)
 
 
@@ -3616,7 +3641,15 @@ while running == 1:
 
     if len(wall_rend)>0:
         S_g=np.stack([i.S for i in wall_rend],axis=0)#0.5msz
-        wall_im_g=np.concatenate([i.wall_im[c // (12 // len(i.wall_im))] for i in wall_rend],axis=0)
+        ind_l=[
+                c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
+                else c // (12 // len(i.wall_im2)) if (i.side > 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
+                else min(i.vie, 2) if (levelD[level]['deco'][i.deco - 1] in deco_destruc)
+                else 0
+                for i in wall_rend
+            ]
+
+        wall_im_g=np.concatenate([i.wall_im[ind_l[c0]] if i.side<0 else i.wall_im2[ind_l[c0]] for c0,i in enumerate(wall_rend)],axis=0)
         freq_g=np.array([i.freq for i in wall_rend])
         phase_g = np.array([i.phase_-i.freq+1  for i in wall_rend])
         tile_z_g=np.array([i.tile_z  for i in wall_rend])
@@ -3625,6 +3658,9 @@ while running == 1:
         format_g=np.stack([i.format for i in wall_rend],axis=0)
         i_, j_ = np.indices(wall_index.shape)
         S_g_r=S_g[wall_index,i_,j_]
+        # S_g_r=cv2.resize(S_g_r, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_LINEAR)
+        # wall_index2 = cv2.resize(wall_index, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_NEAREST)
+
         u=((1 - S_g_r[:, :, :-1]) * format_g[wall_index,:]).astype(int)
         G_g=np.mod(np.maximum(u, 0),120)
 
@@ -3635,21 +3671,29 @@ while running == 1:
 
         Im=texture
         Xsource_g=np.empty((4,len(wall_rend),3))
+        torch_shine=False
         for cg,i in enumerate(wall_rend):
             if i.ID in light_wall.keys():
                 Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
                 X0 = [x for _, x in sorted(zip(Y0, light_wall[i.ID]))]
                 Xsource_g[:,cg,:] = np.array([source_pos(X0[k])  if k<len(X0) else np.array([1e9,0.,0.]) for k in range(4)])
+            else:
+                torch_shine=True
+
         a_g=np.array([i.a[0,0,:] for i in wall_rend])
         b_g = np.array([i.b[0, 0, :] for i in wall_rend])
         x_g = np.array([i.X[0, 0, :] for i in wall_rend])
 
         Xl=S_g_r[:,:,0,None]*a_g[wall_index,:]+S_g_r[:,:,1,None]*b_g[wall_index,:]+x_g[wall_index,:]
-        POS=np.amin(np.linalg.norm( Xl[None,:,:,:]-Xsource_g[:,wall_index,:],axis=-1),axis=0)
+        if torch_shine:
+            Im=Im*torch_on * TORCHE ** 3
+            POS = np.linalg.norm(Xl - R_c, axis=-1)**0.5
+        else:
+            POS = np.amin(np.linalg.norm(Xl[ :, :, :] - Xsource_g[:, wall_index, :], axis=-1), axis=0)
 
-        if key[K_p]:
-            plt.plot(horizon)
-            plt.show()
+
+
+
 
     if moving_cam == True:
         Im_cached = Im
@@ -3838,11 +3882,11 @@ while running == 1:
 
             GUN_im.fill(colorGUN, special_flags=BLEND_RGB_MULT)
 
-    IS_rendered=[]
-    for i in IS:
-        IS_rendered.append(i.render())
-        #Im = IS_rendered[-1] * 0.5 + Im * (1 - 0.5 * np.expand_dims(i.U, -1))
-        Im[i.Ub] = IS_rendered[-1][i.Ub]*0.5+Im[i.Ub]*0.5
+    # IS_rendered=[]
+    # for i in IS:
+    #     IS_rendered.append(i.render())
+    #     #Im = IS_rendered[-1] * 0.5 + Im * (1 - 0.5 * np.expand_dims(i.U, -1))
+    #     Im[i.Ub] = IS_rendered[-1][i.Ub]*0.5+Im[i.Ub]*0.5
     if fire:
         Im = np.minimum(Im + 100 * TORCHE, 255)
 
