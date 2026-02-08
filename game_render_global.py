@@ -72,7 +72,7 @@ height_list=[]
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 3
+level = 6
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -226,10 +226,11 @@ class Wall():
 
                 Imdeco = Im_t.copy()
                 Imdeco = pygame.transform.scale(Imdeco, (120 * 2, 120))
+                for i in range(2):
+                    Imdeco.blit(pygame.image.load(text[0]), (120 * i, 0))
                 if deco != 0:
 
-                    for i in range(2):
-                        Imdeco.blit(pygame.image.load(text[0]), (120*i , 0))
+
                     deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.png'
                     if (len(files_d) > 1):
                         deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.' + str(
@@ -265,11 +266,12 @@ class Wall():
 
                 Imdeco2 = Im_t.copy()
                 Imdeco2 = pygame.transform.scale(Imdeco2, (120 * 2, 120))
+                for i in range(2):
+                    Imdeco2.blit(pygame.image.load(self.text2), (120 * i, 0))
                 if deco != 0:
 
 
-                    for i in range(2):
-                        Imdeco2.blit(pygame.image.load(self.text2), (120 * i, 0))
+
                     deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.png'
                     if (len(files_d) > 1):
                         deco_name = 'image/deco/' + str(levelD[level]['deco'][deco - 1]) + '.' + str(
@@ -561,7 +563,7 @@ class Wall():
                     u = ((1 - self.S0[ :, 0]) * self.format[1]).astype(int)
                     G_g = np.mod(np.maximum(u, 0), 120)
 
-                    blocked = self.trans_im[ind][60, G_g + 120 * ((((-u // 120 + self.phase_ - self.freq + 1) % self.freq)) == 0)]
+                    blocked = 1-np.any(1-self.trans_im[ind][:, G_g + 120 * ((((-u // 120 + self.phase_ - self.freq + 1) % self.freq)) == 0)],axis=0)
                     blocked=blocked&self.U0.astype(bool)
                     if not(self.inside):
                         horizon[blocked]=self.S0[blocked,1,None]
@@ -3614,8 +3616,6 @@ while running == 1:
 
     if len(wall_rend)>0:
         S_g=np.stack([i.S for i in wall_rend],axis=0)#0.5msz
-        print([i.wall_im[c // (12 // len(i.wall_im))].shape for i in wall_rend])
-        print([i.wall_im[0].shape for i in wall_rend])
         wall_im_g=np.concatenate([i.wall_im[c // (12 // len(i.wall_im))] for i in wall_rend],axis=0)
         freq_g=np.array([i.freq for i in wall_rend])
         phase_g = np.array([i.phase_-i.freq+1  for i in wall_rend])
@@ -3647,7 +3647,9 @@ while running == 1:
         Xl=S_g_r[:,:,0,None]*a_g[wall_index,:]+S_g_r[:,:,1,None]*b_g[wall_index,:]+x_g[wall_index,:]
         POS=np.amin(np.linalg.norm( Xl[None,:,:,:]-Xsource_g[:,wall_index,:],axis=-1),axis=0)
 
-
+        if key[K_p]:
+            plt.plot(horizon)
+            plt.show()
 
     if moving_cam == True:
         Im_cached = Im

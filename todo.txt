@@ -2,10 +2,10 @@
 finish global render
 
 -explo
--side A/B (even for transp_im)
--animated (even for transp_im)
+-side A/B (even for transp_im and cross wall)
+-animated (even for transp_im and cross wall)
 -liquids
--test_behind transp for inside wall
+
 
 boss invulnerable a envoyer dans incinérateur
 
