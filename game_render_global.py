@@ -72,7 +72,7 @@ height_list=[]
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 5
+level = 6
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -3640,7 +3640,7 @@ while running == 1:
     label_deltat.append('walls')
 
     if len(wall_rend)>0:
-        S_g=np.stack([i.S for i in wall_rend],axis=0)#0.5msz
+        S_g=np.stack([i.S for i in wall_rend],axis=2)#0.5msz
         ind_l=[
                 c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
                 else c // (12 // len(i.wall_im2)) if (i.side > 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
@@ -3657,9 +3657,10 @@ while running == 1:
 
         format_g=np.stack([i.format for i in wall_rend],axis=0)
         i_, j_ = np.indices(wall_index.shape)
-        S_g_r=S_g[wall_index,i_,j_]
-        # S_g_r=cv2.resize(S_g_r, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_LINEAR)
-        # wall_index2 = cv2.resize(wall_index, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_NEAREST)
+        S_g_r=S_g[i_,j_,wall_index]
+
+        # S_g_r2=cv2.resize(S_g_r, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+        # wall_index2 = cv2.resize(wall_index, None, fx=2, fy=2, interpolation=cv2.INTER_NEAREST)
 
         u=((1 - S_g_r[:, :, :-1]) * format_g[wall_index,:]).astype(int)
         G_g=np.mod(np.maximum(u, 0),120)
@@ -3669,7 +3670,7 @@ while running == 1:
 
 
 
-        Im=texture
+        Im=texture[::2,::2,:]
         Xsource_g=np.empty((4,len(wall_rend),3))
         torch_shine=False
         for cg,i in enumerate(wall_rend):
