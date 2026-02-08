@@ -3670,7 +3670,7 @@ while running == 1:
 
 
 
-        Im=texture[::2,::2,:]
+        Im=texture#[::2,::2,:]
         Xsource_g=np.empty((4,len(wall_rend),3))
         torch_shine=False
         for cg,i in enumerate(wall_rend):
@@ -3692,7 +3692,8 @@ while running == 1:
         else:
             POS = np.amin(np.linalg.norm(Xl[ :, :, :] - Xsource_g[:, wall_index, :], axis=-1), axis=0)
 
-
+        if explo!=0:
+            explo_R = np.minimum(explo_R, np.linalg.norm(Xl - np.array([explo_pt[0], explo_pt[1], 0.]),axis=-1)[:,:,None])
 
 
 
