@@ -96,21 +96,53 @@ def source_pos(code):
     return np.array([x, y, z - 5])
 
 
-# def nearest_valid(autho,x):
-# d=1000
-# xq=[x[0]/2+50,x[1]/2+50]
-# xR=[int(xq[0]),int(xq[1])]
-# xfin=xR
+def cells_crossed_by_segment(X, A, cell_size=1.0, eps=1e-9):
+    x0, y0 = X
+    ax, ay = A
 
-# for i in [-2,-1,0,1,2]:
-# for j in [-2,-1,0,1,2]:
-# if (i!=0 or j!=0) and autho[xR[1]+j][xR[0]+i]==2:
-# D=(xR[0]+i-xq[0])**2+(xR[1]+j-xq[1])**2
-# if D<=d:
-# d=D
-# xfin=[xR[0]+i,xR[1]+j]
+    dx, dy = ax, ay
 
-# return xfin
+    ix = np.floor(x0 / cell_size)
+    iy = np.floor(y0 / cell_size)
+
+    cells = [(ix, iy)]
+
+    step_x = 1 if dx > 0 else -1 if dx < 0 else 0
+    step_y = 1 if dy > 0 else -1 if dy < 0 else 0
+
+    if dx != 0:
+        next_x = (ix + (step_x > 0)) * cell_size
+        t_max_x = (next_x - x0) / dx
+        t_delta_x = cell_size / abs(dx)
+    else:
+        t_max_x = float("inf")
+        t_delta_x = float("inf")
+
+    if dy != 0:
+        next_y = (iy + (step_y > 0)) * cell_size
+        t_max_y = (next_y - y0) / dy
+        t_delta_y = cell_size / abs(dy)
+    else:
+        t_max_y = float("inf")
+        t_delta_y = float("inf")
+
+    t = 0.0
+    while t <= 1.0 + eps:
+        if t_max_x < t_max_y:
+            ix += step_x
+            t = t_max_x
+            t_max_x += t_delta_x
+        else:
+            iy += step_y
+            t = t_max_y
+            t_max_y += t_delta_y
+
+        if t > 1.0 + eps:
+            break
+
+        cells.append((ix, iy))
+
+    return cells
 def plane(a,b,X):
     M = np.stack((a * 1.1, b * 1.1, -screenV), axis=-1)
     B = -X + screenP
@@ -486,9 +518,6 @@ class Wall():
         a_ = self.b[0][0][0]
         b_ = self.b[0][0][1]
         self.side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
-
-        if self.norm>np.amax(horizon):
-            return False
 
         if self.angle0 < 0:
             Mg = np.stack((self.b_old[0][0][0:-1], -Vg @ Rp), axis=-1)
@@ -2972,10 +3001,17 @@ def load_level(level_name):
      wall[-app:]]
     h_wall = wall[-app:]
 
-
+    cell_size=5
+    cell_array_N=np.full((500//cell_size,500//cell_size),0)
+    cell_array = [[[] for _ in range(500//cell_size)] for _ in range(500//cell_size)]
+    fig,ax=plt.subplots(1,2)
     for i in wall:
-
         if i not in h_wall:
+            cells=cells_crossed_by_segment(0.5*(i.X[0,0,:-1]+100),0.5*i.b[0,0,:-1],cell_size)
+            for u in cells:
+                cell_array_N[int(u[0])][int(u[1])]+=1
+                cell_array[int(u[0])][int(u[1])].append(i.ID)
+            ax[0].scatter([i[0] for i in cells],[i[1] for i in cells])
             count_w=0
             h_wall_temp=[]
             for j in h_wall:
@@ -3020,7 +3056,9 @@ def load_level(level_name):
 
                                     i.inside=False
 
-
+    ax[1].imshow(cell_array_N)
+    print(cell_array)
+    plt.show()
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
     height_list.sort()

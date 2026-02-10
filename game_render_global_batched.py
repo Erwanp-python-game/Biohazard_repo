@@ -480,7 +480,12 @@ class Wall():
         #     return (-t - abs(np.dot(-t, -No)) * -No)
 
     def test_behind(self):
+        global horizon, horizon2
         milliseconds = [time.perf_counter()*1000]
+        if self.norm>np.amax(horizon):
+            milliseconds.append(time.perf_counter() * 1000)
+            i.time_behind = milliseconds[1] - milliseconds[0]
+            return False
         x_ = self.X[0][0][0]
         y_ = self.X[0][0][1]
         a_ = self.b[0][0][0]
@@ -520,7 +525,7 @@ class Wall():
                 return True
             else:
 
-                global horizon,horizon2
+
 
                 B0 = self.b_old[:, 0, :-1].copy()
                 X0 = self.X_old[:, 0, :-1].copy()
@@ -3115,7 +3120,7 @@ xg = 0
 logL = []
 C_log = 0
 impact = pygame.image.load('./image/effects/impact0.png')
-averaged_time = np.full((21), 0.)
+averaged_time = np.full((24), 0.)
 elastic_count=0
 Ratio=window[0]/960
 x_d=[(0.,0.)]
@@ -3511,7 +3516,8 @@ while running == 1:
             new_walls=[j for j in flat if j.ID in i.linked and j not in wall_seen]
             wall_seen.extend(new_walls)
 
-
+        milliseconds.append(time.perf_counter() * 1000)
+        label_deltat.append('walls1')
 
         M = np.stack([i._M for i in wall_seen],axis=0)
         B = np.stack([i._B for i in wall_seen],axis=0)
@@ -3528,6 +3534,8 @@ while running == 1:
         # --- solve batched 3x3 systems ---
         S_ = np.linalg.solve(M, B)
 
+        milliseconds.append(time.perf_counter() * 1000)
+        label_deltat.append('walls2')
 
         S00=np.sign(S_[...,-1])
 
@@ -3544,6 +3552,9 @@ while running == 1:
         ])
         S_[..., -1]=S_[..., -1]*S00
 
+        milliseconds.append(time.perf_counter() * 1000)
+        label_deltat.append('walls3')
+
         for ci,i in enumerate(wall_seen):
             i.S=S_[ci,...]
 
@@ -3557,7 +3568,7 @@ while running == 1:
 
 
     milliseconds.append(time.perf_counter()*1000)
-    label_deltat.append('walls')
+    label_deltat.append('walls4')
 
     if len(wall_rend)>0:
         S_g=np.stack([i.S for i in wall_rend],axis=2)#0.5msz
@@ -4021,7 +4032,7 @@ while running == 1:
         time_wall=[]
         time_behind = []
         time_tot=[]
-        averaged_time = np.full((21), 0.)
+        averaged_time = np.full((24), 0.)
 
 
 
