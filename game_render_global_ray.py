@@ -143,6 +143,30 @@ def cells_crossed_by_segment(X, A, cell_size=1.0, eps=1e-9):
         cells.append((ix, iy))
 
     return cells
+
+def cells_covered_by_plane(X, A,B, cell_size=1.0):
+    x0, y0 = X
+    ax, ay = A
+    bx, by = B
+
+
+    ix = np.floor(x0 / cell_size)
+    iy = np.floor(y0 / cell_size)
+
+    ix1 = np.floor((x0+ax) / cell_size)
+    iy1 = np.floor((y0+by) / cell_size)
+
+
+    xmin = int(min(ix, ix1))
+    xmax = int(max(ix, ix1))
+    ymin = int(min(iy, iy1))
+    ymax = int(max(iy, iy1))
+    cells = []
+    for ix in range(xmin, xmax + 1):
+        for iy in range(ymin, ymax + 1):
+            cells.append((ix, iy))
+
+    return cells
 def plane(a,b,X):
     M = np.stack((a * 1.1, b * 1.1, -screenV), axis=-1)
     B = -X + screenP
@@ -3055,7 +3079,11 @@ def load_level(level_name):
                                 else:
 
                                     i.inside=False
-
+        else:
+            cells=cells_covered_by_plane(0.5*(i.X[0,0,:-1]+100),0.5*i.a[0,0,:-1],0.5*i.b[0,0,:-1],cell_size)
+            for u in cells:
+                cell_array_N[int(u[0])][int(u[1])]+=1
+                cell_array[int(u[0])][int(u[1])].append(i.ID)
     ax[1].imshow(cell_array_N)
     print(cell_array)
     plt.show()

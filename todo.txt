@@ -1,3 +1,4 @@
+best current version is game_render_global.py
 
 finish global render
 
