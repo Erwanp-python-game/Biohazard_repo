@@ -91,7 +91,7 @@ Im = np.full((2 * scrnL[0], 2 * scrnL[1], 3), 0)
 
 from numba import njit,prange
 
-@njit(parallel=True, fastmath=True)
+# @njit(parallel=True, fastmath=True)
 def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
     """
     X0 : point de départ du segment (3,)
@@ -113,7 +113,7 @@ def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
 
     return X0 + t * V,t
 
-@njit(parallel=True, fastmath=True)
+# @njit(parallel=True, fastmath=True)
 def intersect(screenV,screenP,cell_array,cell_size,all_walls):
     X0 = screenP[0, 0, :]
     I0 = ((X0[:-1] + 100) * 0.5).astype(int) // cell_size
