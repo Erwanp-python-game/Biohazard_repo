@@ -89,6 +89,44 @@ level_start[99] = 4
 z_tileable_deco = [26, 28, 31]
 Im = np.full((2 * scrnL[0], 2 * scrnL[1], 3), 0)
 
+from numba import njit,prange
+
+@njit(parallel=True, fastmath=True)
+def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
+    """
+    X0 : point de départ du segment (3,)
+    V  : vecteur du segment (3,)
+    X  : point du plan (3,)
+    a, b : vecteurs définissant le plan (3,)
+
+    Retourne : point d'intersection ou None
+    """
+
+    n = np.cross(a, b)
+    denom = np.dot(V, n)
+
+    if abs(denom) < eps:
+        return None  # parallèle ou coplanaire
+
+    t = np.dot(X - X0, n) / denom
+
+
+    return X0 + t * V,t
+
+@njit(parallel=True, fastmath=True)
+def intersect(screenV,screenP,cell_array,cell_size,all_walls):
+    X0 = screenP[0, 0, :]
+    I0 = ((X0[:-1] + 100) * 0.5).astype(int) // cell_size
+    cell0=cell_array[I0[0]][I0[1]]
+
+    for i in range(screenV.shape[0]):
+        for j in range(screenV.shape[1]):
+            wall0 = all_walls[cell0]
+            for k in wall0:
+                S=segment_plane_intersection(X0,screenV[i,j,:],k.X[0,0,:],k.a[0,0,:],k.b[0,0,:])
+    print(S)
+
+
 def source_pos(code):
     x = (int(code.split(',')[0]) - 50) * 2
     y = (int(code.split(',')[1]) - 50) * 2
@@ -2850,7 +2888,7 @@ def check_trigger():
 
 
 def load_level(level_name):
-    global CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     CARTE = [0, 0, 0]
     level = int(level_name)
     if level==5:
@@ -3029,12 +3067,12 @@ def load_level(level_name):
     cell_array_N=np.full((500//cell_size,500//cell_size),0)
     cell_array = [[[] for _ in range(500//cell_size)] for _ in range(500//cell_size)]
     fig,ax=plt.subplots(1,2)
-    for i in wall:
+    for cw,i in enumerate(wall):
         if i not in h_wall:
             cells=cells_crossed_by_segment(0.5*(i.X[0,0,:-1]+100),0.5*i.b[0,0,:-1],cell_size)
             for u in cells:
                 cell_array_N[int(u[0])][int(u[1])]+=1
-                cell_array[int(u[0])][int(u[1])].append(i.ID)
+                cell_array[int(u[0])][int(u[1])].append(cw)
             ax[0].scatter([i[0] for i in cells],[i[1] for i in cells])
             count_w=0
             h_wall_temp=[]
@@ -3083,10 +3121,10 @@ def load_level(level_name):
             cells=cells_covered_by_plane(0.5*(i.X[0,0,:-1]+100),0.5*i.a[0,0,:-1],0.5*i.b[0,0,:-1],cell_size)
             for u in cells:
                 cell_array_N[int(u[0])][int(u[1])]+=1
-                cell_array[int(u[0])][int(u[1])].append(i.ID)
+                cell_array[int(u[0])][int(u[1])].append(cw)
     ax[1].imshow(cell_array_N)
-    print(cell_array)
     plt.show()
+    all_walls=np.array(wall.copy())
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
     height_list.sort()
@@ -3199,7 +3237,7 @@ xg = 0
 logL = []
 C_log = 0
 impact = pygame.image.load('./image/effects/impact0.png')
-averaged_time = np.full((21), 0.)
+averaged_time = np.full((22), 0.)
 elastic_count=0
 Ratio=window[0]/960
 x_d=[(0.,0.)]
@@ -3708,6 +3746,11 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')
 
+    intersect(screenV,screenP,cell_array,cell_size,all_walls)
+
+    milliseconds.append(time.perf_counter()*1000)
+    label_deltat.append('intersect')
+
     if len(wall_rend)>0:
         S_g=np.stack([i.S for i in wall_rend],axis=2)#0.5msz
         ind_l=[
@@ -4170,7 +4213,7 @@ while running == 1:
         time_wall=[]
         time_behind = []
         time_tot=[]
-        averaged_time = np.full((21), 0.)
+        averaged_time = np.full((22), 0.)
 
 
 
