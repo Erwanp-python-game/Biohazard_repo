@@ -16,7 +16,8 @@ from PATH import astar, Node
 import ast
 import datetime as dt
 from Boss import BOSS, LIZARD, nearest_valid, rot_z, rot_y, rot_plan, light_modif
-
+from numba.typed import List
+from numba import types
 # def rot_z(theta):
 # return np.array([[np.cos(theta),-np.sin(theta),0],[np.sin(theta),np.cos(theta),0],[0,0,1]])
 # def rot_y(theta):
@@ -88,43 +89,59 @@ level_start[99] = 4
 
 z_tileable_deco = [26, 28, 31]
 Im = np.full((2 * scrnL[0], 2 * scrnL[1], 3), 0)
+def create_cell_array(cell_size):
+    n = 500 // cell_size
 
+    cell_array = List()  # outer list
+
+    for i in range(n):
+        row = List()  # second level
+        for j in range(n):
+            row.append( List.empty_list(types.int64))  # inner empty list
+        cell_array.append(row)
+
+    return cell_array
 from numba import njit,prange
 
-# @njit(parallel=True, fastmath=True)
+@njit
 def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
-    """
-    X0 : point de départ du segment (3,)
-    V  : vecteur du segment (3,)
-    X  : point du plan (3,)
-    a, b : vecteurs définissant le plan (3,)
-
-    Retourne : point d'intersection ou None
-    """
 
     n = np.cross(a, b)
     denom = np.dot(V, n)
 
+    result = np.empty(3, dtype=np.float64)
+
     if abs(denom) < eps:
-        return None  # parallèle ou coplanaire
+        result[0] = np.nan
+        result[1] = np.nan
+        result[2] = np.nan
+        return result,0
 
     t = np.dot(X - X0, n) / denom
 
+    result[0] = X0[0] + t * V[0]
+    result[1] = X0[1] + t * V[1]
+    result[2] = X0[2] + t * V[2]
 
-    return X0 + t * V,t
+    return result,t
 
-# @njit(parallel=True, fastmath=True)
-def intersect(screenV,screenP,cell_array,cell_size,all_walls):
+@njit(parallel=True, fastmath=True)
+def intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X):
     X0 = screenP[0, 0, :]
-    I0 = ((X0[:-1] + 100) * 0.5).astype(int) // cell_size
+    I0 = ((X0[:-1] + 100) * 0.5).astype(np.int64) // cell_size
     cell0=cell_array[I0[0]][I0[1]]
-
+    S=np.full(screenP.shape[:-1],1e6)
     for i in range(screenV.shape[0]):
         for j in range(screenV.shape[1]):
-            wall0 = all_walls[cell0]
-            for k in wall0:
-                S=segment_plane_intersection(X0,screenV[i,j,:],k.X[0,0,:],k.a[0,0,:],k.b[0,0,:])
-    print(S)
+            for k in range(len(cell0)):
+
+                a = all_a[cell0[k]]
+                b = all_b[cell0[k]]
+                X = all_X[cell0[k]]
+                t=abs(segment_plane_intersection(X0,screenV[i,j,:],X,a,b)[1])
+                if t>0:
+                    S[i,j]=min(S[i,j],t)
+    return S
 
 
 def source_pos(code):
@@ -2888,7 +2905,7 @@ def check_trigger():
 
 
 def load_level(level_name):
-    global all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     CARTE = [0, 0, 0]
     level = int(level_name)
     if level==5:
@@ -3063,9 +3080,9 @@ def load_level(level_name):
      wall[-app:]]
     h_wall = wall[-app:]
 
-    cell_size=5
+    cell_size=20
     cell_array_N=np.full((500//cell_size,500//cell_size),0)
-    cell_array = [[[] for _ in range(500//cell_size)] for _ in range(500//cell_size)]
+    cell_array = create_cell_array(cell_size)
     fig,ax=plt.subplots(1,2)
     for cw,i in enumerate(wall):
         if i not in h_wall:
@@ -3124,7 +3141,12 @@ def load_level(level_name):
                 cell_array[int(u[0])][int(u[1])].append(cw)
     ax[1].imshow(cell_array_N)
     plt.show()
-    all_walls=np.array(wall.copy())
+    all_walls=wall.copy()
+    all_a=np.array([i.a[0,0,:] for i in all_walls])
+    all_b = np.array([i.b[0, 0, :] for i in all_walls])
+    all_X = np.array([i.X[0, 0, :] for i in all_walls])
+
+
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
     height_list.sort()
@@ -3746,8 +3768,9 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')
 
-    intersect(screenV,screenP,cell_array,cell_size,all_walls)
-
+    A_intersect=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X)
+    plt.imshow(A_intersect)
+    plt.show()
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('intersect')
 
