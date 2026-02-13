@@ -3571,7 +3571,7 @@ while running == 1:
 
                     #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
 
-                    empty_pixel_count = np.sum((depth == 100).astype(int))
+                    empty_pixel_count = np.sum((depth[::3,::3] == 100).astype(int))
 
 
                     if render_w==1 :#and c3==1:
@@ -3603,7 +3603,7 @@ while running == 1:
                             time_in_render += j.time[0]
                             label_t_render = j.time[1]
                 #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
-                empty_pixel_count = np.sum((depth == 100).astype(int))
+                empty_pixel_count = np.sum((depth[::3,::3] == 100).astype(int))
                 break
 
         if render_w2>wall_count-10:
@@ -3637,7 +3637,7 @@ while running == 1:
 
 
 
-    #print(render_w,render_w_add,render_w_add2,render_sup_wall,empty_pixel_count)
+
     render_w=render_w+render_w_add+render_w_add2+render_sup_wall
 
 
