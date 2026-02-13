@@ -1355,6 +1355,8 @@ class Thing():
         # self.U = np.stack(((Xthing - self.DX - scrnL[0]) / self.width, (Ything - self.DY - scrnL[1]) / self.widthY),
         #                   -1) * np.expand_dims(SQUARE, -1)
 
+        if self.U.shape[0]>160:
+            self.U=self.U[::2,::2]
         # channel 0
         self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
         self.U[..., 0] *= self.SQUARE
@@ -1366,11 +1368,13 @@ class Thing():
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('U')
+        self.U=cv2.resize(self.U, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
         self.G = np.maximum((self.U * 160).astype(int), 0)
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('G')
         # self.Gx=
         # self.Gy=
+
 
         self.Ar=self.im[self.G[..., 0], self.G[..., 1]]*colorT
 
@@ -1561,6 +1565,8 @@ class Object():
         #                   -1) * np.expand_dims(SQUARE, -1)
 
         # channel 0
+        if self.U.shape[0]>160:
+            self.U=self.U[::2,::2]
         self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
         self.U[..., 0] *= SQUARE
 
@@ -1568,6 +1574,7 @@ class Object():
         self.U[..., 1] = (Ything - self.DY - scrnL[1]) / self.widthY
         self.U[..., 1] *= SQUARE
 
+        self.U = cv2.resize(self.U, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
         self.G = np.maximum((self.U * 160).astype(int), 0)
         #Ar = np.moveaxis(self.im[tuple(map(tuple, self.G.T))] * colorT, 1, 0)
         self.Ar = self.im[self.G[..., 0], self.G[..., 1]] * colorT
@@ -3845,12 +3852,12 @@ while running == 1:
                 break
             if i.test_behind():
                 render_C += 1
-                rend_=i.render().repeat(2,axis=0).repeat(2,axis=1)
+                rend_=i.render()
                 mask=i.Ut.astype(bool)
-                Im[mask.repeat(2,axis=0).repeat(2,axis=1)] = rend_[mask.repeat(2,axis=0).repeat(2,axis=1)]
+                Im[mask] = rend_[mask]
                 #Im =  rend_* np.expand_dims(i.Ut, -1) + Im * (1 - np.expand_dims(i.Ut, -1))
 
-                depth[mask] = i.norm
+                depth[mask[::2,::2]] = i.norm
                 if i in ennemies :
                     render_w_e += 1
                     if render_w_e == 1 :  # and c3==1:
