@@ -3136,7 +3136,7 @@ xg = 0
 logL = []
 C_log = 0
 impact = pygame.image.load('./image/effects/impact0.png')
-averaged_time = np.full((21), 0.)
+averaged_time = np.full((26), 0.)
 elastic_count=0
 Ratio=window[0]/960
 x_d=[(0.,0.)]
@@ -3647,6 +3647,8 @@ while running == 1:
 
     if len(wall_rend)>0:
         S_g=np.stack([i.S for i in wall_rend],axis=2)#0.5msz
+        milliseconds.append(time.perf_counter() * 1000)
+        label_deltat.append('glob_walls_stack')
         ind_l=[
                 c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
                 else c // (12 // len(i.wall_im2)) if (i.side > 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
@@ -3656,6 +3658,8 @@ while running == 1:
             ]
 
         wall_im_g=np.concatenate([i.wall_im[ind_l[c0]] if i.side<0 else i.wall_im2[ind_l[c0]] for c0,i in enumerate(wall_rend)],axis=0)
+        milliseconds.append(time.perf_counter() * 1000)
+        label_deltat.append('glob_walls_im_concat')
         freq_g=np.array([i.freq for i in wall_rend])
         phase_g = np.array([i.phase_-i.freq+1  for i in wall_rend])
         tile_z_g=np.array([i.tile_z  for i in wall_rend])
@@ -3670,10 +3674,12 @@ while running == 1:
 
         u=((1 - S_g_r[:, :, :-1]) * format_g[wall_index,:]).astype(int)
         G_g=np.mod(np.maximum(u, 0),120)
-
+        milliseconds.append(time.perf_counter() * 1000)
+        label_deltat.append('glob_walls_indexes')
 
         texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]+120*((((-u[:,:,1]//120+phase_g[wall_index])%freq_g[wall_index]))==0)*(u[:,:,0]<120+1000*tile_z_g[wall_index])]*light_g[wall_index]
-
+        milliseconds.append(time.perf_counter() * 1000)
+        label_deltat.append('glob_walls_map')
 
 
         Im=texture#[::2,::2,:]
@@ -3700,8 +3706,8 @@ while running == 1:
 
         if explo!=0:
             explo_R = np.minimum(explo_R, np.linalg.norm(Xl - np.array([explo_pt[0], explo_pt[1], 0.]),axis=-1)[:,:,None])
-
-
+        milliseconds.append(time.perf_counter() * 1000)
+        label_deltat.append('glob_walls_light')
 
     if moving_cam == True:
         Im_cached = Im
@@ -4107,7 +4113,7 @@ while running == 1:
         time_wall=[]
         time_behind = []
         time_tot=[]
-        averaged_time = np.full((21), 0.)
+        averaged_time = np.full((26), 0.)
 
 
 

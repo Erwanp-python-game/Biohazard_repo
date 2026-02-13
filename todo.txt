@@ -2,12 +2,9 @@ best current version is game_render_global.py
 
 finish global render
 
-
-
 -liquids
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
-
-test new rendering where check all the test_behind vertical walls and then add the linked roof and floor (same method as inside but reverted) then render in batch
+-improve scaling of glob wall by making global variables of self.S and self.wall_im
 
 boss invulnerable a envoyer dans incinérateur
 
