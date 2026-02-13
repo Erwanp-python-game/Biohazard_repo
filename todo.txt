@@ -5,6 +5,7 @@ finish global render
 -liquids
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
 -improve scaling of glob wall by making global variables of self.S and self.wall_im
+-improve check of depth full
 
 boss invulnerable a envoyer dans incinérateur
 
