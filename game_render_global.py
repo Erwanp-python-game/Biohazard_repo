@@ -480,6 +480,7 @@ class Wall():
         #     return (-t - abs(np.dot(-t, -No)) * -No)
 
     def test_behind(self):
+        global horizon, horizon2
         milliseconds = [time.perf_counter()*1000]
         x_ = self.X[0][0][0]
         y_ = self.X[0][0][1]
@@ -488,6 +489,8 @@ class Wall():
         self.side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
 
         if self.norm>np.amax(horizon):
+            milliseconds.append(time.perf_counter() * 1000)
+            i.time_behind = milliseconds[1] - milliseconds[0]
             return False
 
         if self.angle0 < 0:
@@ -523,7 +526,7 @@ class Wall():
                 return True
             else:
 
-                global horizon,horizon2
+
 
                 B0 = self.b_old[:, 0, :-1].copy()
                 X0 = self.X_old[:, 0, :-1].copy()
