@@ -125,22 +125,66 @@ def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
 
     return result,t
 
-@njit(parallel=True, fastmath=True)
+@njit( fastmath=True)
 def intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X):
     X0 = screenP[0, 0, :]
     I0 = ((X0[:-1] + 100) * 0.5).astype(np.int64) // cell_size
     cell0=cell_array[I0[0]][I0[1]]
-    S=np.full(screenP.shape[:-1],1e6)
-    for i in range(screenV.shape[0]):
-        for j in range(screenV.shape[1]):
-            for k in range(len(cell0)):
+    S=np.full((160,80),1e6)
+    for i in range(1):
+        for j in range(1):
+            ix = I0[0]
+            iy = I0[1]
+            intersected = List.empty_list(types.int64)
+            dx=screenV[i//2,j//2,0]
+            dy = screenV[i // 2, j // 2, 1]
+            step_x = 1 if dx > 0 else -1 if dx < 0 else 0
+            step_y = 1 if dy > 0 else -1 if dy < 0 else 0
+            if dx != 0:
+                next_x = (ix + (step_x > 0)) * cell_size
+                t_max_x = (next_x - X0[0]) / dx
+                t_delta_x = cell_size / abs(dx)
+            else:
+                t_max_x = 1e9
+                t_delta_x = 1e9
 
-                a = all_a[cell0[k]]
-                b = all_b[cell0[k]]
-                X = all_X[cell0[k]]
-                t=abs(segment_plane_intersection(X0,screenV[i,j,:],X,a,b)[1])
-                if t>0:
-                    S[i,j]=min(S[i,j],t)
+            if dy != 0:
+                next_y = (iy + (step_y > 0)) * cell_size
+                t_max_y = (next_y - X0[1]) / dy
+                t_delta_y = cell_size / abs(dy)
+            else:
+                t_max_y = 1e9
+                t_delta_y = 1e9
+            eps=1e-9
+            print('----')
+            t_int = 1e9
+            I1 = I0 + 500
+            for i in range(100):
+                if t_max_x < t_max_y:
+                    ix += step_x
+                    t = t_max_x
+                    t_max_x += t_delta_x
+                else:
+                    iy += step_y
+                    t = t_max_y
+                    t_max_y += t_delta_y
+                cell = cell_array[ix][iy]
+                for k in range(len(cell)):
+                    if cell[k] not in intersected:
+                        a = all_a[cell[k]]
+                        b = all_b[cell[k]]
+                        X = all_X[cell[k]]
+                        X1,t_=segment_plane_intersection(X0,screenV[i//2,j//2,:],X,a,b)
+                        intersected.append(cell[k])
+                        if t_>0 and t_<t_int:
+                            I1 = ((X1[:-1] + 100) * 0.5).astype(np.int64) // cell_size
+                            t_int=t_
+                print(I1,t_,t_int,ix,iy,cell,intersected)
+                if ix==I1[0] and iy==I1[1]:
+                     break
+
+
+
     return S
 
 
@@ -3080,7 +3124,7 @@ def load_level(level_name):
      wall[-app:]]
     h_wall = wall[-app:]
 
-    cell_size=20
+    cell_size=1
     cell_array_N=np.full((500//cell_size,500//cell_size),0)
     cell_array = create_cell_array(cell_size)
     fig,ax=plt.subplots(1,2)
@@ -3769,8 +3813,9 @@ while running == 1:
     label_deltat.append('walls')
 
     A_intersect=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X)
-    plt.imshow(A_intersect)
-    plt.show()
+    if key[K_p]:
+        plt.imshow(A_intersect)
+        plt.show()
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('intersect')
 
