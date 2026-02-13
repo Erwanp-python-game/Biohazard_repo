@@ -3639,7 +3639,7 @@ while running == 1:
 
 
     render_w=render_w+render_w_add+render_w_add2+render_sup_wall
-
+    # print(render_w,empty_pixel_count,render_w_add+render_w_add2+render_sup_wall)
 
 
     milliseconds.append(time.perf_counter()*1000)
