@@ -125,41 +125,65 @@ def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
 
     return result,t
 
-@njit( fastmath=True)
-def intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X):
+
+@njit(fastmath=True)
+def intersect(screenV, screenP, cell_array, cell_size,
+              all_a, all_b, all_X):
+
     X0 = screenP[0, 0, :]
-    I0 = ((X0[:-1] + 100) * 0.5).astype(np.int64) // cell_size
-    cell0=cell_array[I0[0]][I0[1]]
-    S=np.full((160,80),1e6)
-    for i in range(1):
-        for j in range(1):
-            ix = I0[0]
-            iy = I0[1]
-            intersected = List.empty_list(types.int64)
-            dx=screenV[i//2,j//2,0]
-            dy = screenV[i // 2, j // 2, 1]
+
+    # Precompute origin grid position
+    origin_x = 0.5 * (X0[0] + 100.0)
+    origin_y = 0.5 * (X0[1] + 100.0)
+
+    I0x = int(origin_x) // cell_size
+    I0y = int(origin_y) // cell_size
+
+    S = np.full((160, 80), 1e6)
+
+    n_obj = len(all_a)
+    visited = np.zeros(n_obj, np.uint8)
+
+    for i in prange(160):
+        for j in range(80):
+
+            # Reset traversal state per pixel
+            ix = I0x
+            iy = I0y
+            visited[:] = 0
+
+            ray = screenV[i // 2, j // 2]
+            dx = ray[0]
+            dy = ray[1]
+
+            # Ray step direction
             step_x = 1 if dx > 0 else -1 if dx < 0 else 0
             step_y = 1 if dy > 0 else -1 if dy < 0 else 0
-            if dx != 0:
+
+            # DDA setup
+            if dx != 0.0:
                 next_x = (ix + (step_x > 0)) * cell_size
-                t_max_x = (next_x - X0[0]) / dx
+                t_max_x = (next_x - origin_x) / dx
                 t_delta_x = cell_size / abs(dx)
             else:
                 t_max_x = 1e9
                 t_delta_x = 1e9
 
-            if dy != 0:
+            if dy != 0.0:
                 next_y = (iy + (step_y > 0)) * cell_size
-                t_max_y = (next_y - X0[1]) / dy
+                t_max_y = (next_y - origin_y) / dy
                 t_delta_y = cell_size / abs(dy)
             else:
                 t_max_y = 1e9
                 t_delta_y = 1e9
-            eps=1e-9
-            print('----')
+
             t_int = 1e9
-            I1 = I0 + 500
-            for i in range(100):
+            hit_ix = -1
+            hit_iy = -1
+            t=0
+            # March through grid
+            for g in range(100):
+
                 if t_max_x < t_max_y:
                     ix += step_x
                     t = t_max_x
@@ -168,22 +192,31 @@ def intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X):
                     iy += step_y
                     t = t_max_y
                     t_max_y += t_delta_y
+
                 cell = cell_array[ix][iy]
+
                 for k in range(len(cell)):
-                    if cell[k] not in intersected:
-                        a = all_a[cell[k]]
-                        b = all_b[cell[k]]
-                        X = all_X[cell[k]]
-                        X1,t_=segment_plane_intersection(X0,screenV[i//2,j//2,:],X,a,b)
-                        intersected.append(cell[k])
-                        if t_>0 and t_<t_int:
-                            I1 = ((X1[:-1] + 100) * 0.5).astype(np.int64) // cell_size
-                            t_int=t_
-                print(I1,t_,t_int,ix,iy,cell,intersected)
-                if ix==I1[0] and iy==I1[1]:
-                     break
+                    obj = cell[k]
 
+                    if not visited[obj]:
+                        visited[obj] = 1
 
+                        a = all_a[obj]
+                        b = all_b[obj]
+                        X = all_X[obj]
+
+                        X1, t_ = segment_plane_intersection(
+                            X0, ray, X, a, b
+                        )
+
+                        if 0.0 < t_ < t_int:
+                            hit_ix = int(0.5 * (X1[0] + 100.0)) // cell_size
+                            hit_iy = int(0.5 * (X1[1] + 100.0)) // cell_size
+                            t_int = t_
+
+                if t_int<t:
+                    S[i, j] = g
+                    break
 
     return S
 
@@ -3124,7 +3157,7 @@ def load_level(level_name):
      wall[-app:]]
     h_wall = wall[-app:]
 
-    cell_size=1
+    cell_size=3
     cell_array_N=np.full((500//cell_size,500//cell_size),0)
     cell_array = create_cell_array(cell_size)
     fig,ax=plt.subplots(1,2)
@@ -3180,9 +3213,9 @@ def load_level(level_name):
                                     i.inside=False
         else:
             cells=cells_covered_by_plane(0.5*(i.X[0,0,:-1]+100),0.5*i.a[0,0,:-1],0.5*i.b[0,0,:-1],cell_size)
-            for u in cells:
-                cell_array_N[int(u[0])][int(u[1])]+=1
-                cell_array[int(u[0])][int(u[1])].append(cw)
+            # for u in cells:
+            #     cell_array_N[int(u[0])][int(u[1])]+=1
+                # cell_array[int(u[0])][int(u[1])].append(cw)
     ax[1].imshow(cell_array_N)
     plt.show()
     all_walls=wall.copy()
