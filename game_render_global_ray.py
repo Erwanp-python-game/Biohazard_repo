@@ -115,7 +115,7 @@ def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
         result[0] = np.nan
         result[1] = np.nan
         result[2] = np.nan
-        return result,0
+        return result,0,0,0
 
     t = np.dot(X - X0, n) / denom
 
@@ -123,8 +123,10 @@ def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
     result[1] = X0[1] + t * V[1]
     result[2] = X0[2] + t * V[2]
 
-    # result-X
-    return result,t
+    u=np.dot(result-X,a)/np.dot(a, a)
+    v = np.dot(result - X, b) / np.dot(b, b)
+
+    return result,t,u,v
 
 
 @njit(fastmath=True)
@@ -140,11 +142,10 @@ def intersect(screenV, screenP, cell_array, cell_size,
     I0x = int(origin_x) // cell_size
     I0y = int(origin_y) // cell_size
 
-    S = np.full((80, 40), 1e6)
-
+    S = np.full((80, 40,3), 1e6)
+    wall_ind = np.full((80, 40), 0)
     n_obj = len(all_a)
     visited = np.zeros((40,n_obj), np.uint8)
-
     for i in range(80):
 
 
@@ -192,7 +193,7 @@ def intersect(screenV, screenP, cell_array, cell_size,
                     t = t_max_y
                     t_max_y += t_delta_y
                 t=(t_max_x**2+t_max_y**2)**0.5
-                cell = cell_array[ix][iy]
+                cell = cell_array[min(max(ix,0),500//cell_size-1)][min(max(iy,0),500//cell_size-1)]
 
                 for j in range(40):
                     if t_int[j] >= t or True:
@@ -208,20 +209,22 @@ def intersect(screenV, screenP, cell_array, cell_size,
                                 b = all_b[obj]
                                 X = all_X[obj]
 
-                                X1, t_ = segment_plane_intersection(
+                                X1, t_,u,v = segment_plane_intersection(
                                     X0, ray, X, a, b
                                 )
 
-                                if 0.0 < t_ < t_int[j]:
+                                if 0.0 < t_ < t_int[j] and 0.<=u<=1 and 0.<=v<=1:
                                     hit_ix = int(0.5 * (X1[0] + 100.0)) // cell_size
                                     hit_iy = int(0.5 * (X1[1] + 100.0)) // cell_size
                                     t_int[j] = t_
-                                    S[i, j] = obj
+                                    S[i, j,:] = np.array([u,v,t_])
+                                    wall_ind[i,j]=obj
+
                 if (t_int<t).all():
                     break
 
 
-    return S
+    return S,wall_ind
 
 
 def source_pos(code):
@@ -3721,195 +3724,284 @@ while running == 1:
     cw=0
     max_depth=1000
     wall_rend=[]
-    if moving_cam == True:
+    render_type = 'ray'
+    if render_type!='ray':
+        if moving_cam == True:
 
-        v_ = screenV[::2, ::2]
-        p_ = screenP[::2, ::2]
-        Sky_view = 0
-        IS = []
-        empty_pixel_count=128000
-        for ci,i in enumerate(wall[0:wall_count]):
+            v_ = screenV[::2, ::2]
+            p_ = screenP[::2, ::2]
+            Sky_view = 0
+            IS = []
+            empty_pixel_count=128000
+            for ci,i in enumerate(wall[0:wall_count]):
 
-            cw+=1
-            devant = True
-            if i not in h_wall:
-                devant = i.test_behind()
+                cw+=1
+                devant = True
+                if i not in h_wall:
+                    devant = i.test_behind()
 
-                time_in_behind+=i.time_behind
-                if i.window > 0 and devant:
-                    CLOSED = 1
-                    if i.sky>0:
-                        Sky_view = 1
-            else:
-
-                if i.norm > 6 and i.text[11:-3] not in liquid_floor:
-                    # if len(add_h)<6:# for more floor maybe 4 if previous empty_pixel is big
-                    #     add_h.append(i)
-                    if i.ID in link_h:
-                        add_h.append(i)
-
-
-                    devant = False
-                    # if CLOSED != 0:  # and h_wall.index(i)<=6: # INSTEAD CHECK IF ASSOCIATED DOOR WITH THIS FLOOR IS OPEN AND VISIBLE---COMPLICATED
-                    #     devant = True
+                    time_in_behind+=i.time_behind
+                    if i.window > 0 and devant:
+                        CLOSED = 1
+                        if i.sky>0:
+                            Sky_view = 1
                 else:
-                    ID0=i.ID
-            render_w2 += 1
 
-            if devant:
-                if i.door==0:
-
-                    link_h+=i.linked
-
-
-                if i.text[11:-3] not in liquid_floor:
-
-                    render_w += 1
-                    rend=i.render()
-                    wall_rend.append(i)
-                    # Im[i.Ub]=rend[i.Ub]
-                    if np.min(depth)!=100:
-                        max_depth=np.max(depth[depth!=100])
-                    # Im = i.render() + Im * (1 - np.expand_dims(i.U, -1))
-
-                    #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
-
-                    empty_pixel_count = np.sum((depth == 100).astype(int))
+                    if i.norm > 6 and i.text[11:-3] not in liquid_floor:
+                        # if len(add_h)<6:# for more floor maybe 4 if previous empty_pixel is big
+                        #     add_h.append(i)
+                        if i.ID in link_h:
+                            add_h.append(i)
 
 
-                    if render_w==1 :#and c3==1:
-
-                        time_in_render=i.time[0]
-                        label_t_render=i.time[1]
+                        devant = False
+                        # if CLOSED != 0:  # and h_wall.index(i)<=6: # INSTEAD CHECK IF ASSOCIATED DOOR WITH THIS FLOOR IS OPEN AND VISIBLE---COMPLICATED
+                        #     devant = True
                     else:
-                        time_in_render+=i.time[0]
-                        label_t_render = i.time[1]
+                        ID0=i.ID
+                render_w2 += 1
+
+                if devant:
+                    if i.door==0:
+
+                        link_h+=i.linked
 
 
-                else:
-                    IS.append(i)
+                    if i.text[11:-3] not in liquid_floor:
+
+                        render_w += 1
+                        rend=i.render()
+                        wall_rend.append(i)
+                        # Im[i.Ub]=rend[i.Ub]
+                        if np.min(depth)!=100:
+                            max_depth=np.max(depth[depth!=100])
+                        # Im = i.render() + Im * (1 - np.expand_dims(i.U, -1))
+
+                        #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+
+                        empty_pixel_count = np.sum((depth == 100).astype(int))
 
 
-            if (empty_pixel_count < 4 ) or i.norm>150 or ci==wall_count-1:
+                        if render_w==1 :#and c3==1:
 
-                render_w_add=0
+                            time_in_render=i.time[0]
+                            label_t_render=i.time[1]
+                        else:
+                            time_in_render+=i.time[0]
+                            label_t_render = i.time[1]
 
-                add_h+=[k for k in h_wall if k.ID in link_h and k.rendered==False]
 
-                if empty_pixel_count>4 :
-                    for j in add_h:
-                        if j.rendered==False and j.text[11:-3] not in liquid_floor:
-                            rend = j.render()
-                            wall_rend.append(j)
-                            # Im[j.Ub] = rend[j.Ub]
-                            render_w_add+=1
-                            time_in_render += j.time[0]
-                            label_t_render = j.time[1]
-                #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
-                empty_pixel_count = np.sum((depth == 100).astype(int))
-                break
+                    else:
+                        IS.append(i)
 
-        if render_w2>wall_count-10:
-            elastic_count += 10
-            if render_w_add>0 and empty_pixel_count<4:
-                elastic_count -= 10
-        else:
-            elastic_count = max(elastic_count-10,0)
-    render_w_old=render_w
 
-    if moving_cam == True:
-        render_w_add2=0
-        if empty_pixel_count<4 and (horizon!=10000).any():
-            [i.calc_normfast() for i in add_h if i.rendered == False]
-            add_h2=[i for i in add_h if i.normf<max(horizon[horizon!=10000.]) and i.rendered==False and i.text[11:-3] not in liquid_floor and i in h_wall]
-            for j in add_h2:
+                if (empty_pixel_count < 4 ) or i.norm>150 or ci==wall_count-1:
 
-                rend = j.render()
-                wall_rend.append(j)
-                # Im[j.Ub] = rend[j.Ub]
-                render_w_add2 += 1
+                    render_w_add=0
+
+                    add_h+=[k for k in h_wall if k.ID in link_h and k.rendered==False]
+
+                    if empty_pixel_count>4 :
+                        for j in add_h:
+                            if j.rendered==False and j.text[11:-3] not in liquid_floor:
+                                rend = j.render()
+                                wall_rend.append(j)
+                                # Im[j.Ub] = rend[j.Ub]
+                                render_w_add+=1
+                                time_in_render += j.time[0]
+                                label_t_render = j.time[1]
                     #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+                    empty_pixel_count = np.sum((depth == 100).astype(int))
+                    break
 
-        render_sup_wall=0
-        for ci,i in enumerate( wall[cw:cw+10]):
-            if i.rendered == False and i.test_behind() and i not in h_wall:
-                render_sup_wall+=1
-                rend = i.render()
-                wall_rend.append(i)
-                # Im[i.Ub] = rend[i.Ub]
+            if render_w2>wall_count-10:
+                elastic_count += 10
+                if render_w_add>0 and empty_pixel_count<4:
+                    elastic_count -= 10
+            else:
+                elastic_count = max(elastic_count-10,0)
+        render_w_old=render_w
+
+        if moving_cam == True:
+            render_w_add2=0
+            if empty_pixel_count<4 and (horizon!=10000).any():
+                [i.calc_normfast() for i in add_h if i.rendered == False]
+                add_h2=[i for i in add_h if i.normf<max(horizon[horizon!=10000.]) and i.rendered==False and i.text[11:-3] not in liquid_floor and i in h_wall]
+                for j in add_h2:
+
+                    rend = j.render()
+                    wall_rend.append(j)
+                    # Im[j.Ub] = rend[j.Ub]
+                    render_w_add2 += 1
+                        #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
+
+            render_sup_wall=0
+            for ci,i in enumerate( wall[cw:cw+10]):
+                if i.rendered == False and i.test_behind() and i not in h_wall:
+                    render_sup_wall+=1
+                    rend = i.render()
+                    wall_rend.append(i)
+                    # Im[i.Ub] = rend[i.Ub]
 
 
 
-    #print(render_w,render_w_add,render_w_add2,render_sup_wall,empty_pixel_count)
-    render_w=render_w+render_w_add+render_w_add2+render_sup_wall
+        #print(render_w,render_w_add,render_w_add2,render_sup_wall,empty_pixel_count)
+        render_w=render_w+render_w_add+render_w_add2+render_sup_wall
 
 
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')
 
-    A_intersect=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X)
+    S_i,wall_ind_i=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X)
     if key[K_p]:
-        plt.imshow(A_intersect)
+        plt.imshow(wall_ind_i)
         plt.show()
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('intersect')
 
-    if len(wall_rend)>0:
-        S_g=np.stack([i.S for i in wall_rend],axis=2)#0.5msz
-        ind_l=[
-                c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
-                else c // (12 // len(i.wall_im2)) if (i.side > 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
-                else min(i.vie, 2) if (levelD[level]['deco'][i.deco - 1] in deco_destruc)
-                else 0
-                for i in wall_rend
-            ]
+    if render_type=='ray':
 
-        wall_im_g=np.concatenate([i.wall_im[ind_l[c0]] if i.side<0 else i.wall_im2[ind_l[c0]] for c0,i in enumerate(wall_rend)],axis=0)
-        freq_g=np.array([i.freq for i in wall_rend])
-        phase_g = np.array([i.phase_-i.freq+1  for i in wall_rend])
-        tile_z_g=np.array([i.tile_z  for i in wall_rend])
-        light_g=np.array([light_modif(i.colorL, level, c3) for i in wall_rend])
+        wall_rend=np.array(all_walls)[np.unique(wall_ind_i)]
+        render_w=len(wall_rend)
+        print(render_w)
+        wall_index=wall_ind_i
+        mapping = {val: i for i, val in enumerate(np.unique(wall_ind_i))}
+        wall_index = np.vectorize(mapping.get)(wall_index)
 
-        format_g=np.stack([i.format for i in wall_rend],axis=0)
+        one_hot = np.zeros((len(wall_rend), wall_index.shape[0], wall_index.shape[1],3))# do the upscaling on depth
+        for k in range(len(wall_rend)):
+            one_hot[k] = S_i*(wall_index == k)[:,:,None]
+        S_i=np.array([
+            cv2.resize(S, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+            for S in one_hot
+        ])
+        wall_index=np.argmin(S_i[:,:,:,-1],axis=0)
+        print(S_i.shape,wall_index.shape)
+        H, W = wall_index.shape
+        i = np.arange(H)[:, None]  # shape (H,1)
+        j = np.arange(W)[None, :]  # shape (1,W)
+
+        S_i = S_i[wall_index, i, j]
+        print(S_i.shape)
+        if key[K_k]:
+            plt.imshow(wall_index)
+            plt.show()
+        ind_l = [
+            c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
+            else c // (12 // len(i.wall_im2)) if (
+                        i.side > 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
+            else min(i.vie, 2) if (levelD[level]['deco'][i.deco - 1] in deco_destruc)
+            else 0
+            for i in wall_rend
+        ]
+
+        wall_im_g = np.concatenate(
+            [i.wall_im[ind_l[c0]] if i.side < 0 else i.wall_im2[ind_l[c0]] for c0, i in enumerate(wall_rend)],
+            axis=0)
+        freq_g = np.array([i.freq for i in wall_rend])
+        phase_g = np.array([i.phase_ - i.freq + 1 for i in wall_rend])
+        tile_z_g = np.array([i.tile_z for i in wall_rend])
+        light_g = np.array([light_modif(i.colorL, level, c3) for i in wall_rend])
+
+        format_g = np.stack([i.format for i in wall_rend], axis=0)
         i_, j_ = np.indices(wall_index.shape)
-        S_g_r=S_g[i_,j_,wall_index]
+        S_g_r = S_i#cv2.resize(S_i, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
 
         # S_g_r2=cv2.resize(S_g_r, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
         # wall_index2 = cv2.resize(wall_index, None, fx=2, fy=2, interpolation=cv2.INTER_NEAREST)
 
-        u=((1 - S_g_r[:, :, :-1]) * format_g[wall_index,:]).astype(int)
-        G_g=np.mod(np.maximum(u, 0),120)
+        u = ((1 - S_g_r[:, :, :-1]) * format_g[wall_index, :]).astype(int)
+        G_g = np.mod(np.maximum(u, 0), 120)
 
+        texture = wall_im_g[120 * wall_index + G_g[:, :, 0], G_g[:, :, 1] + 120 * (
+                    (((-u[:, :, 1] // 120 + phase_g[wall_index]) % freq_g[wall_index])) == 0) * (
+                                        u[:, :, 0] < 120 + 1000 * tile_z_g[wall_index])] * light_g[wall_index]
 
-        texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]+120*((((-u[:,:,1]//120+phase_g[wall_index])%freq_g[wall_index]))==0)*(u[:,:,0]<120+1000*tile_z_g[wall_index])]*light_g[wall_index]
-
-
-
-        Im=texture#[::2,::2,:]
-        Xsource_g=np.empty((4,len(wall_rend),3))
-        torch_shine=False
-        for cg,i in enumerate(wall_rend):
+        Im = texture  # [::2,::2,:]
+        Xsource_g = np.empty((4, len(wall_rend), 3))
+        torch_shine = False
+        for cg, i in enumerate(wall_rend):
             if i.ID in light_wall.keys():
                 Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
                 X0 = [x for _, x in sorted(zip(Y0, light_wall[i.ID]))]
-                Xsource_g[:,cg,:] = np.array([source_pos(X0[k])  if k<len(X0) else np.array([1e9,0.,0.]) for k in range(4)])
+                Xsource_g[:, cg, :] = np.array(
+                    [source_pos(X0[k]) if k < len(X0) else np.array([1e9, 0., 0.]) for k in range(4)])
             else:
-                torch_shine=True
+                torch_shine = True
 
-        a_g=np.array([i.a[0,0,:] for i in wall_rend])
+        a_g = np.array([i.a[0, 0, :] for i in wall_rend])
         b_g = np.array([i.b[0, 0, :] for i in wall_rend])
         x_g = np.array([i.X[0, 0, :] for i in wall_rend])
 
-        Xl=S_g_r[:,:,0,None]*a_g[wall_index,:]+S_g_r[:,:,1,None]*b_g[wall_index,:]+x_g[wall_index,:]
+        Xl = S_g_r[:, :, 0, None] * a_g[wall_index, :] + S_g_r[:, :, 1, None] * b_g[wall_index, :] + x_g[wall_index,
+                                                                                                     :]
         if torch_shine:
-            Im=Im*torch_on * TORCHE ** 3
-            POS = np.linalg.norm(Xl - R_c, axis=-1)**0.5
+            Im = Im * torch_on * TORCHE ** 3
+            POS = np.linalg.norm(Xl - R_c, axis=-1) ** 0.5
         else:
-            POS = np.amin(np.linalg.norm(Xl[ :, :, :] - Xsource_g[:, wall_index, :], axis=-1), axis=0)
+            POS = np.amin(np.linalg.norm(Xl[:, :, :] - Xsource_g[:, wall_index, :], axis=-1), axis=0)
 
-        if explo!=0:
-            explo_R = np.minimum(explo_R, np.linalg.norm(Xl - np.array([explo_pt[0], explo_pt[1], 0.]),axis=-1)[:,:,None])
+        if explo != 0:
+            explo_R = np.minimum(explo_R,
+                                 np.linalg.norm(Xl - np.array([explo_pt[0], explo_pt[1], 0.]), axis=-1)[:, :, None])
+
+    else:
+        if len(wall_rend)>0:
+            S_g=np.stack([i.S for i in wall_rend],axis=2)#0.5msz
+            ind_l=[
+                    c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
+                    else c // (12 // len(i.wall_im2)) if (i.side > 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
+                    else min(i.vie, 2) if (levelD[level]['deco'][i.deco - 1] in deco_destruc)
+                    else 0
+                    for i in wall_rend
+                ]
+
+            wall_im_g=np.concatenate([i.wall_im[ind_l[c0]] if i.side<0 else i.wall_im2[ind_l[c0]] for c0,i in enumerate(wall_rend)],axis=0)
+            freq_g=np.array([i.freq for i in wall_rend])
+            phase_g = np.array([i.phase_-i.freq+1  for i in wall_rend])
+            tile_z_g=np.array([i.tile_z  for i in wall_rend])
+            light_g=np.array([light_modif(i.colorL, level, c3) for i in wall_rend])
+
+            format_g=np.stack([i.format for i in wall_rend],axis=0)
+            i_, j_ = np.indices(wall_index.shape)
+            S_g_r=S_g[i_,j_,wall_index]
+
+            # S_g_r2=cv2.resize(S_g_r, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+            # wall_index2 = cv2.resize(wall_index, None, fx=2, fy=2, interpolation=cv2.INTER_NEAREST)
+
+            u=((1 - S_g_r[:, :, :-1]) * format_g[wall_index,:]).astype(int)
+            G_g=np.mod(np.maximum(u, 0),120)
+
+
+            texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]+120*((((-u[:,:,1]//120+phase_g[wall_index])%freq_g[wall_index]))==0)*(u[:,:,0]<120+1000*tile_z_g[wall_index])]*light_g[wall_index]
+
+
+
+            Im=texture#[::2,::2,:]
+            Xsource_g=np.empty((4,len(wall_rend),3))
+            torch_shine=False
+            for cg,i in enumerate(wall_rend):
+                if i.ID in light_wall.keys():
+                    Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
+                    X0 = [x for _, x in sorted(zip(Y0, light_wall[i.ID]))]
+                    Xsource_g[:,cg,:] = np.array([source_pos(X0[k])  if k<len(X0) else np.array([1e9,0.,0.]) for k in range(4)])
+                else:
+                    torch_shine=True
+
+            a_g=np.array([i.a[0,0,:] for i in wall_rend])
+            b_g = np.array([i.b[0, 0, :] for i in wall_rend])
+            x_g = np.array([i.X[0, 0, :] for i in wall_rend])
+
+            Xl=S_g_r[:,:,0,None]*a_g[wall_index,:]+S_g_r[:,:,1,None]*b_g[wall_index,:]+x_g[wall_index,:]
+            if torch_shine:
+                Im=Im*torch_on * TORCHE ** 3
+                POS = np.linalg.norm(Xl - R_c, axis=-1)**0.5
+            else:
+                POS = np.amin(np.linalg.norm(Xl[ :, :, :] - Xsource_g[:, wall_index, :], axis=-1), axis=0)
+
+            if explo!=0:
+                explo_R = np.minimum(explo_R, np.linalg.norm(Xl - np.array([explo_pt[0], explo_pt[1], 0.]),axis=-1)[:,:,None])
 
 
 
@@ -4243,7 +4335,7 @@ while running == 1:
     averaged_time = averaged_time + np.round((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], 1)
 
     nb_wall.append(render_w)
-    time_wall.append(np.sum(time_in_render))
+    # time_wall.append(np.sum(time_in_render))
     time_behind.append(np.sum(time_in_behind))
     time_tot.append(milliseconds[-1]-milliseconds[0])
 
@@ -4260,8 +4352,8 @@ while running == 1:
         print('average,framerate', round(1000 / np.sum(averaged_time), 1), '/s | average time',
               round(np.sum(averaged_time), 1), 'ms')
         print(sortingtime)
-        print('detail on wall rendering',np.sum(time_in_render),time_in_render/render_w, label_t_render)
-        print('per_wall',np.sum(time_in_render)/render_w,render_w)
+        # print('detail on wall rendering',np.sum(time_in_render),time_in_render/render_w, label_t_render)
+        # print('per_wall',np.sum(time_in_render)/render_w,render_w)
         render_w_e=max(1,render_w_e)
         print('detail on ennemies rendering', np.sum(time_in_render_e),[str(round(i,3)) for i in list(time_in_render_e / render_w_e)] , label_t_render_e)
         print('per_ennemies', np.sum(time_in_render_e) / render_w_e, render_w_e)
@@ -4279,14 +4371,14 @@ while running == 1:
         count=np.full(max(nb_wall)+1,0.)
         for i in range(len(nb_wall)):
             mean_time[nb_wall[i]]+=time_tot[i]
-            mean_time_wall[nb_wall[i]] += time_wall[i]
+            # mean_time_wall[nb_wall[i]] += time_wall[i]
             count[nb_wall[i]]+=1
         mean_time=np.divide(mean_time,np.maximum(count,1))
         mean_time_wall = np.divide(mean_time_wall, np.maximum(count, 1))
         if  plot_stats :
 
             fig,ax=plt.subplots(1,2)
-            ax[0].scatter(nb_wall,time_wall,color='blue',label='wall')
+            # ax[0].scatter(nb_wall,time_wall,color='blue',label='wall')
             ax[0].scatter(nb_wall, time_behind, color='red', label='behind')
             ax[0].scatter(nb_wall, time_tot, color='orange',label='total')
             ax[0].plot(np.linspace(0,max(nb_wall),max(nb_wall)+1), mean_time, color='maroon', label='total')
