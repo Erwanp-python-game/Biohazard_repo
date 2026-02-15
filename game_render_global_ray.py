@@ -123,6 +123,7 @@ def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
     result[1] = X0[1] + t * V[1]
     result[2] = X0[2] + t * V[2]
 
+    # result-X
     return result,t
 
 
@@ -142,7 +143,7 @@ def intersect(screenV, screenP, cell_array, cell_size,
     S = np.full((80, 40), 1e6)
 
     n_obj = len(all_a)
-    visited = np.zeros(n_obj, np.uint8)
+    visited = np.zeros((40,n_obj), np.uint8)
 
     for i in range(80):
 
@@ -194,14 +195,14 @@ def intersect(screenV, screenP, cell_array, cell_size,
                 cell = cell_array[ix][iy]
 
                 for j in range(40):
-                    if t_int[j] >= t:
+                    if t_int[j] >= t or True:
                         ray = screenV[i, j]
 
                         for k in range(len(cell)):
                             obj = cell[k]
 
-                            if not visited[obj]:
-                                visited[obj] = 0
+                            if not visited[j,obj]:
+                                visited[j,obj] = 1
 
                                 a = all_a[obj]
                                 b = all_b[obj]
@@ -215,7 +216,7 @@ def intersect(screenV, screenP, cell_array, cell_size,
                                     hit_ix = int(0.5 * (X1[0] + 100.0)) // cell_size
                                     hit_iy = int(0.5 * (X1[1] + 100.0)) // cell_size
                                     t_int[j] = t_
-                                    S[i, j] = t_
+                                    S[i, j] = obj
                 if (t_int<t).all():
                     break
 
@@ -3215,9 +3216,9 @@ def load_level(level_name):
                                     i.inside=False
         else:
             cells=cells_covered_by_plane(0.5*(i.X[0,0,:-1]+100),0.5*i.a[0,0,:-1],0.5*i.b[0,0,:-1],cell_size)
-            # for u in cells:
-            #     cell_array_N[int(u[0])][int(u[1])]+=1
-                # cell_array[int(u[0])][int(u[1])].append(cw)
+            for u in cells:
+                cell_array_N[int(u[0])][int(u[1])]+=1
+                cell_array[int(u[0])][int(u[1])].append(cw)
     ax[1].imshow(cell_array_N)
     plt.show()
     all_walls=wall.copy()
