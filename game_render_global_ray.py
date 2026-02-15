@@ -139,20 +139,20 @@ def intersect(screenV, screenP, cell_array, cell_size,
     I0x = int(origin_x) // cell_size
     I0y = int(origin_y) // cell_size
 
-    S = np.full((160, 80), 1e6)
+    S = np.full((80, 40), 1e6)
 
     n_obj = len(all_a)
     visited = np.zeros(n_obj, np.uint8)
 
-    for i in prange(160):
-        for j in range(80):
+    for i in range(80):
+
 
             # Reset traversal state per pixel
             ix = I0x
             iy = I0y
             visited[:] = 0
 
-            ray = screenV[i // 2, j // 2]
+            ray = screenV[i, 20]
             dx = ray[0]
             dy = ray[1]
 
@@ -177,10 +177,8 @@ def intersect(screenV, screenP, cell_array, cell_size,
                 t_max_y = 1e9
                 t_delta_y = 1e9
 
-            t_int = 1e9
-            hit_ix = -1
-            hit_iy = -1
-            t=0
+            t_int = np.full(40,1e9)
+
             # March through grid
             for g in range(100):
 
@@ -192,31 +190,35 @@ def intersect(screenV, screenP, cell_array, cell_size,
                     iy += step_y
                     t = t_max_y
                     t_max_y += t_delta_y
-
+                t=(t_max_x**2+t_max_y**2)**0.5
                 cell = cell_array[ix][iy]
 
-                for k in range(len(cell)):
-                    obj = cell[k]
+                for j in range(40):
+                    if t_int[j] >= t:
+                        ray = screenV[i, j]
 
-                    if not visited[obj]:
-                        visited[obj] = 1
+                        for k in range(len(cell)):
+                            obj = cell[k]
 
-                        a = all_a[obj]
-                        b = all_b[obj]
-                        X = all_X[obj]
+                            if not visited[obj]:
+                                visited[obj] = 0
 
-                        X1, t_ = segment_plane_intersection(
-                            X0, ray, X, a, b
-                        )
+                                a = all_a[obj]
+                                b = all_b[obj]
+                                X = all_X[obj]
 
-                        if 0.0 < t_ < t_int:
-                            hit_ix = int(0.5 * (X1[0] + 100.0)) // cell_size
-                            hit_iy = int(0.5 * (X1[1] + 100.0)) // cell_size
-                            t_int = t_
+                                X1, t_ = segment_plane_intersection(
+                                    X0, ray, X, a, b
+                                )
 
-                if t_int<t:
-                    S[i, j] = g
+                                if 0.0 < t_ < t_int[j]:
+                                    hit_ix = int(0.5 * (X1[0] + 100.0)) // cell_size
+                                    hit_iy = int(0.5 * (X1[1] + 100.0)) // cell_size
+                                    t_int[j] = t_
+                                    S[i, j] = t_
+                if (t_int<t).all():
                     break
+
 
     return S
 
@@ -3157,7 +3159,7 @@ def load_level(level_name):
      wall[-app:]]
     h_wall = wall[-app:]
 
-    cell_size=3
+    cell_size=2
     cell_array_N=np.full((500//cell_size,500//cell_size),0)
     cell_array = create_cell_array(cell_size)
     fig,ax=plt.subplots(1,2)
