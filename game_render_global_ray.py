@@ -104,9 +104,9 @@ def create_cell_array(cell_size):
 from numba import njit,prange
 
 @njit
-def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
+def segment_plane_intersection(X0, V, X, a, b,n,aa,bb, eps=1e-9):
 
-    n = np.cross(a, b)
+
     denom = np.dot(V, n)
 
     result = np.empty(3, dtype=np.float64)
@@ -123,15 +123,15 @@ def segment_plane_intersection(X0, V, X, a, b, eps=1e-9):
     result[1] = X0[1] + t * V[1]
     result[2] = X0[2] + t * V[2]
 
-    u=np.dot(result-X,a)/np.dot(a, a)
-    v = np.dot(result - X, b) / np.dot(b, b)
+    u=np.dot(result-X,a)/aa
+    v = np.dot(result - X, b) / bb
 
     return result,t,u,v
 
 
-@njit(fastmath=True)
+@njit(parallel=True,fastmath=True)
 def intersect(screenV, screenP, cell_array, cell_size,
-              all_a, all_b, all_X):
+              all_a, all_b, all_X,all_aa,all_bb,all_n):
 
     X0 = screenP[0, 0, :]
 
@@ -147,9 +147,9 @@ def intersect(screenV, screenP, cell_array, cell_size,
     wall_ind = np.full((160, 80), 0)
     wall_ind1 = np.full((80, 40), 0)
     n_obj = len(all_a)
-    visited = np.zeros((40,n_obj), np.uint8)
-    for i in range(80):
 
+    for i in prange(80):
+            visited = np.zeros((40, n_obj), np.uint8)
 
             # Reset traversal state per pixel
             ix = I0x
@@ -210,9 +210,12 @@ def intersect(screenV, screenP, cell_array, cell_size,
                                 a = all_a[obj]
                                 b = all_b[obj]
                                 X = all_X[obj]
+                                aa=all_aa[obj]
+                                bb = all_bb[obj]
+                                n = all_n[obj]
 
                                 X1, t_,u,v = segment_plane_intersection(
-                                    X0, ray, X, a, b
+                                    X0, ray, X, a, b,n,aa,bb
                                 )
 
                                 if 0.0 < t_ < t_int[j] and -0.1<=u<=1.1 and -0.1<=v<=1.1:
@@ -227,7 +230,7 @@ def intersect(screenV, screenP, cell_array, cell_size,
                                             for t1 in range(0, 2):
                                                     ray = (screenV[i+t0, j+t1]+screenV[i, j])*0.5
                                                     X1, t_, u, v = segment_plane_intersection(
-                                                        X0, ray, X, a, b
+                                                        X0, ray, X, a, b,n,aa,bb
                                                     )
                                                     if S[2*i+t0,2*j+t1,-1]>t_:
                                                         wall_ind[2*i+t0,2*j+t1]=obj
@@ -3003,7 +3006,7 @@ def check_trigger():
 
 
 def load_level(level_name):
-    global all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     CARTE = [0, 0, 0]
     level = int(level_name)
     if level==5:
@@ -3244,6 +3247,9 @@ def load_level(level_name):
     all_b = np.array([i.b[0, 0, :] for i in all_walls])
     all_X = np.array([i.X[0, 0, :] for i in all_walls])
 
+    all_aa = np.array([np.dot(i.a[0, 0, :],i.a[0, 0, :]) for i in all_walls])
+    all_bb = np.array([np.dot(i.b[0, 0, :], i.b[0, 0, :]) for i in all_walls])
+    all_n = np.array([np.cross(i.a[0, 0, :], i.b[0, 0, :]) for i in all_walls])
 
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
@@ -3868,7 +3874,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')
 
-    S_i,S_i1,wall_ind_i,wall_ind_i1=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X)
+    S_i,S_i1,wall_ind_i,wall_ind_i1=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n)
     if key[K_p]:
         plt.imshow(wall_ind_i)
         plt.show()
