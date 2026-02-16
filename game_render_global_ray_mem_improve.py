@@ -101,140 +101,182 @@ def create_cell_array(cell_size):
         cell_array.append(row)
 
     return cell_array
-from numba import njit,prange
+from numba import njit, prange
+import numpy as np
 
-@njit
-def segment_plane_intersection(X0, V, X, a, b,n,aa,bb, eps=1e-9):
-
-
-    denom = np.dot(V, n)
-
-    result = np.empty(3, dtype=np.float64)
-
-    if abs(denom) < eps:
-        result[0] = np.nan
-        result[1] = np.nan
-        result[2] = np.nan
-        return result,0,0,0
-
-    t = np.dot(X - X0, n) / denom
-
-    result[0] = X0[0] + t * V[0]
-    result[1] = X0[1] + t * V[1]
-    result[2] = X0[2] + t * V[2]
-
-    u=np.dot(result-X,a)/aa
-    v = np.dot(result - X, b) / bb
-
-    return result,t,u,v
-
-
-@njit(parallel=True,fastmath=True)
+@njit(parallel=True, fastmath=True)
 def intersect(screenV, screenP, cell_array, cell_size,
-              all_a, all_b, all_X,all_aa,all_bb,all_n):
+              all_a, all_b, all_X,
+              all_aa, all_bb, all_n):
 
-    X0 = screenP[0, 0, :]
+    X0 = screenP[0, 0]
 
-    # Precompute origin grid position
     origin_x = 0.5 * (X0[0] + 100.0)
     origin_y = 0.5 * (X0[1] + 100.0)
 
     I0x = int(origin_x) // cell_size
     I0y = int(origin_y) // cell_size
 
-    S = np.full((160, 80,3), 1e6)
-
-    wall_ind = np.full((160, 80), 0)
+    S = np.full((160, 80, 3), 1e6, dtype=np.float32)
+    wall_ind = np.zeros((160, 80), np.int32)
 
     n_obj = len(all_a)
 
     for i in prange(160):
-            visited = np.zeros((80, n_obj), np.uint8)
 
-            # Reset traversal state per pixel
-            ix = I0x
-            iy = I0y
-            visited[:] = 0
+        # Thread-local arrays
+        visited = np.empty((80, n_obj), np.uint8)
+        visited[:] = 0
 
-            ray = screenV[i//2, 20]
-            dx = ray[0]
-            dy = ray[1]
+        t_int = np.empty(80, np.float32)
+        for jj in range(80):
+            t_int[jj] = 1e9
 
-            # Ray step direction
-            step_x = 1 if dx > 0 else -1 if dx < 0 else 0
-            step_y = 1 if dy > 0 else -1 if dy < 0 else 0
+        # Precompute rays for this row once
+        rays = np.empty((80, 3), np.float32)
+        i0 = i // 2
+        i1 = (i + 1) // 2
+        if i1 > 79:
+            i1 = 79
 
-            # DDA setup
-            if dx != 0.0:
-                next_x = (ix + (step_x > 0)) * cell_size
-                t_max_x = (next_x - origin_x) / dx
-                t_delta_x = cell_size / abs(dx)
+        for j in range(80):
+            j0 = j // 2
+            j1 = (j + 1) // 2
+            if j1 > 39:
+                j1 = 39
+
+            r0 = screenV[i0, j0]
+            r1 = screenV[i1, j1]
+
+            rays[j, 0] = 0.5 * (r0[0] + r1[0])
+            rays[j, 1] = 0.5 * (r0[1] + r1[1])
+            rays[j, 2] = 0.5 * (r0[2] + r1[2])
+
+        # DDA setup
+        ix = I0x
+        iy = I0y
+
+        ray0 = rays[20]  # representative ray for stepping
+        dx = ray0[0]
+        dy = ray0[1]
+
+        step_x = 1 if dx > 0 else -1 if dx < 0 else 0
+        step_y = 1 if dy > 0 else -1 if dy < 0 else 0
+
+        if dx != 0.0:
+            next_x = (ix + (step_x > 0)) * cell_size
+            t_max_x = (next_x - origin_x) / dx
+            t_delta_x = cell_size / abs(dx)
+        else:
+            t_max_x = 1e9
+            t_delta_x = 1e9
+
+        if dy != 0.0:
+            next_y = (iy + (step_y > 0)) * cell_size
+            t_max_y = (next_y - origin_y) / dy
+            t_delta_y = cell_size / abs(dy)
+        else:
+            t_max_y = 1e9
+            t_delta_y = 1e9
+
+        # Grid traversal
+        for g in range(100):
+
+            if t_max_x < t_max_y:
+                ix += step_x
+                t = t_max_x
+                t_max_x += t_delta_x
             else:
-                t_max_x = 1e9
-                t_delta_x = 1e9
+                iy += step_y
+                t = t_max_y
+                t_max_y += t_delta_y
 
-            if dy != 0.0:
-                next_y = (iy + (step_y > 0)) * cell_size
-                t_max_y = (next_y - origin_y) / dy
-                t_delta_y = cell_size / abs(dy)
-            else:
-                t_max_y = 1e9
-                t_delta_y = 1e9
+            # Clamp cell indices
+            cx = ix
+            cy = iy
+            if cx < 0:
+                cx = 0
+            elif cx >= 500 // cell_size:
+                cx = 500 // cell_size - 1
 
-            t_int = np.full(80,1e9)
+            if cy < 0:
+                cy = 0
+            elif cy >= 500 // cell_size:
+                cy = 500 // cell_size - 1
 
-            # March through grid
-            for g in range(100):
+            cell = cell_array[cx][cy]
 
-                if t_max_x < t_max_y:
-                    ix += step_x
-                    t = t_max_x
-                    t_max_x += t_delta_x
-                else:
-                    iy += step_y
-                    t = t_max_y
-                    t_max_y += t_delta_y
-                # t=(t_max_x**2+t_max_y**2)**0.5
-                t = t_max_x if t_max_x < t_max_y else t_max_y
-                cell = cell_array[min(max(ix,0),500//cell_size-1)][min(max(iy,0),500//cell_size-1)]
+            # For each subpixel
+            for j in range(80):
 
-                for j in range(80):
-                    if t_int[j] >= t:
-                        ray = (screenV[i//2, j//2]+screenV[min((i+1)//2,79), min((j+1)//2,39)])*0.5
+                if t_int[j] < t:
+                    continue
 
-                        for k in range(len(cell)):
-                            obj = cell[k]
+                ray = rays[j]
 
-                            if not visited[j,obj]:
-                                visited[j,obj] = 1
+                for k in range(len(cell)):
 
-                                a = all_a[obj]
-                                b = all_b[obj]
-                                X = all_X[obj]
-                                aa=all_aa[obj]
-                                bb = all_bb[obj]
-                                n = all_n[obj]
+                    obj = cell[k]
 
-                                X1, t_,u,v = segment_plane_intersection(
-                                    X0, ray, X, a, b,n,aa,bb
-                                )
+                    if visited[j, obj] == 1:
+                        continue
 
-                                if 0.0 < t_ < t_int[j] and 0.<=u<=1. and 0.<=v<=1.:
-                                    hit_ix = int(0.5 * (X1[0] + 100.0)) // cell_size
-                                    hit_iy = int(0.5 * (X1[1] + 100.0)) // cell_size
-                                    t_int[j] = t_
-                                    if S[ i ,  j , -1] > t_:
-                                        S[i ,  j, :] = np.array([u, v, t_])
-                                        wall_ind[i,j]=obj
+                    visited[j, obj] = 1
 
+                    a = all_a[obj]
+                    b = all_b[obj]
+                    X = all_X[obj]
+                    n = all_n[obj]
+                    aa = all_aa[obj]
+                    bb = all_bb[obj]
 
+                    # ---- INLINE INTERSECTION ----
 
+                    denom = ray[0]*n[0] + ray[1]*n[1] + ray[2]*n[2]
 
-                if (t_int<t).all():
+                    if denom > 1e-9 or denom < -1e-9:
+
+                        dx0 = X[0] - X0[0]
+                        dy0 = X[1] - X0[1]
+                        dz0 = X[2] - X0[2]
+
+                        t_ = (dx0*n[0] + dy0*n[1] + dz0*n[2]) / denom
+
+                        if 0.0 < t_ < t_int[j]:
+
+                            px = X0[0] + t_ * ray[0]
+                            py = X0[1] + t_ * ray[1]
+                            pz = X0[2] + t_ * ray[2]
+
+                            ax = px - X[0]
+                            ay = py - X[1]
+                            az = pz - X[2]
+
+                            u = (ax*a[0] + ay*a[1] + az*a[2]) / aa
+                            v = (ax*b[0] + ay*b[1] + az*b[2]) / bb
+
+                            if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
+
+                                t_int[j] = t_
+
+                                S[i, j, 0] = u
+                                S[i, j, 1] = v
+                                S[i, j, 2] = t_
+
+                                wall_ind[i, j] = obj
+
+            # Early exit check
+            done = True
+            for jj in range(80):
+                if t_int[jj] >= t:
+                    done = False
                     break
 
+            if done:
+                break
 
-    return S,wall_ind
+    return S, wall_ind
+
 
 
 def source_pos(code):
@@ -3975,6 +4017,7 @@ while running == 1:
             Im=texture#[::2,::2,:]
             Xsource_g=np.empty((4,len(wall_rend),3))
             torch_shine=False
+
             for cg,i in enumerate(wall_rend):
                 if i.ID in light_wall.keys():
                     Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
@@ -3982,6 +4025,7 @@ while running == 1:
                     Xsource_g[:,cg,:] = np.array([source_pos(X0[k])  if k<len(X0) else np.array([1e9,0.,0.]) for k in range(4)])
                 else:
                     torch_shine=True
+
 
             a_g=np.array([i.a[0,0,:] for i in wall_rend])
             b_g = np.array([i.b[0, 0, :] for i in wall_rend])
