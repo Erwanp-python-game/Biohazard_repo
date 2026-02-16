@@ -142,8 +142,10 @@ def intersect(screenV, screenP, cell_array, cell_size,
     I0x = int(origin_x) // cell_size
     I0y = int(origin_y) // cell_size
 
-    S = np.full((80, 40,3), 1e6)
-    wall_ind = np.full((80, 40), 0)
+    S = np.full((160, 80,3), 1e6)
+    S1 = np.full((80, 40, 3), 1e6)
+    wall_ind = np.full((160, 80), 0)
+    wall_ind1 = np.full((80, 40), 0)
     n_obj = len(all_a)
     visited = np.zeros((40,n_obj), np.uint8)
     for i in range(80):
@@ -213,18 +215,31 @@ def intersect(screenV, screenP, cell_array, cell_size,
                                     X0, ray, X, a, b
                                 )
 
-                                if 0.0 < t_ < t_int[j] and 0.<=u<=1 and 0.<=v<=1:
+                                if 0.0 < t_ < t_int[j] and -0.1<=u<=1.1 and -0.1<=v<=1.1:
                                     hit_ix = int(0.5 * (X1[0] + 100.0)) // cell_size
                                     hit_iy = int(0.5 * (X1[1] + 100.0)) // cell_size
                                     t_int[j] = t_
-                                    S[i, j,:] = np.array([u,v,t_])
-                                    wall_ind[i,j]=obj
+                                    if S1[ i ,  j , -1] > t_:
+                                        S1[i ,  j, :] = np.array([u, v, t_])
+                                        wall_ind1[i,j]=obj
+                                    if u > 0.9 or u < 0.1 or v > 0.9 or v < 0.1:
+                                        for t0 in range(0,2):
+                                            for t1 in range(0, 2):
+                                                    ray = (screenV[i+t0, j+t1]+screenV[i, j])*0.5
+                                                    X1, t_, u, v = segment_plane_intersection(
+                                                        X0, ray, X, a, b
+                                                    )
+                                                    if S[2*i+t0,2*j+t1,-1]>t_:
+                                                        wall_ind[2*i+t0,2*j+t1]=obj
+                                                        S[2*i+t0,2*j+t1,:]=np.array([u,v,t_])
+
+
 
                 if (t_int<t).all():
                     break
 
 
-    return S,wall_ind
+    return S,S1,wall_ind,wall_ind1
 
 
 def source_pos(code):
@@ -3853,7 +3868,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')
 
-    S_i,wall_ind_i=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X)
+    S_i,S_i1,wall_ind_i,wall_ind_i1=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X)
     if key[K_p]:
         plt.imshow(wall_ind_i)
         plt.show()
@@ -3862,31 +3877,49 @@ while running == 1:
 
     if render_type=='ray':
 
+
+
+        mask=(S_i[:,:,-1]!=1e6)
+        mask1=mask[:,:,None]
+        wall_ind_i=wall_ind_i*mask+wall_ind_i1.repeat(2,axis=0).repeat(2,axis=1)*(1-mask)
+        S_i1=cv2.resize(S_i1, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+        S_i=S_i*mask1+S_i1*(1-mask1)
+
         wall_rend=np.array(all_walls)[np.unique(wall_ind_i)]
         render_w=len(wall_rend)
-        print(render_w)
+
         wall_index=wall_ind_i
         mapping = {val: i for i, val in enumerate(np.unique(wall_ind_i))}
         wall_index = np.vectorize(mapping.get)(wall_index)
 
-        one_hot = np.zeros((len(wall_rend), wall_index.shape[0], wall_index.shape[1],3))# do the upscaling on depth
-        for k in range(len(wall_rend)):
-            one_hot[k] = S_i*(wall_index == k)[:,:,None]
-        S_i=np.array([
-            cv2.resize(S, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
-            for S in one_hot
-        ])
-        wall_index=np.argmin(S_i[:,:,:,-1],axis=0)
-        print(S_i.shape,wall_index.shape)
-        H, W = wall_index.shape
-        i = np.arange(H)[:, None]  # shape (H,1)
-        j = np.arange(W)[None, :]  # shape (1,W)
-
-        S_i = S_i[wall_index, i, j]
-        print(S_i.shape)
-        if key[K_k]:
-            plt.imshow(wall_index)
-            plt.show()
+        # one_hot = np.full((len(wall_rend), wall_index.shape[0], wall_index.shape[1],3),1e3)# do the upscaling on depth
+        # for k in range(len(wall_rend)):
+        #     one_hot[k] = S_i*(wall_index == k)[:,:,None]+np.array([1,1,100])*(wall_index != k)[:,:,None]
+        # S_i=np.array([
+        #     cv2.resize(S, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+        #     for S in one_hot
+        # ])
+        # if key[K_k]:
+        #     for k in range(len(wall_rend)):
+        #         plt.imshow(S_i[k,:,:,0])
+        #         plt.show()
+        # wall_index=np.argmin(S_i[:,:,:,-1],axis=0)
+        #
+        # H, W = wall_index.shape
+        # i = np.arange(H)[:, None]  # shape (H,1)
+        # j = np.arange(W)[None, :]  # shape (1,W)
+        #
+        # S_i = S_i[wall_index, i, j]
+        #
+        # if key[K_k]:
+        #     plt.imshow(S_i[:,:,0])
+        #     plt.show()
+        #     plt.imshow(S_i[:,:,1])
+        #     plt.show()
+        #     plt.imshow(S_i[:,:,2])
+        #     plt.show()
+        #     plt.imshow(wall_index)
+        #     plt.show()
         ind_l = [
             c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
             else c // (12 // len(i.wall_im2)) if (
