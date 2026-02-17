@@ -107,7 +107,7 @@ import numpy as np
 @njit(parallel=True, fastmath=True)
 def intersect(screenV, screenP, cell_array, cell_size,
               all_a, all_b, all_X,
-              all_aa, all_bb, all_n,all_ab,all_inv_det):
+              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format):
 
     X0 = screenP[0, 0]
 
@@ -264,14 +264,35 @@ def intersect(screenV, screenP, cell_array, cell_size,
                                 v = (db * aa - da * ab) * inv_det
 
                             if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
+                                if all_opening[obj]:
+                                    f=all_format[obj]
+                                    iu = int((1 - u) * f[0])
+                                    iv = int((1 - v) * f[1])
 
-                                t_int[j] = t_
+                                    gu = iu % 120
+                                    gv = iv % 120
+                                    trans=all_trans_im[obj][0]
+                                    freq=all_freq[obj]
+                                    if (-iu//120+all_phase[obj]-freq+1)%freq==0:
+                                        shift=120
+                                    else:
+                                        shift=0
+                                    open=trans[gu,gv+shift]
+                                    if open:
+                                        t_int[j] = t_
+                                        S[i, j, 0] = u
+                                        S[i, j, 1] = v
+                                        S[i, j, 2] = t_
 
-                                S[i, j, 0] = u
-                                S[i, j, 1] = v
-                                S[i, j, 2] = t_
+                                        wall_ind[i, j] = obj
+                                else:
+                                    t_int[j] = t_
 
-                                wall_ind[i, j] = obj
+                                    S[i, j, 0] = u
+                                    S[i, j, 1] = v
+                                    S[i, j, 2] = t_
+
+                                    wall_ind[i, j] = obj
 
             # Early exit check
             done = True
@@ -452,7 +473,8 @@ class Wall():
         self.wall_im = [np.flip(np.minimum(IM + 1, 255), (0, 1))]
         if self.window and not(self.sky):
             self.trans_im=[np.flip((IM!=-1).all(axis=-1), (0, 1))]
-
+        else:
+            self.trans_im=np.array([0.])
 
         IM2 = np.transpose(pygame.surfarray.pixels3d(Imdeco2), (1, 0, 2))
         IM2 = np.where(np.expand_dims(((IM2 - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM2)
@@ -635,7 +657,10 @@ class Wall():
         if self.ID in light_color.keys():
             self.colorL = np.round(np.maximum(np.array(light_color[self.ID]), 0.1), 2)
         self.side=1.
-
+        if self.window and not(self.sky):
+            self.opening=True
+        else:
+            self.opening=False
 
     def opendoor(self, door):
         Imdeco = pygame.image.load(self.text)
@@ -3295,6 +3320,25 @@ def load_level(level_name):
     all_inv_det = np.array([1.0 / (all_aa[i]*all_bb[i] - all_ab[i]**2) for i in range(len(all_walls))])
 
 
+    global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format
+    all_opening=np.array([i.opening for i in all_walls])
+    all_freq=np.array([i.freq for i in all_walls])
+    all_phase = np.array([i.phase for i in all_walls])
+    all_tile_z = np.array([i.tile_z for i in all_walls])
+    all_format=np.array([i.format for i in all_walls])
+
+    all_trans_im = List()
+
+    for element in all_walls:
+        inner = List.empty_list(types.boolean[:, :])
+
+        if isinstance(element.trans_im, list) and len(element.trans_im) > 0:
+            for arr in element.trans_im:
+                inner.append(arr.astype(np.bool_))
+
+        # If element was 0 or empty → just append empty inner list
+        all_trans_im.append(inner)
+
 
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
@@ -3919,7 +3963,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')
 
-    S_i,wall_ind_i=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det)
+    S_i,wall_ind_i=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format)
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('intersect')
