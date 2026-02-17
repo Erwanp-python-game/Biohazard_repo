@@ -3968,7 +3968,7 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('intersect')
-
+    depth=S_i[:,:,-1,None]
     if render_type=='ray':
 
 
