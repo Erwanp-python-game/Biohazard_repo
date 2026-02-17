@@ -3971,9 +3971,6 @@ while running == 1:
     depth=S_i[:,:,-1,None]
     if render_type=='ray':
 
-
-
-
         uniq=np.unique(wall_ind_i)
         wall_rend=np.array(all_walls)[uniq]
         render_w=len(wall_rend)
@@ -4039,64 +4036,6 @@ while running == 1:
             explo_R = np.minimum(explo_R,
                                  np.linalg.norm(Xl - np.array([explo_pt[0], explo_pt[1], 0.]), axis=-1)[:, :, None])
 
-    else:
-        if len(wall_rend)>0:
-            S_g=np.stack([i.S for i in wall_rend],axis=2)#0.5msz
-            ind_l=[
-                    c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
-                    else c // (12 // len(i.wall_im2)) if (i.side > 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
-                    else min(i.vie, 2) if (levelD[level]['deco'][i.deco - 1] in deco_destruc)
-                    else 0
-                    for i in wall_rend
-                ]
-
-            wall_im_g=np.concatenate([i.wall_im[ind_l[c0]] if i.side<0 else i.wall_im2[ind_l[c0]] for c0,i in enumerate(wall_rend)],axis=0)
-            freq_g=np.array([i.freq for i in wall_rend])
-            phase_g = np.array([i.phase_-i.freq+1  for i in wall_rend])
-            tile_z_g=np.array([i.tile_z  for i in wall_rend])
-            light_g=np.array([light_modif(i.colorL, level, c3) for i in wall_rend])
-
-            format_g=np.stack([i.format for i in wall_rend],axis=0)
-            i_, j_ = np.indices(wall_index.shape)
-            S_g_r=S_g[i_,j_,wall_index]
-
-            # S_g_r2=cv2.resize(S_g_r, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
-            # wall_index2 = cv2.resize(wall_index, None, fx=2, fy=2, interpolation=cv2.INTER_NEAREST)
-
-            u=((1 - S_g_r[:, :, :-1]) * format_g[wall_index,:]).astype(int)
-            G_g=np.mod(np.maximum(u, 0),120)
-
-
-            texture=wall_im_g[120*wall_index+G_g[:,:,0],G_g[:,:,1]+120*((((-u[:,:,1]//120+phase_g[wall_index])%freq_g[wall_index]))==0)*(u[:,:,0]<120+1000*tile_z_g[wall_index])]*light_g[wall_index]
-
-
-
-            Im=texture#[::2,::2,:]
-            Xsource_g=np.empty((4,len(wall_rend),3))
-            torch_shine=False
-
-            for cg,i in enumerate(wall_rend):
-                if i.ID in light_wall.keys():
-                    Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
-                    X0 = [x for _, x in sorted(zip(Y0, light_wall[i.ID]))]
-                    Xsource_g[:,cg,:] = np.array([source_pos(X0[k])  if k<len(X0) else np.array([1e9,0.,0.]) for k in range(4)])
-                else:
-                    torch_shine=True
-
-
-            a_g=np.array([i.a[0,0,:] for i in wall_rend])
-            b_g = np.array([i.b[0, 0, :] for i in wall_rend])
-            x_g = np.array([i.X[0, 0, :] for i in wall_rend])
-
-            Xl=S_g_r[:,:,0,None]*a_g[wall_index,:]+S_g_r[:,:,1,None]*b_g[wall_index,:]+x_g[wall_index,:]
-            if torch_shine:
-                Im=Im*torch_on * TORCHE ** 3
-                POS = np.linalg.norm(Xl - R_c, axis=-1)**0.5
-            else:
-                POS = np.amin(np.linalg.norm(Xl[ :, :, :] - Xsource_g[:, wall_index, :], axis=-1), axis=0)
-
-            if explo!=0:
-                explo_R = np.minimum(explo_R, np.linalg.norm(Xl - np.array([explo_pt[0], explo_pt[1], 0.]),axis=-1)[:,:,None])
 
 
 
