@@ -1,4 +1,14 @@
-best current version is game_render_global.py
+best current version is game_render_global_ray_mem_improve.py
+
+first solution keep global indexing
+-add calculated Xl from intersect
+-liquid
+-double res to test
+
+2nd solution
+-double res in intersect +move all wall calculation in intersect
+-even more in future put ennemies in intersect
+
 
 
 finish global render
@@ -33,5 +43,4 @@ bug -> sky is not hiding walls that are behind in horizon, make sense for roof m
 
 
 
-I did everything that I could for raycasting, better scaling but too slow to obtain comparable res
-double resolution is too slow especially with ennemies
+

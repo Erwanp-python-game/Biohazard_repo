@@ -3971,13 +3971,11 @@ while running == 1:
     depth=S_i[:,:,-1,None]
     if render_type=='ray':
 
-        uniq=np.unique(wall_ind_i)
-        wall_rend=np.array(all_walls)[uniq]
-        render_w=len(wall_rend)
+        uniq, wall_index = np.unique(wall_ind_i, return_inverse=True)
+        wall_index = wall_index.reshape(wall_ind_i.shape)
 
-        wall_index=wall_ind_i
-        mapping = {val: i for i, val in enumerate(uniq)}
-        wall_index = np.vectorize(mapping.get)(wall_index)
+        wall_rend = np.array(all_walls)[uniq]
+        render_w = uniq.size
 
         ind_l = [
             c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
