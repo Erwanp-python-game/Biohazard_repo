@@ -47,3 +47,13 @@ per_ennemies 0.0 1
 detail on object rendering 0.0 ['0.0'] ['none']
 per_object 0.0 1
 *-----------*
+improvement of array mem usage
+*-----------*
+Top contribution [('glob_walls', '11.2 ms', '42.7 %'), ('intersect', '5.4 ms', '20.6 %'), ('calc_norm', '2.6 ms', '9.9 %')]
+average,framerate 38.2 /s | average time 26.2 ms
+[('glob_walls', '11.2 ms', '42.7 %'), ('intersect', '5.4 ms', '20.6 %'), ('calc_norm', '2.6 ms', '9.9 %'), ('rendering', '1.4 ms', '5.3 %'), ('gun_clicks_and_keys', '1.3 ms', '5.0 %'), ('bleed, explo, effects', '1.2 ms', '4.6 %'), ('things', '0.7 ms', '2.7 %'), ('lights', '0.7 ms', '2.7 %'), ('walkthings', '0.5 ms', '1.9 %'), ('reset', '0.3 ms', '1.1 %'), ('end', '0.3 ms', '1.1 %'), ('sorting', '0.2 ms', '0.8 %'), ('movethings', '0.1 ms', '0.4 %'), ('events', '0.1 ms', '0.4 %'), ('doors', '0.1 ms', '0.4 %'), ('blit image', '0.1 ms', '0.4 %'), ('walls', '0.0 ms', '0.0 %'), ('sky', '0.0 ms', '0.0 %'), ('lifts', '0.0 ms', '0.0 %'), ('clicks_and_keys', '0.0 ms', '0.0 %'), ('boule', '0.0 ms', '0.0 %'), ('boss', '0.0 ms', '0.0 %')]
+detail on ennemies rendering 0.0 ['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', '0.0', '0.0', '0.0', '0.0'] ['none']
+per_ennemies 0.0 1
+detail on object rendering 0.0 ['0.0'] ['none']
+per_object 0.0 1
+*-----------*

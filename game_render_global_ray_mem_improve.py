@@ -107,7 +107,7 @@ import numpy as np
 @njit(parallel=True, fastmath=True)
 def intersect(screenV, screenP, cell_array, cell_size,
               all_a, all_b, all_X,
-              all_aa, all_bb, all_n):
+              all_aa, all_bb, all_n,all_ab,all_inv_det):
 
     X0 = screenP[0, 0]
 
@@ -229,6 +229,8 @@ def intersect(screenV, screenP, cell_array, cell_size,
                     n = all_n[obj]
                     aa = all_aa[obj]
                     bb = all_bb[obj]
+                    ab = all_ab[obj]
+                    inv_det = all_inv_det[obj]
 
                     # ---- INLINE INTERSECTION ----
 
@@ -252,8 +254,14 @@ def intersect(screenV, screenP, cell_array, cell_size,
                             ay = py - X[1]
                             az = pz - X[2]
 
-                            u = (ax*a[0] + ay*a[1] + az*a[2]) / aa
-                            v = (ax*b[0] + ay*b[1] + az*b[2]) / bb
+                            if ab==0:
+                                u = (ax*a[0] + ay*a[1] + az*a[2]) / aa
+                                v = (ax*b[0] + ay*b[1] + az*b[2]) / bb
+                            else:
+                                da = ax * a[0] + ay * a[1] + az * a[2]
+                                db = ax * b[0] + ay * b[1] + az * b[2]
+                                u = (da * bb - db * ab) * inv_det
+                                v = (db * aa - da * ab) * inv_det
 
                             if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
 
@@ -3040,7 +3048,7 @@ def check_trigger():
 
 
 def load_level(level_name):
-    global all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global all_inv_det,all_ab,all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     CARTE = [0, 0, 0]
     level = int(level_name)
     if level==5:
@@ -3280,10 +3288,13 @@ def load_level(level_name):
     all_a=np.array([i.a[0,0,:] for i in all_walls])
     all_b = np.array([i.b[0, 0, :] for i in all_walls])
     all_X = np.array([i.X[0, 0, :] for i in all_walls])
-
+    all_ab=np.array([np.dot(i.a[0, 0, :],i.b[0, 0, :]) for i in all_walls])
     all_aa = np.array([np.dot(i.a[0, 0, :],i.a[0, 0, :]) for i in all_walls])
     all_bb = np.array([np.dot(i.b[0, 0, :], i.b[0, 0, :]) for i in all_walls])
     all_n = np.array([np.cross(i.a[0, 0, :], i.b[0, 0, :]) for i in all_walls])
+    all_inv_det = np.array([1.0 / (all_aa[i]*all_bb[i] - all_ab[i]**2) for i in range(len(all_walls))])
+
+
 
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
@@ -3908,7 +3919,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walls')
 
-    S_i,wall_ind_i=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n)
+    S_i,wall_ind_i=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det)
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('intersect')
@@ -3964,7 +3975,8 @@ while running == 1:
                 Xsource_g[:, cg, :] = np.array(
                     [source_pos(X0[k]) if k < len(X0) else np.array([1e9, 0., 0.]) for k in range(4)])
             else:
-                torch_shine = True
+                if uniq[cg]!=0:
+                    torch_shine = True
 
         a_g = np.array([i.a[0, 0, :] for i in wall_rend])
         b_g = np.array([i.b[0, 0, :] for i in wall_rend])
