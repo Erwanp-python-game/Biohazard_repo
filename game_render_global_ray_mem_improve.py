@@ -273,7 +273,8 @@ def intersect(screenV, screenP, cell_array, cell_size,
                                     gv = iv % 120
                                     trans=all_trans_im[obj][0]
                                     freq=all_freq[obj]
-                                    if (-iu//120+all_phase[obj]-freq+1)%freq==0:
+
+                                    if ((-iv//120+all_phase[obj]-freq+1)%freq)==0:
                                         shift=120
                                     else:
                                         shift=0
@@ -3323,7 +3324,7 @@ def load_level(level_name):
     global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format
     all_opening=np.array([i.opening for i in all_walls])
     all_freq=np.array([i.freq for i in all_walls])
-    all_phase = np.array([i.phase for i in all_walls])
+    all_phase = np.array([i.phase_ for i in all_walls])
     all_tile_z = np.array([i.tile_z for i in all_walls])
     all_format=np.array([i.format for i in all_walls])
 
