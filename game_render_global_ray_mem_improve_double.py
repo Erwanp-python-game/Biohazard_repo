@@ -62,7 +62,7 @@ TORCHE = np.expand_dims(
                                                                                                                 axis=1),
     -1)
 torch_on = 0
-TORCHE3=TORCHE ** 3
+TORCHE3=(TORCHE ** 3).repeat(2,0).repeat(2,1)
 
 R_c = np.array([-1, 0, 0])
 Vg = np.array([1, -sqrt(2) / 2]) / sqrt(3 / 2)
@@ -73,7 +73,7 @@ height_list=[]
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 6
+level = 4
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -1635,7 +1635,8 @@ class Thing():
 
         # self.U = np.stack(((Xthing - self.DX - scrnL[0]) / self.width, (Ything - self.DY - scrnL[1]) / self.widthY),
         #                   -1) * np.expand_dims(SQUARE, -1)
-
+        if self.U.shape[0]>160:
+            self.U=self.U[::2,::2]
         # channel 0
         self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
         self.U[..., 0] *= self.SQUARE
@@ -1647,6 +1648,7 @@ class Thing():
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('U')
+        self.U = cv2.resize(self.U, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
         self.G = np.maximum((self.U * 160).astype(int), 0)
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('G')
@@ -1842,13 +1844,15 @@ class Object():
         #                   -1) * np.expand_dims(SQUARE, -1)
 
         # channel 0
+        if self.U.shape[0]>160:
+            self.U=self.U[::2,::2]
         self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
         self.U[..., 0] *= SQUARE
 
         # channel 1
         self.U[..., 1] = (Ything - self.DY - scrnL[1]) / self.widthY
         self.U[..., 1] *= SQUARE
-
+        self.U = cv2.resize(self.U, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
         self.G = np.maximum((self.U * 160).astype(int), 0)
         #Ar = np.moveaxis(self.im[tuple(map(tuple, self.G.T))] * colorT, 1, 0)
         self.Ar = self.im[self.G[..., 0], self.G[..., 1]] * colorT
@@ -4005,13 +4009,16 @@ while running == 1:
         i_, j_ = np.indices(wall_index.shape)
         S_g_r = S_i
 
+        S_g_r2 = cv2.resize(S_g_r, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+        wall_index2 = cv2.resize(wall_index, None, fx=2, fy=2, interpolation=cv2.INTER_NEAREST)
 
-        u = ((1 - S_g_r[:, :, :-1]) * format_g[wall_index, :]).astype(int)
+
+        u = ((1 - S_g_r2[:, :, :-1]) * format_g[wall_index2, :]).astype(int)
         G_g = np.mod(np.maximum(u, 0), 120)
 
-        texture = wall_im_g[120 * wall_index + G_g[:, :, 0], G_g[:, :, 1] + 120 * (
-                    (((-u[:, :, 1] // 120 + phase_g[wall_index]) % freq_g[wall_index])) == 0) * (
-                                        u[:, :, 0] < 120 + 1000 * tile_z_g[wall_index])] * light_g[wall_index]
+        texture = wall_im_g[120 * wall_index2 + G_g[:, :, 0], G_g[:, :, 1] + 120 * (
+                    (((-u[:, :, 1] // 120 + phase_g[wall_index2]) % freq_g[wall_index2])) == 0) * (
+                                        u[:, :, 0] < 120 + 1000 * tile_z_g[wall_index2])] * light_g[wall_index2]
 
         Im = texture  # [::2,::2,:]
         Xsource_g = np.empty((4, len(wall_rend), 3))
@@ -4030,10 +4037,8 @@ while running == 1:
         b_g = np.array([i.b[0, 0, :] for i in wall_rend])
         x_g = np.array([i.X[0, 0, :] for i in wall_rend])
 
-        # Xl = S_g_r[:, :, 0, None] * a_g[wall_index, :] + S_g_r[:, :, 1, None] * b_g[wall_index, :] + x_g[wall_index,
-        #                                                                                              :]
         if torch_shine:
-            Im = Im * torch_on * TORCHE ** 3
+            Im = Im * torch_on * TORCHE.repeat(2,axis=0).repeat(2,axis=1) ** 3
             POS = np.linalg.norm(Xl - R_c, axis=-1) ** 0.5
         else:
             POS = np.amin(np.linalg.norm(Xl[:, :, :] - Xsource_g[:, wall_index, :], axis=-1), axis=0)
@@ -4089,6 +4094,7 @@ while running == 1:
             level_light = np.minimum(level_light + 0.1 * np.array([1, 1, 1.]), np.array([1, 1, 1.]))
 
     old_render_sky=False
+    POS = POS.repeat(2, axis=0).repeat(2, axis=1)
     if Sky_view and old_render_sky:
         LAND = np.roll(LAND0, int(ang[0] * 12 * scrnL[0] / (2 * pi)), axis=0)
         LAND = LAND[:2 * scrnL[0], :, :]
@@ -4185,7 +4191,7 @@ while running == 1:
                 Im[mask] = rend_[mask]
                 #Im =  rend_* np.expand_dims(i.Ut, -1) + Im * (1 - np.expand_dims(i.Ut, -1))
 
-                depth[mask] = i.norm
+                depth[mask[::2,::2]] = i.norm
                 if i in ennemies :
                     render_w_e += 1
                     if render_w_e == 1 :  # and c3==1:
@@ -4238,11 +4244,11 @@ while running == 1:
     #     #Im = IS_rendered[-1] * 0.5 + Im * (1 - 0.5 * np.expand_dims(i.U, -1))
     #     Im[i.Ub] = IS_rendered[-1][i.Ub]*0.5+Im[i.Ub]*0.5
     if fire:
-        Im = np.minimum(Im + 100 * TORCHE, 255)
+        Im = np.minimum(Im + 100 * TORCHE.repeat(2,0).repeat(2,1), 255)
 
     Im=np.maximum(Im,0)
 
-    fond = pygame.Surface((160-6,80-6))#to improve
+    fond = pygame.Surface((2*160-6,2*80-6))#to improve
 
     if Sky_view:
         if level==6:
