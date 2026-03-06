@@ -56,6 +56,9 @@ TAN2 = np.amax(screen[:, :, 4])
 
 screenV = screen[:, :, 3:]
 screenP = screen[:, :, :3]
+
+
+
 CENTER = np.expand_dims(np.linalg.norm(screen[:, :, :3] - [0, 0, 0], axis=-1).repeat(2, axis=0).repeat(2, axis=1), -1)
 TORCHE = np.expand_dims(
     (np.maximum(np.cos(I_n[:, :, 0] * pi / 2) * np.cos(I_n[:, :, 1] * 2 * pi / 2), 0)).repeat(2, axis=0).repeat(2,
