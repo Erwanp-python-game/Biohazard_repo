@@ -4046,7 +4046,7 @@ while running == 1:
         #             (((-u[:, :, 1] // 120 + phase_g[wall_index]) % freq_g[wall_index])) == 0) * (
         #                                 u[:, :, 0] < 120 + 1000 * tile_z_g[wall_index])] * light_g[wall_index]
         texture=Im_ray
-        Im = texture  # [::2,::2,:]
+        Im = texture
         Xsource_g = np.empty((4, len(wall_rend), 3))
         torch_shine = False
         for cg, i in enumerate(wall_rend):
