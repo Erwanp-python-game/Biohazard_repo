@@ -4372,6 +4372,8 @@ while running == 1:
     else:
         if c3!=1:
             milliT = np.concatenate((milliT, np.expand_dims(milliseconds, -1)), axis=1)
+    if c3 == 1:
+        milliseconds=np.array(milliseconds)*0
     averaged_time = averaged_time + np.round((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], 1)
 
     nb_wall.append(render_w)

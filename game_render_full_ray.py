@@ -107,7 +107,7 @@ import numpy as np
 @njit(parallel=True, fastmath=True)
 def intersect(screenV, screenP, cell_array, cell_size,
               all_a, all_b, all_X,
-              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format):
+              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im):
 
     X0 = screenP[0, 0]
 
@@ -117,34 +117,38 @@ def intersect(screenV, screenP, cell_array, cell_size,
     I0x = int(origin_x) // cell_size
     I0y = int(origin_y) // cell_size
 
-    S = np.full((160, 80, 3), 1e6, dtype=np.float32)
-    Xl = np.full((160, 80, 3), 1e6, dtype=np.float32)
-    wall_ind = np.zeros((160, 80), np.int32)
+    w=160
+    h=80
+    
+    Im = np.full((w, h, 3), 0, dtype=np.float32)
+    S = np.full((w, h, 3), 1e6, dtype=np.float32)
+    Xl = np.full((w, h, 3), 1e6, dtype=np.float32)
+    wall_ind = np.zeros((w, h), np.int32)
 
     n_obj = len(all_a)
 
-    for i in prange(160):
+    for i in prange(w):
 
         # Thread-local arrays
-        visited = np.empty((80, n_obj), np.uint8)
+        visited = np.empty((h, n_obj), np.uint8)
         visited[:] = 0
 
-        t_int = np.empty(80, np.float32)
-        for jj in range(80):
+        t_int = np.empty(h, np.float32)
+        for jj in range(h):
             t_int[jj] = 1e9
 
         # Precompute rays for this row once
-        rays = np.empty((80, 3), np.float32)
+        rays = np.empty((h, 3), np.float32)
         i0 = i // 2
         i1 = (i + 1) // 2
-        if i1 > 79:
-            i1 = 79
+        if i1 > w//2-1:
+            i1 = w//2-1
 
-        for j in range(80):
+        for j in range(h):
             j0 = j // 2
             j1 = (j + 1) // 2
-            if j1 > 39:
-                j1 = 39
+            if j1 > h//2-1:
+                j1 = h//2-1
 
             r0 = screenV[i0, j0]
             r1 = screenV[i1, j1]
@@ -157,7 +161,7 @@ def intersect(screenV, screenP, cell_array, cell_size,
         ix = I0x
         iy = I0y
 
-        ray0 = rays[20]  # representative ray for stepping
+        ray0 = rays[h//2]  # representative ray for stepping
         dx = ray0[0]
         dy = ray0[1]
 
@@ -208,7 +212,7 @@ def intersect(screenV, screenP, cell_array, cell_size,
             cell = cell_array[cx][cy]
 
             # For each subpixel
-            for j in range(80):
+            for j in range(h):
 
                 if t_int[j] < t:
                     continue
@@ -232,6 +236,7 @@ def intersect(screenV, screenP, cell_array, cell_size,
                     bb = all_bb[obj]
                     ab = all_ab[obj]
                     inv_det = all_inv_det[obj]
+
 
                     # ---- INLINE INTERSECTION ----
 
@@ -265,54 +270,67 @@ def intersect(screenV, screenP, cell_array, cell_size,
                                 v = (db * aa - da * ab) * inv_det
 
                             if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
+
+                                open=True
                                 if all_opening[obj]:
-                                    f=all_format[obj]
+                                    f = all_format[obj]
                                     iu = int((1 - u) * f[0])
                                     iv = int((1 - v) * f[1])
 
                                     gu = iu % 120
                                     gv = iv % 120
-                                    trans=all_trans_im[obj][0]
-                                    freq=all_freq[obj]
-
-                                    if ((-iv//120+all_phase[obj]-freq+1)%freq)==0:
-                                        shift=120
+                                    freq = all_freq[obj]
+                                    if ((-iv // 120 + all_phase[obj] - freq + 1) % freq) == 0:
+                                        shift = 120
                                     else:
-                                        shift=0
+                                        shift = 0
+                                    trans=all_trans_im[obj][0]
                                     open=trans[gu,gv+shift]
-                                    if open:
-                                        t_int[j] = t_
-                                        S[i, j, 0] = u
-                                        S[i, j, 1] = v
-                                        S[i, j, 2] = t_
-
-                                        wall_ind[i, j] = obj
-                                        Xl[i, j, 0]=px
-                                        Xl[i, j, 1] = py
-                                        Xl[i, j, 2] = pz
-                                else:
+                                if open:
                                     t_int[j] = t_
-
                                     S[i, j, 0] = u
                                     S[i, j, 1] = v
                                     S[i, j, 2] = t_
 
                                     wall_ind[i, j] = obj
-                                    Xl[i, j, 0] = px
+                                    Xl[i, j, 0]=px
                                     Xl[i, j, 1] = py
                                     Xl[i, j, 2] = pz
+                                    # Im[i, j, 0] =im[gu, gv + shift,0]
+                                    # Im[i, j, 1] = im[gu, gv + shift, 1]
+                                    # Im[i, j, 2] = im[gu, gv + shift, 2]
+
 
             # Early exit check
             done = True
-            for jj in range(80):
+            for jj in range(h):
                 if t_int[jj] >= t:
                     done = False
                     break
 
             if done:
+                for jj in range(h):
+                    obj1=wall_ind[i, jj]
+                    u=S[i, jj,0]
+                    v=S[i, jj,1]
+                    f = all_format[obj1]
+                    iu = int((1 - u) * f[0])
+                    iv = int((1 - v) * f[1])
+
+                    gu = iu % 120
+                    gv = iv % 120
+                    freq = all_freq[obj1]
+                    if ((-iv // 120 + all_phase[obj1] - freq + 1) % freq) == 0:
+                        shift = 120
+                    else:
+                        shift = 0
+                    im = all_wall_im[obj1][0]
+                    Im[i, jj, 0] =im[gu, gv + shift,0]
+                    Im[i, jj, 1] = im[gu, gv + shift, 1]
+                    Im[i, jj, 2] = im[gu, gv + shift, 2]
                 break
 
-    return S, wall_ind,Xl
+    return S, wall_ind,Xl,Im
 
 
 
@@ -3328,7 +3346,7 @@ def load_level(level_name):
     all_inv_det = np.array([1.0 / (all_aa[i]*all_bb[i] - all_ab[i]**2) for i in range(len(all_walls))])
 
 
-    global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format
+    global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im
     all_opening=np.array([i.opening for i in all_walls])
     all_freq=np.array([i.freq for i in all_walls])
     all_phase = np.array([i.phase_ for i in all_walls])
@@ -3336,16 +3354,23 @@ def load_level(level_name):
     all_format=np.array([i.format for i in all_walls])
 
     all_trans_im = List()
+    all_wall_im = List()
 
     for element in all_walls:
         inner = List.empty_list(types.boolean[:, :])
+        inner_im = List.empty_list(types.float32[:,:,:])
 
         if isinstance(element.trans_im, list) and len(element.trans_im) > 0:
             for arr in element.trans_im:
                 inner.append(arr.astype(np.bool_))
 
+        if isinstance(element.wall_im, list) and len(element.wall_im) > 0:
+            for arr in element.wall_im:
+                inner_im.append(arr.astype(np.float32))
+
         # If element was 0 or empty → just append empty inner list
         all_trans_im.append(inner)
+        all_wall_im.append(inner_im)
 
 
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
@@ -3969,11 +3994,16 @@ while running == 1:
 
 
     milliseconds.append(time.perf_counter()*1000)
+
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format)
+    S_i,wall_ind_i,Xl,Im_ray=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im)
+    if key[K_u]:
+        plt.imshow(Im_ray/255)
+        plt.show()
 
-    milliseconds.append(time.perf_counter()*1000)
+    milliseconds.append(time.perf_counter() * 1000)
+
     label_deltat.append('intersect')
     depth=S_i[:,:,-1,None]
     if render_type=='ray':
@@ -3984,35 +4014,35 @@ while running == 1:
         wall_rend = np.array(all_walls)[uniq]
         render_w = uniq.size
 
-        ind_l = [
-            c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
-            else c // (12 // len(i.wall_im2)) if (
-                        i.side > 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
-            else min(i.vie, 2) if (levelD[level]['deco'][i.deco - 1] in deco_destruc)
-            else 0
-            for i in wall_rend
-        ]
+        # ind_l = [
+        #     c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
+        #     else c // (12 // len(i.wall_im2)) if (
+        #                 i.side > 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
+        #     else min(i.vie, 2) if (levelD[level]['deco'][i.deco - 1] in deco_destruc)
+        #     else 0
+        #     for i in wall_rend
+        # ]
+        #
+        # wall_im_g = np.concatenate(
+        #     [i.wall_im[ind_l[c0]] if i.side < 0 else i.wall_im2[ind_l[c0]] for c0, i in enumerate(wall_rend)],
+        #     axis=0)
+        # freq_g = np.array([i.freq for i in wall_rend])
+        # phase_g = np.array([i.phase_ - i.freq + 1 for i in wall_rend])
+        # tile_z_g = np.array([i.tile_z for i in wall_rend])
+        # light_g = np.array([light_modif(i.colorL, level, c3) for i in wall_rend])
+        #
+        # format_g = np.stack([i.format for i in wall_rend], axis=0)
+        # i_, j_ = np.indices(wall_index.shape)
+        # S_g_r = S_i
+        #
+        #
+        # u = ((1 - S_g_r[:, :, :-1]) * format_g[wall_index, :]).astype(int)
+        # G_g = np.mod(np.maximum(u, 0), 120)
 
-        wall_im_g = np.concatenate(
-            [i.wall_im[ind_l[c0]] if i.side < 0 else i.wall_im2[ind_l[c0]] for c0, i in enumerate(wall_rend)],
-            axis=0)
-        freq_g = np.array([i.freq for i in wall_rend])
-        phase_g = np.array([i.phase_ - i.freq + 1 for i in wall_rend])
-        tile_z_g = np.array([i.tile_z for i in wall_rend])
-        light_g = np.array([light_modif(i.colorL, level, c3) for i in wall_rend])
-
-        format_g = np.stack([i.format for i in wall_rend], axis=0)
-        i_, j_ = np.indices(wall_index.shape)
-        S_g_r = S_i
-
-
-        u = ((1 - S_g_r[:, :, :-1]) * format_g[wall_index, :]).astype(int)
-        G_g = np.mod(np.maximum(u, 0), 120)
-
-        texture = wall_im_g[120 * wall_index + G_g[:, :, 0], G_g[:, :, 1] + 120 * (
-                    (((-u[:, :, 1] // 120 + phase_g[wall_index]) % freq_g[wall_index])) == 0) * (
-                                        u[:, :, 0] < 120 + 1000 * tile_z_g[wall_index])] * light_g[wall_index]
-
+        # texture = wall_im_g[120 * wall_index + G_g[:, :, 0], G_g[:, :, 1] + 120 * (
+        #             (((-u[:, :, 1] // 120 + phase_g[wall_index]) % freq_g[wall_index])) == 0) * (
+        #                                 u[:, :, 0] < 120 + 1000 * tile_z_g[wall_index])] * light_g[wall_index]
+        texture=Im_ray
         Im = texture  # [::2,::2,:]
         Xsource_g = np.empty((4, len(wall_rend), 3))
         torch_shine = False
@@ -4372,6 +4402,9 @@ while running == 1:
     else:
         if c3!=1:
             milliT = np.concatenate((milliT, np.expand_dims(milliseconds, -1)), axis=1)
+
+    if c3 == 1:
+        milliseconds=np.array(milliseconds)*0
     averaged_time = averaged_time + np.round((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], 1)
 
     nb_wall.append(render_w)
