@@ -350,20 +350,22 @@ def intersect(screenV, screenP, cell_array, cell_size,
 
     return S, wall_ind,Xl,Im,POS_l
 
-@njit(parallel=True, fastmath=True)
-def thing_render(a0,a1,x_perso,all_x_e,Im):
+@njit( fastmath=True)
+def thing_render(a0,a1,x_perso,all_x_e,Im,S,all_im_e):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
     c1 = np.cos(a1)
     s1 = np.sin(a1)
 
-    f=scrnL[0]/TAN2
+    f1=scrnL[0]/TAN2
+    f2 = scrnL[1] / TAN1
     W=scrnL[0]*2
     H=scrnL[1]*2
-
+    RA=6
     for i in range(len(all_x_e)):
         x_e=all_x_e[i]
+        im = all_im_e[i]
         d = x_e - x_perso
         dx, dy, dz = d
 
@@ -377,10 +379,26 @@ def thing_render(a0,a1,x_perso,all_x_e,Im):
             y2 = y1
             z2 = s1 * x1 + c1 * z1
 
-            sx = int(W * 0.5 + f * y2 / x2)
-            sy = int(H * 0.5 - f * z2 / x2)
-            if sx>0 and sx<W and sy>0 and sy<H:
-                Im[sx,sy,0]=255
+            sx = int(W * 0.5 + f1 * y2 / x2)
+            sy = int(H * 0.5 - f2 * z2 / x2)
+            width = int(RA * 2 * scrnL[0] / x1)
+            if sx+width//2>0 and sx-width//2<W and sy+width//2>0 and sy-width//2<H: #and S[sx,sy,2]>x1:
+
+                for gx in range(0,width):
+                    ix=sx-width//2+gx
+                    ix_r = int(160 * gx / width)
+                    if ix >= 0 and ix<W and ix_r<160:
+                        for gy in range(0, width):
+                            iy=sy-width//2+gy
+                            iy_r = int(160 * gy / width)
+                            if iy >= 0 and iy<H and S[ix,iy,2]>x1 and iy_r<160:
+                                r=im[ix_r,iy_r,0]
+                                g=im[ix_r, iy_r, 1]
+                                b=im[ix_r, iy_r, 2]
+                                if r+g+b>0:
+                                    Im[ix,iy,0] = r
+                                    Im[ix, iy, 1] = g
+                                    Im[ix, iy, 2] = b
     return Im
 
 def source_pos(code):
@@ -3475,10 +3493,11 @@ def load_level(level_name):
             if thing[-1].type_M == 1:
                 difficulty_var[3] +=20
 
-    global all_things,all_x_e
+    global all_things,all_x_e,all_im_e
     all_things = thing.copy()
 
     all_x_e=np.array([np.concatenate((i.x0,np.array([2*i.z]))) for i in all_things])
+    all_im_e=np.array([i.im for i in all_things])
 
 
 
@@ -3544,7 +3563,7 @@ xg = 0
 logL = []
 C_log = 0
 impact = pygame.image.load('./image/effects/impact0.png')
-averaged_time = np.full((22), 0.)
+averaged_time = np.full((23), 0.)
 elastic_count=0
 Ratio=window[0]/960
 x_d=[(0.,0.)]
@@ -4304,8 +4323,13 @@ while running == 1:
                         time_in_render_o += i.time[0]
                         label_t_render_o = i.time[1]
     milliseconds.append(time.perf_counter()*1000)
-
     label_deltat.append('things')
+
+    Im = thing_render(ang[0], ang[1], R_c, all_x_e, Im, S_i, all_im_e)
+
+    milliseconds.append(time.perf_counter()*1000)
+    label_deltat.append('things_parallel')
+
     if len(L0) > 0:
         if L0[0].test_behind(TAN2, scrnL, horizon):
             Im = L0[0].render(depth, Xthing, Ything, scrnL, light_array, level_light, TORCHE, torch_on, arme, shoot,
@@ -4331,7 +4355,7 @@ while running == 1:
     if fire:
         Im = np.minimum(Im + 100 * TORCHE, 255)
 
-    Im = thing_render(ang[0], ang[1], R_c, all_x_e, Im)
+
     Im=np.maximum(Im,0)
 
     fond = pygame.Surface((160-6,80-6))#to improve
@@ -4544,7 +4568,7 @@ while running == 1:
         time_wall=[]
         time_behind = []
         time_tot=[]
-        averaged_time = np.full((22), 0.)
+        averaged_time = np.full((23), 0.)
 
 
 
