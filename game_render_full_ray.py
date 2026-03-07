@@ -110,7 +110,7 @@ import numpy as np
 @njit(parallel=True, fastmath=True)
 def intersect(screenV, screenP, cell_array, cell_size,
               all_a, all_b, all_X,
-              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im):
+              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light):
 
     X0 = screenP[0, 0]
 
@@ -126,6 +126,7 @@ def intersect(screenV, screenP, cell_array, cell_size,
     Im = np.full((w, h, 3), 0, dtype=np.float32)
     S = np.full((w, h, 3), 1e6, dtype=np.float32)
     Xl = np.full((w, h, 3), 1e6, dtype=np.float32)
+    POS_l = np.full((w, h), 1e6, dtype=np.float32)
     wall_ind = np.zeros((w, h), np.int32)
 
     n_obj = len(all_a)
@@ -331,9 +332,19 @@ def intersect(screenV, screenP, cell_array, cell_size,
                     Im[i, jj, 0] =im[gu, gv + shift,0]
                     Im[i, jj, 1] = im[gu, gv + shift, 1]
                     Im[i, jj, 2] = im[gu, gv + shift, 2]
+                    light_x=all_light[obj1]
+                    dm=1e6
+                    for k in (light_x):
+                        dx2=k[0]-Xl[i,jj,0]
+                        dy2=k[1]-Xl[i,jj,1]
+                        dz2=k[2]-Xl[i,jj,2]
+                        d=dx2*dx2+dy2*dy2+dz2*dz2
+                        if dm>d:
+                            dm=d
+                    POS_l[i, jj]=np.sqrt(dm)
                 break
 
-    return S, wall_ind,Xl,Im
+    return S, wall_ind,Xl,Im,POS_l
 
 
 
@@ -3349,7 +3360,7 @@ def load_level(level_name):
     all_inv_det = np.array([1.0 / (all_aa[i]*all_bb[i] - all_ab[i]**2) for i in range(len(all_walls))])
 
 
-    global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im
+    global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light
     all_opening=np.array([i.opening for i in all_walls])
     all_freq=np.array([i.freq for i in all_walls])
     all_phase = np.array([i.phase_ for i in all_walls])
@@ -3358,10 +3369,11 @@ def load_level(level_name):
 
     all_trans_im = List()
     all_wall_im = List()
-
+    all_light = List()
     for element in all_walls:
         inner = List.empty_list(types.boolean[:, :])
         inner_im = List.empty_list(types.float32[:,:,:])
+        inner_light= List.empty_list(types.float32[:])
 
         if isinstance(element.trans_im, list) and len(element.trans_im) > 0:
             for arr in element.trans_im:
@@ -3371,11 +3383,19 @@ def load_level(level_name):
             for arr in element.wall_im:
                 inner_im.append(arr.astype(np.float32))
 
+        if element.ID in light_wall.keys():
+            for light_x in light_wall[element.ID]:
+                inner_light.append(source_pos(light_x).astype(np.float32))
+
         # If element was 0 or empty → just append empty inner list
         all_trans_im.append(inner)
         all_wall_im.append(inner_im)
+        all_light.append(inner_light)
 
-
+    # for cg, i in enumerate(wall_rend):
+    #     if i.ID in light_wall.keys():
+    #         Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
+    #
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
     height_list.sort()
@@ -4000,7 +4020,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light)
     if key[K_u]:
         plt.imshow(Im_ray/255)
         plt.show()
@@ -4012,8 +4032,8 @@ while running == 1:
     if render_type=='ray':
 
         uniq, wall_index = np.unique(wall_ind_i, return_inverse=True)
-        wall_index = wall_index.reshape(wall_ind_i.shape)
-
+        # wall_index = wall_index.reshape(wall_ind_i.shape)
+        #
         wall_rend = np.array(all_walls)[uniq]
         render_w = uniq.size
 
@@ -4047,35 +4067,35 @@ while running == 1:
         #                                 u[:, :, 0] < 120 + 1000 * tile_z_g[wall_index])] * light_g[wall_index]
         texture=Im_ray
         Im = texture
-        Xsource_g = np.empty((4, len(wall_rend), 3))
-        torch_shine = False
-        for cg, i in enumerate(wall_rend):
-            if i.ID in light_wall.keys():
-                Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
-                X0 = [x for _, x in sorted(zip(Y0, light_wall[i.ID]))]
-                Xsource_g[:, cg, :] = np.array(
-                    [source_pos(X0[k]) if k < len(X0) else np.array([1e9, 0., 0.]) for k in range(4)])
-            else:
-                if uniq[cg]!=0:
-                    torch_shine = True
+        # Xsource_g = np.empty((4, len(wall_rend), 3))
+        # torch_shine = False
+        # for cg, i in enumerate(wall_rend):
+        #     if i.ID in light_wall.keys():
+        #         Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
+        #         X0 = [x for _, x in sorted(zip(Y0, light_wall[i.ID]))]
+        #         Xsource_g[:, cg, :] = np.array(
+        #             [source_pos(X0[k]) if k < len(X0) else np.array([1e9, 0., 0.]) for k in range(4)])
+        #     else:
+        #         if uniq[cg]!=0:
+        #             torch_shine = True
+        #
+        # a_g = np.array([i.a[0, 0, :] for i in wall_rend])
+        # b_g = np.array([i.b[0, 0, :] for i in wall_rend])
+        # x_g = np.array([i.X[0, 0, :] for i in wall_rend])
+        #
+        # # Xl = S_g_r[:, :, 0, None] * a_g[wall_index, :] + S_g_r[:, :, 1, None] * b_g[wall_index, :] + x_g[wall_index,
+        # #                                                                                              :]
+        # if torch_shine:
+        #     Im = Im * torch_on * TORCHE ** 3
+        #     POS = np.linalg.norm(Xl - R_c, axis=-1) ** 0.5
+        # else:
+        #     POS = np.amin(np.linalg.norm(Xl[:, :, :] - Xsource_g[:, wall_index, :], axis=-1), axis=0)
+        #
+        # if explo != 0:
+        #     explo_R = np.minimum(explo_R,
+        #                          np.linalg.norm(Xl - np.array([explo_pt[0], explo_pt[1], 0.]), axis=-1)[:, :, None])
 
-        a_g = np.array([i.a[0, 0, :] for i in wall_rend])
-        b_g = np.array([i.b[0, 0, :] for i in wall_rend])
-        x_g = np.array([i.X[0, 0, :] for i in wall_rend])
-
-        # Xl = S_g_r[:, :, 0, None] * a_g[wall_index, :] + S_g_r[:, :, 1, None] * b_g[wall_index, :] + x_g[wall_index,
-        #                                                                                              :]
-        if torch_shine:
-            Im = Im * torch_on * TORCHE ** 3
-            POS = np.linalg.norm(Xl - R_c, axis=-1) ** 0.5
-        else:
-            POS = np.amin(np.linalg.norm(Xl[:, :, :] - Xsource_g[:, wall_index, :], axis=-1), axis=0)
-
-        if explo != 0:
-            explo_R = np.minimum(explo_R,
-                                 np.linalg.norm(Xl - np.array([explo_pt[0], explo_pt[1], 0.]), axis=-1)[:, :, None])
-
-
+        POS=POS_l
 
 
     if moving_cam == True:
