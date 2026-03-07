@@ -286,6 +286,7 @@ def intersect(screenV, screenP, cell_array, cell_size,
                                     freq = all_freq[obj]
                                     if ((-iv // 120 + all_phase[obj] - freq + 1) % freq) == 0:
                                         shift = 120
+
                                     else:
                                         shift = 0
                                     trans=all_trans_im[obj][0]
@@ -312,9 +313,10 @@ def intersect(screenV, screenP, cell_array, cell_size,
                     done = False
                     break
 
-            if done:
+            if done or g==99:
                 for jj in range(h):
                     obj1=wall_ind[i, jj]
+                    tile_z = all_tile_z[obj1]
                     u=S[i, jj,0]
                     v=S[i, jj,1]
                     f = all_format[obj1]
@@ -326,6 +328,8 @@ def intersect(screenV, screenP, cell_array, cell_size,
                     freq = all_freq[obj1]
                     if ((-iv // 120 + all_phase[obj1] - freq + 1) % freq) == 0:
                         shift = 120
+                        if iu // 120 > 0 and not (tile_z):
+                            shift = 0
                     else:
                         shift = 0
                     im = all_wall_im[obj1][0]
@@ -346,7 +350,38 @@ def intersect(screenV, screenP, cell_array, cell_size,
 
     return S, wall_ind,Xl,Im,POS_l
 
+@njit(parallel=True, fastmath=True)
+def thing_render(a0,a1,x_perso,all_x_e,Im):
+    c0 = np.cos(a0)
+    s0 = np.sin(-a0)
 
+    c1 = np.cos(a1)
+    s1 = np.sin(a1)
+
+    f=scrnL[0]/TAN2
+    W=scrnL[0]*2
+    H=scrnL[1]*2
+
+    for i in range(len(all_x_e)):
+        x_e=all_x_e[i]
+        d = x_e - x_perso
+        dx, dy, dz = d
+
+
+        x1 = c0 * dx + s0 * dy
+        if x1>0:
+            y1 = -s0 * dx + c0 * dy
+            z1 = dz
+
+            x2 = c1 * x1 - s1 * z1
+            y2 = y1
+            z2 = s1 * x1 + c1 * z1
+
+            sx = int(W * 0.5 + f * y2 / x2)
+            sy = int(H * 0.5 - f * z2 / x2)
+            if sx>0 and sx<W and sy>0 and sy<H:
+                Im[sx,sy,0]=255
+    return Im
 
 def source_pos(code):
     x = (int(code.split(',')[0]) - 50) * 2
@@ -3392,10 +3427,8 @@ def load_level(level_name):
         all_wall_im.append(inner_im)
         all_light.append(inner_light)
 
-    # for cg, i in enumerate(wall_rend):
-    #     if i.ID in light_wall.keys():
-    #         Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
-    #
+
+
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
     height_list.sort()
@@ -3442,7 +3475,10 @@ def load_level(level_name):
             if thing[-1].type_M == 1:
                 difficulty_var[3] +=20
 
+    global all_things,all_x_e
+    all_things = thing.copy()
 
+    all_x_e=np.array([np.concatenate((i.x0,np.array([2*i.z]))) for i in all_things])
 
 
 
@@ -4098,6 +4134,7 @@ while running == 1:
         POS=POS_l
 
 
+
     if moving_cam == True:
         Im_cached = Im
         depth_cached = depth
@@ -4142,6 +4179,7 @@ while running == 1:
             level_light = np.minimum(level_light + 0.1 * np.array([1, 1, 1.]), np.array([1, 1, 1.]))
 
     old_render_sky=False
+    # Sky_view=True
     if Sky_view and old_render_sky:
         LAND = np.roll(LAND0, int(ang[0] * 12 * scrnL[0] / (2 * pi)), axis=0)
         LAND = LAND[:2 * scrnL[0], :, :]
@@ -4293,10 +4331,11 @@ while running == 1:
     if fire:
         Im = np.minimum(Im + 100 * TORCHE, 255)
 
+    Im = thing_render(ang[0], ang[1], R_c, all_x_e, Im)
     Im=np.maximum(Im,0)
 
     fond = pygame.Surface((160-6,80-6))#to improve
-
+    Sky_view=True
     if Sky_view:
         if level==6:
             movement+=-sin(ang[0])/ 500
