@@ -107,8 +107,42 @@ def create_cell_array(cell_size):
 from numba import njit, prange
 import numpy as np
 
+def build_cell_csr(cell_array):
+
+    nx = len(cell_array)
+    ny = len(cell_array[0])
+
+    n_cells = nx * ny
+
+    # count total objects
+    total = 0
+    for cx in range(nx):
+        for cy in range(ny):
+            total += len(cell_array[cx][cy])
+
+    cell_objects = np.empty(total, dtype=np.int32)
+    cell_start   = np.empty(n_cells, dtype=np.int32)
+    cell_count   = np.empty(n_cells, dtype=np.int32)
+
+    index = 0
+
+    for cy in range(ny):
+        for cx in range(nx):
+
+            cell_id = cx + cy * nx
+            cell = cell_array[cx][cy]
+
+            cell_start[cell_id] = index
+            cell_count[cell_id] = len(cell)
+
+            for obj in cell:
+                cell_objects[index] = obj
+                index += 1
+
+    return cell_start, cell_count, cell_objects
+
 @njit(parallel=True, fastmath=True)
-def intersect(screenV, screenP, cell_array, cell_size,
+def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
               all_a, all_b, all_X,
               all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light):
 
@@ -213,7 +247,10 @@ def intersect(screenV, screenP, cell_array, cell_size,
             elif cy >= 500 // cell_size:
                 cy = 500 // cell_size - 1
 
-            cell = cell_array[cx][cy]
+            cell_id = cx + cy * (500 // cell_size)
+
+            start = cell_start[cell_id]
+            count = cell_count[cell_id]
 
             # For each subpixel
             for j in range(h):
@@ -225,9 +262,8 @@ def intersect(screenV, screenP, cell_array, cell_size,
 
 
 
-                for k in range(len(cell)):
-
-                    obj = cell[k]
+                for k in range(start, start + count):
+                    obj = cell_objects[k]
 
 
                     if visited[j, obj] == 1:
@@ -3169,7 +3205,7 @@ def check_trigger():
 
 
 def load_level(level_name):
-    global cell_array_z,cell_array_N,all_inv_det,all_ab,all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global cell_start, cell_count, cell_objects,cell_array_z,cell_array_N,all_inv_det,all_ab,all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     CARTE = [0, 0, 0]
     level = int(level_name)
     if level==5:
@@ -3416,6 +3452,7 @@ def load_level(level_name):
     ax[2].imshow(cell_array_z[:,:,0])
     ax[3].imshow(cell_array_z[:, :, 1])
     plt.show()
+    cell_start, cell_count, cell_objects = build_cell_csr(cell_array)
     all_walls=wall.copy()
     all_a=np.array([i.a[0,0,:] for i in all_walls])
     all_b = np.array([i.b[0, 0, :] for i in all_walls])
@@ -4103,7 +4140,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l=intersect(screenV,screenP,cell_array,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l=intersect(screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light)
     if key[K_u]:
         plt.imshow(Im_ray/255)
         plt.show()
