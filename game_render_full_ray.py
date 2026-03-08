@@ -241,6 +241,13 @@ def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
             t_max_y = 1e9
             t_delta_y = 1e9
 
+        if t_max_x < t_max_y:
+            ix -= step_x
+            t_max_x -= t_delta_x
+        else:
+            iy -= step_y
+            t_max_y -= t_delta_y
+
         # Grid traversal
         for g in range(100):
 
