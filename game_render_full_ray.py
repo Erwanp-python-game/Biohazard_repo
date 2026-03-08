@@ -61,7 +61,7 @@ screenP = screen[:, :, :3]
 
 CENTER = np.expand_dims(np.linalg.norm(screen[:, :, :3] - [0, 0, 0], axis=-1).repeat(2, axis=0).repeat(2, axis=1), -1)
 TORCHE = np.expand_dims(
-    (np.maximum(np.cos(I_n[:, :, 0] * pi / 2) * np.cos(I_n[:, :, 1] * 2 * pi / 2), 0)).repeat(2, axis=0).repeat(2,
+    (np.maximum(np.cos(I_n[:, :, 0] * pi / 2) * np.cos(I_n[:, :, 1] * 2 * pi / 2), 0)).repeat(4, axis=0).repeat(4,
                                                                                                                 axis=1),
     -1)
 torch_on = 0
@@ -76,7 +76,7 @@ height_list=[]
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 6
+level = 4
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -154,8 +154,8 @@ def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
     I0x = int(origin_x) // cell_size
     I0y = int(origin_y) // cell_size
 
-    w=160
-    h=80
+    w=160*2
+    h=80*2
     
     Im = np.full((w, h, 3), 0, dtype=np.float32)
     S = np.full((w, h, 3), 1e6, dtype=np.float32)
@@ -177,29 +177,48 @@ def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
 
         # Precompute rays for this row once
         rays = np.empty((h, 3), np.float32)
-        i0 = i // 2
-        i1 = (i + 1) // 2
-        if i1 > w//2-1:
-            i1 = w//2-1
+        i0 = i // 4
+
+        i1 = (i + 1) // 4
+        if i1 > w//4-1:
+            i1 = w//4-1
+
+        i2 = (i + 2) // 4
+        if i2 > w//4-1:
+            i2 = w//4-1
+
+        i3 = (i + 3) // 4
+        if i3 > w//4-1:
+            i3 = w//4-1
+
+
 
         for j in range(h):
-            j0 = j // 2
-            j1 = (j + 1) // 2
-            if j1 > h//2-1:
-                j1 = h//2-1
+            j0 = j // 4
+            j1 = (j + 1) // 4
+            j2 = (j + 2) // 4
+            j3 = (j + 3) // 4
+            if j1 > h//4-1:
+                j1 = h//4-1
+            if j2 > h//4-1:
+                j2 = h//4-1
+            if j3 > h//4-1:
+                j3 = h//4-1
+
 
             r0 = screenV[i0, j0]
             r1 = screenV[i1, j1]
-
-            rays[j, 0] = 0.5 * (r0[0] + r1[0])
-            rays[j, 1] = 0.5 * (r0[1] + r1[1])
-            rays[j, 2] = 0.5 * (r0[2] + r1[2])
+            r2 = screenV[i2, j2]
+            r3 = screenV[i3, j3]
+            rays[j, 0] = 0.25 * (r0[0] + r1[0]+r2[0] + r3[0])
+            rays[j, 1] = 0.25 * (r0[1] + r1[1]+r2[1] + r3[1])
+            rays[j, 2] = 0.25 * (r0[2] + r1[2]+r2[2] + r3[2])
 
         # DDA setup
         ix = I0x
         iy = I0y
 
-        ray0 = rays[h//2]  # representative ray for stepping
+        ray0 = rays[h//4]  # representative ray for stepping
         dx = ray0[0]
         dy = ray0[1]
 
@@ -407,10 +426,12 @@ def thing_render(a0,a1,x_perso,all_x_e,Im,S,all_im_e,all_RA):
     c1 = np.cos(a1)
     s1 = np.sin(a1)
 
-    f1=scrnL[0]/TAN2
-    f2 = scrnL[1] / TAN1
-    W=scrnL[0]*2
-    H=scrnL[1]*2
+    W=scrnL[0]*2*2
+    H=scrnL[1]*2*2
+
+    f1=scrnL[0]*2/TAN2
+    f2 = scrnL[1]*2 / TAN1
+
 
     for i in range(len(all_x_e)):
         x_e=all_x_e[i]
@@ -422,15 +443,17 @@ def thing_render(a0,a1,x_perso,all_x_e,Im,S,all_im_e,all_RA):
         x1 = c0 * dx + s0 * dy
         if x1>0:
             y1 = -s0 * dx + c0 * dy
-            z1 = dz
+            z1 = -dz
 
             x2 = c1 * x1 - s1 * z1
             y2 = y1
             z2 = s1 * x1 + c1 * z1
 
+
+
             sx = int(W * 0.5 + f1 * y2 / x2)
             sy = int(H * 0.5 - f2 * z2 / x2)
-            width = int(RA * 2 * scrnL[0] / x1)
+            width = int(RA *  W / x1)
             if sx+width//2>0 and sx-width//2<W and sy+width//2>0 and sy-width//2<H: #and S[sx,sy,2]>x1:
 
                 for gx in range(0,width):
@@ -1605,6 +1628,7 @@ class Thing():
             self.orient = random() * pi
         self.z = zmap[int(self.x0[1] + 100) // 2][int(self.x0[0] + 100) // 2]
         all_x_e[self.num]=np.concatenate((self.x0, np.array([2 * self.z])))
+
         spot = 1
         if arme in [0, 4]:
             spot = 0
@@ -1958,38 +1982,38 @@ class Object():
             colorT*=np.array([1,0,0])
 
 
-        SQUARE = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
-                    Xthing >= self.DX + scrnL[0]) & (Ything <= self.widthY + self.DY + scrnL[1]) & (
-                             Ything >= self.DY + scrnL[1])
+        # SQUARE = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
+        #             Xthing >= self.DX + scrnL[0]) & (Ything <= self.widthY + self.DY + scrnL[1]) & (
+        #                      Ything >= self.DY + scrnL[1])
 
-        # self.U = np.stack(((Xthing - self.DX - scrnL[0]) / self.width, (Ything - self.DY - scrnL[1]) / self.widthY),
-        #                   -1) * np.expand_dims(SQUARE, -1)
 
-        # channel 0
-        self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
-        self.U[..., 0] *= SQUARE
 
-        # channel 1
-        self.U[..., 1] = (Ything - self.DY - scrnL[1]) / self.widthY
-        self.U[..., 1] *= SQUARE
+        # # channel 0
+        # self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
+        # self.U[..., 0] *= SQUARE
+        #
+        # # channel 1
+        # self.U[..., 1] = (Ything - self.DY - scrnL[1]) / self.widthY
+        # self.U[..., 1] *= SQUARE
+        #
+        # self.G = np.maximum((self.U * 160).astype(int), 0)
 
-        self.G = np.maximum((self.U * 160).astype(int), 0)
-        #Ar = np.moveaxis(self.im[tuple(map(tuple, self.G.T))] * colorT, 1, 0)
-        self.Ar = self.im[self.G[..., 0], self.G[..., 1]] * colorT
-        if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
-            self.Ar = self.Ar * torch_on * TORCHE3
-            self.Ar /=  0.1 * np.sqrt(self.norm)
-            np.minimum(self.Ar, 255, out=self.Ar)
-        else:
-            self.Ar = self.Ar * level_light
-        self.Ut = self.vis[self.G[..., 0], self.G[..., 1]]
+        # self.Ar = self.im[self.G[..., 0], self.G[..., 1]] * colorT
+        # if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
+        #     self.Ar = self.Ar * torch_on * TORCHE3
+        #     self.Ar /=  0.1 * np.sqrt(self.norm)
+        #     np.minimum(self.Ar, 255, out=self.Ar)
+        # else:
+        #     self.Ar = self.Ar * level_light
+        # self.Ut = self.vis[self.G[..., 0], self.G[..., 1]]
         self.shot=[]
         if shoot==1:
             x_d0=[]
             self.inline=False
             for i in range(len(x_d)):
-                inline = min(np.sum(self.Ut[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
-                                1)
+                # inline = min(np.sum(self.Ut[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
+                #                 1)
+                inline=True
                 self.inline=(self.inline or inline)
                 self.shot.append(i)
                 if not inline:
@@ -1998,7 +2022,7 @@ class Object():
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('end')
         self.time = ((np.array(milliseconds) - np.roll(np.array(milliseconds), 1))[1:], label_m)
-        return self.Ar
+        return None
 
 
 class Object_parallax():
@@ -2425,10 +2449,10 @@ for i in MG0:
     for j in i.keys():
         if setting['smooth'] == False:
             MG2[j] = pygame.transform.scale(
-                pygame.transform.scale(pygame.image.load('image/gun/' + i[j]), (2 * scrnL[0], 2 * scrnL[1])), window)
+                pygame.transform.scale(pygame.image.load('image/gun/' + i[j]), (2*2 * scrnL[0], 2*2 * scrnL[1])), window)
         else:
             MG2[j] = pygame.transform.smoothscale(
-                pygame.transform.scale(pygame.image.load('image/gun/' + i[j]), (2 * scrnL[0], 2 * scrnL[1])), window)
+                pygame.transform.scale(pygame.image.load('image/gun/' + i[j]), (2*2 * scrnL[0], 2*2 * scrnL[1])), window)
     MG1.append(MG2)
 f.close()
 VIE = 100
@@ -4423,7 +4447,7 @@ while running == 1:
 
     Im=np.maximum(Im,0)
 
-    fond = pygame.Surface((160-6,80-6))#to improve
+    fond = pygame.Surface((2*160-6,2*80-6))#to improve
     Sky_view=True
     if Sky_view:
         if level==6:
