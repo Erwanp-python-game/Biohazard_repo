@@ -76,7 +76,7 @@ height_list=[]
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 4
+level = 2
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
