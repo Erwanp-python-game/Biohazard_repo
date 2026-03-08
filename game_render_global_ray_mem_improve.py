@@ -1692,6 +1692,7 @@ class Thing():
 import matplotlib.pyplot as plt
 class Object():
     def __init__(self, x0, type_M, vivant, group):
+
         self.RA = levelD[level]['RA'][type_M]  # *(1+0.2*(random()-0.5))
         self.x0 = x0
         self.norm = np.linalg.norm(self.x0 - x + [1, 0])

@@ -223,9 +223,12 @@ def intersect(screenV, screenP, cell_array, cell_size,
 
                 ray = rays[j]
 
+
+
                 for k in range(len(cell)):
 
                     obj = cell[k]
+
 
                     if visited[j, obj] == 1:
                         continue
@@ -234,8 +237,9 @@ def intersect(screenV, screenP, cell_array, cell_size,
 
                     a = all_a[obj]
                     b = all_b[obj]
-                    X = all_X[obj]
                     n = all_n[obj]
+                    X = all_X[obj]
+
                     aa = all_aa[obj]
                     bb = all_bb[obj]
                     ab = all_ab[obj]
@@ -259,6 +263,15 @@ def intersect(screenV, screenP, cell_array, cell_size,
                             px = X0[0] + t_ * ray[0]
                             py = X0[1] + t_ * ray[1]
                             pz = X0[2] + t_ * ray[2]
+
+                            # if n[0] == 0 and n[1] == 0:
+                            #
+                            #     if pz < cell_array_z[cx][cy][0]  and X[2] > 0:
+                            #         visited[j, obj] = 0
+                            #         continue
+                            #     if pz > cell_array_z[cx][cy][1]  and X[2] < 0:
+                            #         visited[j, obj] = 0
+                            #         continue
 
                             ax = px - X[0]
                             ay = py - X[1]
@@ -351,7 +364,7 @@ def intersect(screenV, screenP, cell_array, cell_size,
     return S, wall_ind,Xl,Im,POS_l
 
 @njit( fastmath=True)
-def thing_render(a0,a1,x_perso,all_x_e,Im,S,all_im_e):
+def thing_render(a0,a1,x_perso,all_x_e,Im,S,all_im_e,all_RA):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -362,14 +375,14 @@ def thing_render(a0,a1,x_perso,all_x_e,Im,S,all_im_e):
     f2 = scrnL[1] / TAN1
     W=scrnL[0]*2
     H=scrnL[1]*2
-    RA=6
+
     for i in range(len(all_x_e)):
         x_e=all_x_e[i]
         im = all_im_e[i]
         d = x_e - x_perso
         dx, dy, dz = d
 
-
+        RA=all_RA[i]
         x1 = c0 * dx + s0 * dy
         if x1>0:
             y1 = -s0 * dx + c0 * dy
@@ -1304,63 +1317,63 @@ def render_numba(screenX, screenY, wallN, wall_a, wall_b, wall_x, screenV, scree
 
     return S_out
 
-
-@njit(parallel=True, fastmath=True)
-def render_ray_step_sign(screenX, screenY, wallN, wall_a, wall_b, wall_x, screenV, screenP,
-                         step_size=10., max_steps=50):
-    """
-    Ray-stepping renderer that correctly handles wall side orientation.
-
-    screenX, screenY: screen resolution
-    wallN: number of walls
-    wall_a, wall_b: wall direction vectors (3D)
-    wall_x: wall positions (3D)
-    screenV: ray direction vector (3D)
-    screenP: ray origin (3D)
-    step_size: distance increment along ray
-    max_steps: maximum number of steps per pixel
-    """
-    S_out = np.zeros((screenX, screenY, 3))  # final intersection points or last position
-
-    for i in prange(screenX):  # only outer loop parallel
-        for j in range(screenY):
-            ray_pos = screenP.copy()
-            intersect_found = False
-
-            for k in range(wallN):
-                # precompute wall normal and initial side
-                a = wall_a[k]
-                b = wall_b[k]
-                x0 = wall_x[k]
-                normal = np.cross(a, b)
-                initial_side = np.dot(ray_pos - x0, normal)
-
-                # store for comparison
-                wall_a[k] = normal  # optional if needed
-
-            for s in range(max_steps):
-                for k in range(wallN):
-                    a = wall_a[k]
-                    b = wall_b[k]  # unused here; just keep loop structure
-                    x0 = wall_x[k]
-                    normal = np.cross(a, b)
-                    side = np.dot(ray_pos - x0, normal)
-
-                    # detect sign flip relative to initial side
-                    if side * initial_side <= 0.0:
-                        S_out[i, j] = ray_pos
-                        intersect_found = True
-                        break  # exit wall loop
-
-                if intersect_found:
-                    break  # exit stepping loop
-
-                ray_pos += np.array([1.,0.,0.])
-
-            if not intersect_found:
-                S_out[i, j] = ray_pos
-
-    return S_out
+#
+# @njit(parallel=True, fastmath=True)
+# def render_ray_step_sign(screenX, screenY, wallN, wall_a, wall_b, wall_x, screenV, screenP,
+#                          step_size=10., max_steps=50):
+#     """
+#     Ray-stepping renderer that correctly handles wall side orientation.
+#
+#     screenX, screenY: screen resolution
+#     wallN: number of walls
+#     wall_a, wall_b: wall direction vectors (3D)
+#     wall_x: wall positions (3D)
+#     screenV: ray direction vector (3D)
+#     screenP: ray origin (3D)
+#     step_size: distance increment along ray
+#     max_steps: maximum number of steps per pixel
+#     """
+#     S_out = np.zeros((screenX, screenY, 3))  # final intersection points or last position
+#
+#     for i in prange(screenX):  # only outer loop parallel
+#         for j in range(screenY):
+#             ray_pos = screenP.copy()
+#             intersect_found = False
+#
+#             for k in range(wallN):
+#                 # precompute wall normal and initial side
+#                 a = wall_a[k]
+#                 b = wall_b[k]
+#                 x0 = wall_x[k]
+#                 normal = np.cross(a, b)
+#                 initial_side = np.dot(ray_pos - x0, normal)
+#
+#                 # store for comparison
+#                 wall_a[k] = normal  # optional if needed
+#
+#             for s in range(max_steps):
+#                 for k in range(wallN):
+#                     a = wall_a[k]
+#                     b = wall_b[k]  # unused here; just keep loop structure
+#                     x0 = wall_x[k]
+#                     normal = np.cross(a, b)
+#                     side = np.dot(ray_pos - x0, normal)
+#
+#                     # detect sign flip relative to initial side
+#                     if side * initial_side <= 0.0:
+#                         S_out[i, j] = ray_pos
+#                         intersect_found = True
+#                         break  # exit wall loop
+#
+#                 if intersect_found:
+#                     break  # exit stepping loop
+#
+#                 ray_pos += np.array([1.,0.,0.])
+#
+#             if not intersect_found:
+#                 S_out[i, j] = ray_pos
+#
+#     return S_out
 
 
 
@@ -1374,6 +1387,8 @@ Boule = []
 
 class Thing():
     def __init__(self, x0, type_M, vivant, group):
+        self.num=len(thing)
+        self.thing_t = 1
         self.x0 = x0
         self.norm = np.linalg.norm(self.x0 - x + [1, 0])
         self.width = 2 * scrnL[0] / self.norm
@@ -1517,7 +1532,7 @@ class Thing():
             return False
 
     def move(self):
-        global VIE, HIT
+        global VIE, HIT,all_x_e
         self.explo_zone()
         self.attack_range = self.norm <= 5
         if self.range == 1:
@@ -1553,6 +1568,7 @@ class Thing():
             self.active = 0
             self.orient = random() * pi
         self.z = zmap[int(self.x0[1] + 100) // 2][int(self.x0[0] + 100) // 2]
+        all_x_e[self.num]=np.concatenate((self.x0, np.array([2 * self.z])))
         spot = 1
         if arme in [0, 4]:
             spot = 0
@@ -1609,46 +1625,34 @@ class Thing():
         global Killed_E,x_d
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
-        if self.attack_range and self.active and self.vie > 0:
-            if self.range == 0:
-                self.im = self.im_dict_attack[c//4]#np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][c // 4]), 255)
-                self.vis=self.vis_dict_attack[c//4]
-            else:
-                # np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][c2 // 8]), 255)
-                # self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
-                self.im = self.im_dict_attack[c2//8]
-                self.vis=self.vis_dict_attack[c2//8]
-
-            if self.type_M==6 and self.shield==0:
-                if self.range == 0:
-                    im=self.im_dict_attack_s[c // 4]
-                    vis=self.vis_dict_attack_s[c // 4]
-                else:
-                    im = self.im_dict_attack_s[c2 // 8]
-                    vis = self.vis_dict_attack_s[c2 // 8]
-                self.im = im
-                self.vis =vis
-                # if self.range == 0:
-                #     im=MDa[self.type_M][c // 4].copy()
-                # else:
-                #     im = MDa[self.type_M][c2 // 8].copy()
-                # im.blit(shield,(0,0))
-                # self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
-                # self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+        # if self.attack_range and self.active and self.vie > 0:
+        #     if self.range == 0:
+        #         self.im = self.im_dict_attack[c//4]
+        #         self.vis=self.vis_dict_attack[c//4]
+        #     else:
+        #
+        #         self.im = self.im_dict_attack[c2//8]
+        #         self.vis=self.vis_dict_attack[c2//8]
+        #
+        #     if self.type_M==6 and self.shield==0:
+        #         if self.range == 0:
+        #             im=self.im_dict_attack_s[c // 4]
+        #             vis=self.vis_dict_attack_s[c // 4]
+        #         else:
+        #             im = self.im_dict_attack_s[c2 // 8]
+        #             vis = self.vis_dict_attack_s[c2 // 8]
+        #         self.im = im
+        #         self.vis =vis
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('attack')
         if (self.inline and shoot == 2 and (self.attack_range or arme != 0)) and self.vie > 0 and arme != 4:
-            self.im = self.im_dict_attack[4]#np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][4]), 255)
-            self.vis = self.vis_dict_attack[4]
-            if self.type_M==6 and self.shield==0:
-                self.im = self.im_dict_attack_s[4]
-                vis = self.vis_dict_attack_s[4]
-                # im=MDa[self.type_M][4].copy()
-                # im.blit(shield,(0,0))
-                # self.im = np.minimum(pygame.surfarray.pixels3d(im), 255)
+            # self.im = self.im_dict_attack[4]
+            # self.vis = self.vis_dict_attack[4]
+            # if self.type_M==6 and self.shield==0:
+            #     self.im = self.im_dict_attack_s[4]
+            #     vis = self.vis_dict_attack_s[4]
 
-            #self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
             if shoot:
                 if arme==2:
                     nb_bullets=5
@@ -1682,8 +1686,8 @@ class Thing():
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('hit and move')
         if self.vie <= 0:
-            self.im = self.im_dict_attack[4 + int(self.mort)]#np.minimum(pygame.surfarray.pixels3d(MDa[self.type_M][4 + int(self.mort)]), 255)
-            self.vis = self.vis_dict_attack[4 + int(self.mort)]#np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+            # self.im = self.im_dict_attack[4 + int(self.mort)]
+            # self.vis = self.vis_dict_attack[4 + int(self.mort)]
             if self.mort < 4:
                 self.mort = min(self.mort + 0.5, 3)
             if self.mort == 0.5:
@@ -1704,64 +1708,61 @@ class Thing():
                                        'image/effects/vert.png', 1))
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('dead')
-        colorT = light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2]
-        if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
-            colorT = np.array([1, 1, 1.])
-        colorT = light_modif(colorT, level, c3)
-        if explo!=0 and np.linalg.norm(self.x0 - explo_pt) < 20:
-            colorT*=np.array([1,0,0])
-
-
-        self.SQUARE[:] = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
-                    Xthing >= self.DX + scrnL[0]) & (Ything <= self.widthY + self.DY + scrnL[1]) & (
-                             Ything >= self.DY + scrnL[1]).astype(bool)
+        # colorT = light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2]
+        # if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
+        #     colorT = np.array([1, 1, 1.])
+        # colorT = light_modif(colorT, level, c3)
+        # if explo!=0 and np.linalg.norm(self.x0 - explo_pt) < 20:
+        #     colorT*=np.array([1,0,0])
+        #
+        #
+        # self.SQUARE[:] = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
+        #             Xthing >= self.DX + scrnL[0]) & (Ything <= self.widthY + self.DY + scrnL[1]) & (
+        #                      Ything >= self.DY + scrnL[1]).astype(bool)
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('square')
 
-        # self.U = np.stack(((Xthing - self.DX - scrnL[0]) / self.width, (Ything - self.DY - scrnL[1]) / self.widthY),
-        #                   -1) * np.expand_dims(SQUARE, -1)
 
-        # channel 0
-        self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
-        self.U[..., 0] *= self.SQUARE
-
-        # channel 1
-        self.U[..., 1] = (Ything - self.DY - scrnL[1]) / self.widthY
-        self.U[..., 1] *= self.SQUARE
+        # # channel 0
+        # self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
+        # self.U[..., 0] *= self.SQUARE
+        #
+        # # channel 1
+        # self.U[..., 1] = (Ything - self.DY - scrnL[1]) / self.widthY
+        # self.U[..., 1] *= self.SQUARE
 
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('U')
-        self.G = np.maximum((self.U * 160).astype(int), 0)
+        # self.G = np.maximum((self.U * 160).astype(int), 0)
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('G')
-        # self.Gx=
-        # self.Gy=
 
-        self.Ar=self.im[self.G[..., 0], self.G[..., 1]]*colorT
+        # self.Ar=self.im[self.G[..., 0], self.G[..., 1]]*colorT
 
-        #Ar = np.moveaxis(self.im[tuple(map(tuple, self.G.T))] * colorT, 1, 0)
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('Ar')
-        if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
-            self.Ar = self.Ar * torch_on * TORCHE3
-            self.Ar /=  0.1 * np.sqrt(self.norm)
-            np.minimum(self.Ar, 255, out=self.Ar)
-        else:
-            self.Ar = self.Ar * level_light
+        # if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
+        #     self.Ar = self.Ar * torch_on * TORCHE3
+        #     self.Ar /=  0.1 * np.sqrt(self.norm)
+        #     np.minimum(self.Ar, 255, out=self.Ar)
+        # else:
+        #     self.Ar = self.Ar * level_light
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('light')
-        #self.Ut = np.moveaxis(self.vis[tuple(map(tuple, self.G.T))], 1, 0)
-        self.Ut = self.vis[self.G[..., 0], self.G[..., 1]]
+
+        # self.Ut = self.vis[self.G[..., 0], self.G[..., 1]]
+
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('Ut')
         if shoot==1:
-            self.inline=False
+            self.inline=True
             self.shot = []
             x_d0=[]
             for i in range(len(x_d)):
-                inline = min(np.sum(self.Ut[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
-                                1)
+                # inline = min(np.sum(self.Ut[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
+                #                 1)
+                inline=True
                 self.inline=(self.inline or inline)
                 self.shot.append(i)
                 if not inline:
@@ -1777,6 +1778,8 @@ class Thing():
 import matplotlib.pyplot as plt
 class Object():
     def __init__(self, x0, type_M, vivant, group):
+        self.num=len(thing)
+        self.thing_t = 0
         self.RA = levelD[level]['RA'][type_M]  # *(1+0.2*(random()-0.5))
         self.x0 = x0
         self.norm = np.linalg.norm(self.x0 - x + [1, 0])
@@ -3166,7 +3169,7 @@ def check_trigger():
 
 
 def load_level(level_name):
-    global all_inv_det,all_ab,all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global cell_array_z,cell_array_N,all_inv_det,all_ab,all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     CARTE = [0, 0, 0]
     level = int(level_name)
     if level==5:
@@ -3343,14 +3346,18 @@ def load_level(level_name):
 
     cell_size=2
     cell_array_N=np.full((500//cell_size,500//cell_size),0)
+    cell_array_z = np.full((500 // cell_size, 500 // cell_size,2), 0)
+    cell_array_z[:,:,0]=50
+    cell_array_z[:, :, 1] = -50
     cell_array = create_cell_array(cell_size)
-    fig,ax=plt.subplots(1,2)
+    fig,ax=plt.subplots(1,4)
     for cw,i in enumerate(wall):
         if i not in h_wall:
             cells=cells_crossed_by_segment(0.5*(i.X[0,0,:-1]+100),0.5*i.b[0,0,:-1],cell_size)
             for u in cells:
                 cell_array_N[int(u[0])][int(u[1])]+=1
                 cell_array[int(u[0])][int(u[1])].append(cw)
+
             ax[0].scatter([i[0] for i in cells],[i[1] for i in cells])
             count_w=0
             h_wall_temp=[]
@@ -3400,7 +3407,14 @@ def load_level(level_name):
             for u in cells:
                 cell_array_N[int(u[0])][int(u[1])]+=1
                 cell_array[int(u[0])][int(u[1])].append(cw)
+                if i.X[0,0,-1]<cell_array_z[int(u[0]),int(u[1]),0] and i.X[0,0,-1]>0:
+                    cell_array_z[int(u[0]),int(u[1]),0]=i.X[0,0,-1]
+                if i.X[0,0,-1]>cell_array_z[int(u[0]),int(u[1]),1] and i.X[0,0,-1]<0:
+                    cell_array_z[int(u[0]),int(u[1]),1]=i.X[0,0,-1]
+
     ax[1].imshow(cell_array_N)
+    ax[2].imshow(cell_array_z[:,:,0])
+    ax[3].imshow(cell_array_z[:, :, 1])
     plt.show()
     all_walls=wall.copy()
     all_a=np.array([i.a[0,0,:] for i in all_walls])
@@ -3493,11 +3507,24 @@ def load_level(level_name):
             if thing[-1].type_M == 1:
                 difficulty_var[3] +=20
 
-    global all_things,all_x_e,all_im_e
+    global all_things,all_x_e,all_im_e,all_RA
     all_things = thing.copy()
 
     all_x_e=np.array([np.concatenate((i.x0,np.array([2*i.z]))) for i in all_things])
-    all_im_e=np.array([i.im for i in all_things])
+    all_RA = np.array([i.RA for i in all_things])
+    all_im_e=np.array([    np.minimum(
+        pygame.surfarray.pixels3d(MD[i.type_M][1][45 * (((-ang[0] + pi / 8 + i.orient) // (pi / 4)) % 8)]),
+        255) if i.thing_t else np.minimum(
+            pygame.surfarray.pixels3d(MO[i.type_M][45 * (((-ang[0] + pi / 8 + i.orient) // (pi / 4)) % 8)]), 255) for i in all_things])
+
+    types_monst=list(set(levelD[level]['mon']))
+    mapping_monst=levelD[level]['mon']
+    print(types_monst,mapping_monst)
+    for t_2 in types_monst:
+        for t_0 in range(4):
+            for t_1 in range(8):
+                all_im_m=np.minimum(pygame.surfarray.pixels3d(MD[t_2][t_0][45*t_1]),255)
+
 
 
 
@@ -3946,13 +3973,14 @@ while running == 1:
     max_depth=1000
     wall_rend=[]
     render_type = 'ray'
+    IS = []
     if render_type!='ray':
         if moving_cam == True:
 
             v_ = screenV[::2, ::2]
             p_ = screenP[::2, ::2]
             Sky_view = 0
-            IS = []
+
             empty_pixel_count=128000
             for ci,i in enumerate(wall[0:wall_count]):
 
@@ -4291,11 +4319,11 @@ while running == 1:
             if i.test_behind():
                 render_C += 1
                 rend_=i.render()
-                mask=i.Ut.astype(bool)
-                Im[mask] = rend_[mask]
+                # mask=i.Ut.astype(bool)
+                # Im[mask] = rend_[mask]
                 #Im =  rend_* np.expand_dims(i.Ut, -1) + Im * (1 - np.expand_dims(i.Ut, -1))
 
-                depth[mask] = i.norm
+                # depth[mask] = i.norm
                 if i in ennemies :
                     render_w_e += 1
                     if render_w_e == 1 :  # and c3==1:
@@ -4325,7 +4353,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things')
 
-    Im = thing_render(ang[0], ang[1], R_c, all_x_e, Im, S_i, all_im_e)
+    Im = thing_render(ang[0], ang[1], R_c, all_x_e, Im, S_i, all_im_e,all_RA)
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
