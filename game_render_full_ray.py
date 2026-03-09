@@ -76,7 +76,7 @@ height_list=[]
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 2
+level = 6
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -3575,7 +3575,7 @@ def load_level(level_name):
             if thing[-1].type_M == 1:
                 difficulty_var[3] +=20
 
-    global all_things,all_x_e,all_im_e,all_RA
+    global all_things,all_x_e,all_im_e,all_RA,all_im_m
     all_things = thing.copy()
 
     all_x_e=np.array([np.concatenate((i.x0,np.array([2*i.z]))) for i in all_things])
@@ -3587,14 +3587,16 @@ def load_level(level_name):
 
     types_monst=list(set(levelD[level]['mon']))
     mapping_monst=levelD[level]['mon']
-    print(types_monst,mapping_monst)
+    mapping=[types_monst.index(mapping_monst[i]) for i in types_monst]
+    print(types_monst,mapping_monst,mapping)
+    all_im_m=np.full((len(types_monst),4,8,160,160,3),0)
     for t_2 in types_monst:
         for t_0 in range(4):
             for t_1 in range(8):
-                all_im_m=np.minimum(pygame.surfarray.pixels3d(MD[t_2][t_0][45*t_1]),255)
+                all_im_m[t_2,t_0,t_1,:,:,:]=np.minimum(pygame.surfarray.pixels3d(MD[t_2][t_0][45*t_1]),255)
 
-
-
+    all_types_e = np.array([mapping[i.type_M] for i in all_things if i.thing_t==1])
+    print(all_types_e)
 
     if 0 in groupD:
         groupD.remove(0)
