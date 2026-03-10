@@ -426,7 +426,7 @@ def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
     return S, wall_ind,Xl,Im,POS_l
 
 @njit( fastmath=True)
-def thing_render(a0,a1,x_perso,all_x_e,Im,S,all_im_e,all_RA):
+def thing_render(counter,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -442,7 +442,11 @@ def thing_render(a0,a1,x_perso,all_x_e,Im,S,all_im_e,all_RA):
 
     for i in range(len(all_x_e)):
         x_e=all_x_e[i]
-        im = all_im_e[i]
+
+        if all_obj_mon[i]:
+            im=all_im_m[all_types_e[i],counter//3,int(all_angle[i]//45),:,:,:]
+        else:
+            im = all_im_o[all_types_e[i], int(all_angle[i]//45), :, :, :]
         d = x_e - x_perso
         dx, dy, dz = d
 
@@ -1495,7 +1499,7 @@ class Thing():
 
 
     def calc_norm(self):
-
+        global all_angle
         self.f0 = (self.x0 - x) @ rot_plan(-ang[0])
         self.norm = np.linalg.norm(self.x0 - x)
         self.width = self.RA * 2 * scrnL[0] / self.f0[0]
@@ -1507,6 +1511,8 @@ class Thing():
         A = 45 * (((atan((self.f0[1] / self.f0[0])) + self.orient - pi / 2 - ang[0] + pi / 8) // (pi / 4)) % 8)
         if A != self.angle:
             self.angle = A
+            all_angle[self.num]=self.angle
+
             self.im = self.im_dict[c // 3][self.angle]  # np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
             self.vis = self.vis_dict[c // 3][self.angle]  # np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
             # self.im = np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
@@ -1893,7 +1899,7 @@ class Object():
         self.vis_dict=dict1.copy()
 
     def calc_norm(self):
-        global VIE, AMMO, Picked_O, CARTE, logL
+        global VIE, AMMO, Picked_O, CARTE, logL,all_angle
         self.f0 = (self.x0 - x) @ rot_plan(-ang[0])
         self.norm = np.linalg.norm(self.x0 - x)
         self.width = self.RA * 2 * scrnL[0] / self.f0[0]
@@ -1904,6 +1910,8 @@ class Object():
         A = 45 * (((atan((self.f0[1] / self.f0[0])) + self.orient - pi / 2 - ang[0] + pi / 8) // (pi / 4)) % 8)
         if A != self.angle:
             self.angle = A
+            all_angle[self.num]=self.angle
+
             #self.im = np.minimum(pygame.surfarray.pixels3d(MO[self.type_M][self.angle]), 255)
             self.im=self.im_dict[self.angle]
             if self.color != 0:
@@ -3575,28 +3583,32 @@ def load_level(level_name):
             if thing[-1].type_M == 1:
                 difficulty_var[3] +=20
 
-    global all_things,all_x_e,all_im_e,all_RA,all_im_m
+    global all_things,all_x_e,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle
     all_things = thing.copy()
 
     all_x_e=np.array([np.concatenate((i.x0,np.array([2*i.z]))) for i in all_things])
     all_RA = np.array([i.RA for i in all_things])
-    all_im_e=np.array([    np.minimum(
-        pygame.surfarray.pixels3d(MD[i.type_M][1][45 * (((-ang[0] + pi / 8 + i.orient) // (pi / 4)) % 8)]),
-        255) if i.thing_t else np.minimum(
-            pygame.surfarray.pixels3d(MO[i.type_M][45 * (((-ang[0] + pi / 8 + i.orient) // (pi / 4)) % 8)]), 255) for i in all_things])
+    # all_im_e=np.array([    np.minimum(
+    #     pygame.surfarray.pixels3d(MD[i.type_M][1][45 * (((-ang[0] + pi / 8 + i.orient) // (pi / 4)) % 8)]),
+    #     255) if i.thing_t else np.minimum(
+    #         pygame.surfarray.pixels3d(MO[i.type_M][45 * (((-ang[0] + pi / 8 + i.orient) // (pi / 4)) % 8)]), 255) for i in all_things])
 
     types_monst=list(set(levelD[level]['mon']))
-    mapping_monst=levelD[level]['mon']
-    mapping=[types_monst.index(mapping_monst[i]) for i in types_monst]
-    print(types_monst,mapping_monst,mapping)
     all_im_m=np.full((len(types_monst),4,8,160,160,3),0)
-    for t_2 in types_monst:
+    for c_0,t_2 in enumerate(types_monst):
         for t_0 in range(4):
             for t_1 in range(8):
-                all_im_m[t_2,t_0,t_1,:,:,:]=np.minimum(pygame.surfarray.pixels3d(MD[t_2][t_0][45*t_1]),255)
+                all_im_m[c_0,t_0,t_1,:,:,:]=np.minimum(pygame.surfarray.pixels3d(MD[t_2][t_0][45*t_1]),255)
 
-    all_types_e = np.array([mapping[i.type_M] for i in all_things if i.thing_t==1])
-    print(all_types_e)
+    types_obj=list(set(levelD[level]['obj']))
+    all_im_o=np.full((len(types_obj),8,160,160,3),0)
+    for c_0,t_2 in enumerate(types_obj):
+        for t_1 in range(8):
+             all_im_o[c_0,t_1,:,:,:]=np.minimum(pygame.surfarray.pixels3d(MO[t_2][45*t_1]),255)
+
+    all_types_e = np.array([types_monst.index(i.type_M)  if i.thing_t==1 else types_obj.index(i.type_M)  for i in all_things])
+    all_obj_mon = np.array([i.thing_t for i in all_things])
+    all_angle = np.array([i.angle for i in all_things])
 
     if 0 in groupD:
         groupD.remove(0)
@@ -4423,7 +4435,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things')
 
-    Im = thing_render(ang[0], ang[1], R_c, all_x_e, Im, S_i, all_im_e,all_RA)
+    Im = thing_render(c,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle)
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
