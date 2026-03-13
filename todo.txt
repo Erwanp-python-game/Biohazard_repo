@@ -22,10 +22,9 @@ wall
 -liquid
 -transparency z_tiling
 -light
+-torche
 
 
-
-finish global render
 
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
 
