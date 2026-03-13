@@ -426,7 +426,7 @@ def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
     return S, wall_ind,Xl,Im,POS_l
 
 @njit( fastmath=True)
-def thing_render(counter,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle):
+def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -444,7 +444,20 @@ def thing_render(counter,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all
         x_e=all_x_e[i]
 
         if all_obj_mon[i]:
-            im=all_im_m[all_types_e[i],counter//3,int(all_angle[i]//45),:,:,:]
+            mort=int(all_mort[i])
+            if mort==0:
+                if all_attack_range[i]:
+                    if all_range[i]:
+                        f=counter2//8
+                    else:
+                        f=counter//4
+                    im = all_ima_m[all_types_e[i],f , :, :, :]
+                else:
+                    im=all_im_m[all_types_e[i],counter//3,int(all_angle[i]//45),:,:,:]
+            else:
+                im=all_ima_m[all_types_e[i],4+mort,:,:,:]
+
+
         else:
             im = all_im_o[all_types_e[i], int(all_angle[i]//45), :, :, :]
         d = x_e - x_perso
@@ -454,7 +467,7 @@ def thing_render(counter,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all
         x1 = c0 * dx + s0 * dy
         if x1>0:
             y1 = -s0 * dx + c0 * dy
-            z1 = -dz
+            z1 = -dz+(0.75*RA-5)
 
             x2 = c1 * x1 - s1 * z1
             y2 = y1
@@ -1604,12 +1617,13 @@ class Thing():
             return False
 
     def move(self):
-        global VIE, HIT,all_x_e
+        global VIE, HIT,all_x_e,all_attack_range,all_range
         self.explo_zone()
         self.attack_range = self.norm <= 5
         if self.range == 1:
             self.attack_range = (self.test_behind()) & (self.norm <= 20)
-
+        all_attack_range[self.num]=self.attack_range
+        all_range[self.num] = self.range
         if not (self.attack_range) and self.active and self.vie > 0:
 
             X0 = nearest_valid(authorized_map, x)
@@ -1695,7 +1709,7 @@ class Thing():
                 s.play()
 
     def render(self):
-        global Killed_E,x_d
+        global Killed_E,x_d,all_mort
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
         # if self.attack_range and self.active and self.vie > 0:
@@ -1761,6 +1775,7 @@ class Thing():
         if self.vie <= 0:
             # self.im = self.im_dict_attack[4 + int(self.mort)]
             # self.vis = self.vis_dict_attack[4 + int(self.mort)]
+            all_mort[self.num]=self.mort
             if self.mort < 4:
                 self.mort = min(self.mort + 0.5, 3)
             if self.mort == 0.5:
@@ -3583,7 +3598,7 @@ def load_level(level_name):
             if thing[-1].type_M == 1:
                 difficulty_var[3] +=20
 
-    global all_things,all_x_e,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle
+    global all_things,all_x_e,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range
     all_things = thing.copy()
 
     all_x_e=np.array([np.concatenate((i.x0,np.array([2*i.z]))) for i in all_things])
@@ -3595,20 +3610,31 @@ def load_level(level_name):
 
     types_monst=list(set(levelD[level]['mon']))
     all_im_m=np.full((len(types_monst),4,8,160,160,3),0)
+    all_ima_m = np.full((len(types_monst), 8, 160, 160, 3), 0)
     for c_0,t_2 in enumerate(types_monst):
-        for t_0 in range(4):
-            for t_1 in range(8):
+        for t_1 in range(8):
+            for t_0 in range(4):
                 all_im_m[c_0,t_0,t_1,:,:,:]=np.minimum(pygame.surfarray.pixels3d(MD[t_2][t_0][45*t_1]),255)
+            all_ima_m[c_0, t_1, :, :, :] = np.minimum(pygame.surfarray.pixels3d(MDa[t_2][t_1]), 255)
+
 
     types_obj=list(set(levelD[level]['obj']))
     all_im_o=np.full((len(types_obj),8,160,160,3),0)
+    print(Mod)
     for c_0,t_2 in enumerate(types_obj):
         for t_1 in range(8):
              all_im_o[c_0,t_1,:,:,:]=np.minimum(pygame.surfarray.pixels3d(MO[t_2][45*t_1]),255)
 
     all_types_e = np.array([types_monst.index(i.type_M)  if i.thing_t==1 else types_obj.index(i.type_M)  for i in all_things])
+    all_mort = np.array(
+        [i.mort if i.thing_t == 1 else 0 for i in all_things])
     all_obj_mon = np.array([i.thing_t for i in all_things])
     all_angle = np.array([i.angle for i in all_things])
+    all_attack_range=np.array(
+        [i.attack_range if i.thing_t == 1 else 0 for i in all_things])
+    all_range=np.array(
+        [i.range if i.thing_t == 1 else 0 for i in all_things])
+
 
     if 0 in groupD:
         groupD.remove(0)
@@ -4435,7 +4461,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things')
 
-    Im = thing_render(c,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle)
+    Im = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range)
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
