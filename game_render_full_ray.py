@@ -439,6 +439,7 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
     f1=scrnL[0]*2/TAN2
     f2 = scrnL[1]*2 / TAN1
 
+    index_e = np.full((W, H), -1, dtype=np.int64)
 
     for i in range(len(all_x_e)):
         x_e=all_x_e[i]
@@ -495,7 +496,8 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
                                     Im[ix,iy,0] = r
                                     Im[ix, iy, 1] = g
                                     Im[ix, iy, 2] = b
-    return Im
+                                    index_e[ix,iy]=i
+    return Im,index_e
 
 def source_pos(code):
     x = (int(code.split(',')[0]) - 50) * 2
@@ -1844,13 +1846,16 @@ class Thing():
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('Ut')
         if shoot==1:
-            self.inline=True
+            self.inline=False
             self.shot = []
             x_d0=[]
             for i in range(len(x_d)):
                 # inline = min(np.sum(self.Ut[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
                 #                 1)
-                inline=True
+
+                inline_e = index_e[int(2*scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(2*scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2*2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2*2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]
+                inline=(inline_e==self.num).any()
+
                 self.inline=(self.inline or inline)
                 self.shot.append(i)
                 if not inline:
@@ -4461,7 +4466,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things')
 
-    Im = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range)
+    Im,index_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range)
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
