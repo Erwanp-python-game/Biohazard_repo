@@ -1,22 +1,33 @@
 best current version is game_render_global_ray_mem_improve.py
 
-first solution keep global indexing
 
+things to do in full ray rendering
+
+ennemies
+-object depth
+-add ennemies when spawned
+-take care of boss
+-lighting
+-shooting through walls
+
+object
+-object destruct
+-ammo/card color
+
+wall
+-anim
+-faces
+-destructible
+-moving walls update X
 -liquid
--double res to test -> ennemies too slow to render
-
-2nd solution
--double res in intersect +move all wall calculation in intersect
--even more in future put ennemies in intersect
+-transparency z_tiling
+-light
 
 
 
 finish global render
 
--liquids
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
--improve scaling of glob wall by making global variables of self.S and self.wall_im (not sure it would work)
--improve depth render
 
 boss invulnerable a envoyer dans incinérateur
 
