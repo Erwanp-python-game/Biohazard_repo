@@ -9,9 +9,6 @@ ennemies
 -torche
 -explo
 
-object
--object destruct
--ammo/card color
 
 wall
 -anim

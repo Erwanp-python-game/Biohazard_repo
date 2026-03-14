@@ -437,7 +437,7 @@ def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
     return S, wall_ind,Xl,Im,POS_l
 
 @njit( fastmath=True)
-def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e):
+def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -452,12 +452,11 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
 
     index_e = np.full((W, H), -1, dtype=np.int64)
     depth_e = np.full((W, H), 1e6, dtype=np.float64)
-    print(len(all_x_e))
     for i in range(len(all_x_e)):
         x_e=all_x_e[i]
-
+        mort = int(all_mort[i])
         if all_obj_mon[i]:
-            mort=int(all_mort[i])
+
             if mort==0:
                 if all_attack_range[i]:
                     if all_range[i]:
@@ -472,7 +471,10 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
 
 
         else:
-            im = all_im_o[all_types_e[i], int(all_angle[i]//45), :, :, :]
+            if mort == 0:
+                im = all_im_o[all_types_e[i], int(all_angle[i]//45), :, :, :]
+            else:
+                im = all_im_o_d[all_types_e[i], mort, :, :, :]
         d = x_e - x_perso
         dx, dy, dz = d
 
@@ -1964,7 +1966,12 @@ class Object():
         colorT = light_modif(colorT, level, 0)
         if explo!=0 and np.linalg.norm(self.x0 - explo_pt) < 20:
             colorT*=np.array([1,0,0])
-        self.light=colorT
+        if self.color!=0:
+            u = np.array([0, 0, 0])
+            u[self.color - 1] = 1
+            self.light = colorT*u
+        else:
+            self.light=colorT
 
     def preprocess_walk(self):
 
@@ -1978,7 +1985,7 @@ class Object():
         self.vis_dict=dict1.copy()
 
     def calc_norm(self):
-        global VIE, AMMO, Picked_O, CARTE, logL,all_angle
+        global VIE, AMMO, Picked_O, CARTE, logL,all_angle,all_x_e
         self.f0 = (self.x0 - x) @ rot_plan(-ang[0])
         self.norm = np.linalg.norm(self.x0 - x)
         self.width = self.RA * 2 * scrnL[0] / self.f0[0]
@@ -2005,12 +2012,14 @@ class Object():
                 VIE = min(100, VIE + 20)
                 draw_vie()
                 self.x0 = np.array([-49., -49])
+                all_x_e[self.num][:-1] = self.x0
                 s = pygame.mixer.Sound("son/plop.ogg")
                 logL.append('healing picked')
                 s.play()
                 Picked_O[0] = Picked_O[0] + 1
             if self.type_M == 2:
                 self.x0 = np.array([-49., -49])
+                all_x_e[self.num][:-1]=self.x0
                 AMMO[self.color - 1] += 10
                 if self.color - 1==2:
                     AMMO[self.color - 1] += 40
@@ -2021,6 +2030,7 @@ class Object():
                 Picked_O[0] = Picked_O[0] + 1
             if self.type_M == 5:
                 self.x0 = np.array([-49., -49])
+                all_x_e[self.num][:-1] = self.x0
                 CARTE[self.color - 1] += 1
                 draw_cards()
                 s = pygame.mixer.Sound("son/plop3.ogg")
@@ -2036,7 +2046,7 @@ class Object():
             return False
 
     def render(self):
-        global Boule, explo, VIE, explo_pt, Killed_O, HIT,x_d,explo_type
+        global Boule, explo, VIE, explo_pt, Killed_O, HIT,x_d,explo_type,all_mort
         self.time=(0,0)
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
@@ -2064,9 +2074,10 @@ class Object():
                     s.play()#
 
         if self.mort < 4 and self.vie <= 0:# improve
-            self.im = np.minimum(pygame.surfarray.pixels3d(Mod[self.type_M][int(self.mort)]), 255)
-            self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+            # self.im = np.minimum(pygame.surfarray.pixels3d(Mod[self.type_M][int(self.mort)]), 255)
+            # self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
             self.mort = min(self.mort + 1, 3)
+            all_mort[self.num]=self.mort
 
         colorT = light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2]
         if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
@@ -2074,7 +2085,12 @@ class Object():
         colorT = light_modif(colorT, level, c3)
         if explo!=0 and np.linalg.norm(self.x0 - explo_pt) < 20:
             colorT*=np.array([1,0,0])
-        self.light=colorT
+        if self.color != 0:
+            u = np.array([0, 0, 0])
+            u[self.color - 1] = 1
+            self.light = colorT * u
+        else:
+            self.light = colorT
         all_light_e[self.num]=self.light
 
         # SQUARE = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
@@ -2169,13 +2185,13 @@ class Object_parallax():
                 if randint(0,100)==0:
                     self.erupt=2
                 if self.erupt==0:
-                    self.imA = pygame.transform.scale(self.im, (int(2*scrnL[0]*self.RA/self.f0[0]),int(2*scrnL[0]*self.RA/self.f0[0])))
+                    self.imA = pygame.transform.scale(self.im, (2*int(2*scrnL[0]*self.RA/self.f0[0]),2*int(2*scrnL[0]*self.RA/self.f0[0])))
                 if self.erupt==1:
                     self.imA = pygame.transform.scale(self.im2, (
-                    int(2 * scrnL[0] * self.RA / self.f0[0]), int(2 * scrnL[0] * self.RA / self.f0[0])))
+                    2*int(2 * scrnL[0] * self.RA / self.f0[0]), 2*int(2 * scrnL[0] * self.RA / self.f0[0])))
                 if self.erupt==2:
                     self.imA = pygame.transform.scale(self.im3, (
-                    int(2 * scrnL[0] * self.RA / self.f0[0]), int(2 * scrnL[0] * self.RA / self.f0[0])))
+                    2*int(2 * scrnL[0] * self.RA / self.f0[0]), 2*int(2 * scrnL[0] * self.RA / self.f0[0])))
                 self.erupt=max(0,self.erupt-0.5)
 
             else:
@@ -2183,7 +2199,7 @@ class Object_parallax():
                 int(2 * scrnL[0] * self.RA / self.f0[0]), int(2 * scrnL[0] * self.RA / self.f0[0])))
             transparency = 255 * min(1, (2000/self.f0[0]))
             self.imA.fill((255,255,255,transparency), special_flags=BLEND_RGBA_MULT)
-            fond.blit(self.imA,  (self.DX+ scrnL[0], 0.3*scrnL[1]+ self.DY+ scrnL[1]))
+            fond.blit(self.imA,  ((self.DX+ scrnL[0])*2, (0.4*scrnL[1]+ self.DY+ scrnL[1])*2))
 
 
 class boule(pygame.sprite.Sprite):
@@ -3332,13 +3348,17 @@ def load_level(level_name):
         LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape1.png'))
         LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
         SKY0_im = pygame.image.load('image/ciel/ciel1.png')
+        SKY0_im = pygame.transform.scale(SKY0_im, (SKY0_im.get_width() * 2, SKY0_im.get_height() * 2))
         LAND0_im = pygame.image.load('image/ciel/lanscape1.png')
+        LAND0_im = pygame.transform.scale(LAND0_im, (LAND0_im.get_width() * 2, LAND0_im.get_height() * 2))
     if level==6:
         SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel2.png'))
         LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape2.png'))
         LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
         SKY0_im = pygame.image.load('image/ciel/ciel2.png')
+        SKY0_im = pygame.transform.scale(SKY0_im, (SKY0_im.get_width() * 2, SKY0_im.get_height() * 2))
         LAND0_im = pygame.image.load('image/ciel/lanscape2.png')
+        LAND0_im = pygame.transform.scale(LAND0_im, (LAND0_im.get_width() * 2, LAND0_im.get_height() * 2))
         #LAND0_im.set_colorkey((0, 255, 255))
 
         op = []
@@ -3664,7 +3684,7 @@ def load_level(level_name):
             if thing[-1].type_M == 1:
                 difficulty_var[3] +=20
 
-    global all_things,all_x_e,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e
+    global all_im_o_d,all_destr,all_things,all_x_e,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e
     all_things = thing.copy()
 
     all_x_e=np.array([np.concatenate((i.x0,np.array([2*i.z]))) for i in all_things])
@@ -3683,14 +3703,21 @@ def load_level(level_name):
 
     types_obj=list(set(levelD[level]['obj']))
     all_im_o=np.full((len(types_obj),8,160,160,3),0.)
-    print(Mod)
+    all_im_o_d = np.full((len(types_obj), 4, 160, 160, 3), 0.)
+
     for c_0,t_2 in enumerate(types_obj):
         for t_1 in range(8):
              all_im_o[c_0,t_1,:,:,:]=np.minimum(pygame.surfarray.pixels3d(MO[t_2][45*t_1]),255)
 
+        for t_3 in range(4):
+            if t_2 in Mod.keys():
+                all_im_o_d[c_0,t_3,:,:,:]=np.minimum(pygame.surfarray.pixels3d(Mod[t_2][t_3]),255)
+
+
+
     all_types_e = np.array([types_monst.index(i.type_M)  if i.thing_t==1 else types_obj.index(i.type_M)  for i in all_things])
     all_mort = np.array(
-        [i.mort if i.thing_t == 1 else 0 for i in all_things])
+        [i.mort if i.thing_t == 1 else i.mort for i in all_things])
     all_obj_mon = np.array([i.thing_t for i in all_things])
     all_angle = np.array([i.angle for i in all_things])
     all_attack_range=np.array(
@@ -3699,6 +3726,9 @@ def load_level(level_name):
         [i.range if i.thing_t == 1 else 0 for i in all_things])
 
     all_light_e = np.array([i.light for i in all_things])
+
+    all_destr=np.array([i.type_M in destr  for i in all_things])
+
 
     if 0 in groupD:
         groupD.remove(0)
@@ -3721,7 +3751,9 @@ LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1)
 
 
 SKY0_im=pygame.image.load('image/ciel/ciel0.png')
+SKY0_im=pygame.transform.scale(SKY0_im,(SKY0_im.get_width()*2,SKY0_im.get_height()*2))
 LAND0_im = pygame.image.load('image/ciel/lanscape0.png')
+LAND0_im=pygame.transform.scale(LAND0_im,(LAND0_im.get_width()*2,LAND0_im.get_height()*2))
 LAND0_im.set_colorkey((0,255,255))
 
 BLOOD = pygame.transform.scale(pygame.image.load('image/effects/blood.png'), window)
@@ -4402,20 +4434,20 @@ while running == 1:
 
     old_render_sky=False
     # Sky_view=True
-    if Sky_view and old_render_sky:
-        LAND = np.roll(LAND0, int(ang[0] * 12 * scrnL[0] / (2 * pi)), axis=0)
-        LAND = LAND[:2 * scrnL[0], :, :]
-        LAND = np.roll(LAND, -int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]), axis=1)
-        LAND = LAND[:, :2 * scrnL[1], :]
-
-        SKY = np.roll(SKY0, int(ang[0] * 6 * scrnL[0] / (2 * pi)), axis=0)
-        SKY = SKY[:2 * scrnL[0], :, :]
-        SKY = np.roll(SKY, -int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]), axis=1)
-        SKY = SKY[:, :2 * scrnL[1], :]
-        POS = POS * ((Im > -1).all(-1)) + ((Im <= -1).all(-1)) * 10
-
-        Im = np.where(np.expand_dims(((Im > 0).all(-1)), -1), Im, LAND)
-        Im = np.where(np.expand_dims(((Im > 0).all(-1)), -1), Im, SKY)
+    # if Sky_view and old_render_sky:
+    #     LAND = np.roll(LAND0, int(ang[0] * 12 * scrnL[0] / (2 * pi)), axis=0)
+    #     LAND = LAND[:2 * scrnL[0], :, :]
+    #     LAND = np.roll(LAND, -int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]), axis=1)
+    #     LAND = LAND[:, :2 * scrnL[1], :]
+    #
+    #     SKY = np.roll(SKY0, int(ang[0] * 6 * scrnL[0] / (2 * pi)), axis=0)
+    #     SKY = SKY[:2 * scrnL[0], :, :]
+    #     SKY = np.roll(SKY, -int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]), axis=1)
+    #     SKY = SKY[:, :2 * scrnL[1], :]
+    #     POS = POS * ((Im > -1).all(-1)) + ((Im <= -1).all(-1)) * 10
+    #
+    #     Im = np.where(np.expand_dims(((Im > 0).all(-1)), -1), Im, LAND)
+    #     Im = np.where(np.expand_dims(((Im > 0).all(-1)), -1), Im, SKY)
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('sky')
@@ -4528,7 +4560,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things')
 
-    Im,index_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e)
+    Im,index_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr)
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
@@ -4569,12 +4601,12 @@ while running == 1:
         else:
             movement=0
 
-        fond.blit(SKY0_im,(int(-((-ang[0])%(2*pi)) * 6 * scrnL[0] / (2 * pi)),-int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1])))
+        fond.blit(SKY0_im,(2*int(-((-ang[0])%(2*pi)) * 6 * scrnL[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1])))
         fond.blit(SKY0_im, (
-        int(-((-ang[0])%(2*pi)) * 6 * scrnL[0] / (2 * pi))+SKY0_im.get_width(), -int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
-        fond.blit(LAND0_im,(int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi)),-int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1])))
+        2*int(-((-ang[0])%(2*pi)) * 6 * scrnL[0] / (2 * pi))+SKY0_im.get_width(), -2*int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
+        fond.blit(LAND0_im,(2*int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1])))
         fond.blit(LAND0_im, (
-        int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi))+LAND0_im.get_width(), -int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
+        2*int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi))+LAND0_im.get_width(), -2*int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
 
         if level==6:
             [i.calc_norm() for i in op]
