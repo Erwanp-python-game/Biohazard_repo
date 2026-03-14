@@ -4,7 +4,6 @@ best current version is game_render_global_ray_mem_improve.py
 things to do in full ray rendering
 
 ennemies
--add ennemies when spawned
 -take care of boss
 -shooting through walls
 -torche
@@ -19,9 +18,11 @@ wall
 -faces
 -destructible_im
 -liquid
--torche
+-torche (+torche shoot background)
 -explo
 -background
+-corner issue that is cutted when looking up and down
+
 
 
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)

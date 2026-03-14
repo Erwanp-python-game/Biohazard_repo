@@ -452,7 +452,7 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
 
     index_e = np.full((W, H), -1, dtype=np.int64)
     depth_e = np.full((W, H), 1e6, dtype=np.float64)
-
+    print(len(all_x_e))
     for i in range(len(all_x_e)):
         x_e=all_x_e[i]
 
@@ -1833,6 +1833,16 @@ class Thing():
                     thing.append(monst)
                     ennemies.append(monst)
                     Killed_E[1] = Killed_E[1] + 1
+                    global all_range,all_x_e,all_types_e,all_obj_mon,all_angle,all_attack_range,all_RA
+                    all_x_e=np.concatenate((all_x_e,np.array([np.concatenate((monst.x0, np.array([2 * monst.z])))])),axis=0)
+                    all_types_e=np.concatenate((all_types_e,np.array([monst.type_M])))
+                    all_mort = np.concatenate((all_mort, np.array([monst.mort])))
+                    all_obj_mon = np.concatenate((all_obj_mon, np.array([monst.thing_t])))
+                    all_angle = np.concatenate((all_angle, np.array([monst.angle])))
+                    all_attack_range = np.concatenate((all_attack_range, np.array([monst.attack_range])))
+                    all_range = np.concatenate((all_range, np.array([monst.range])))
+                    all_light_e = np.concatenate((all_light_e, np.array([monst.light])))
+                    all_RA= np.concatenate((all_RA, np.array([monst.RA])))
                 for i in range(randint(50, 60)):
                     Boule.append(boule(self.x0[0], self.x0[1], self.z - 1, -pi * random(), 2 * pi * random(), 1, 5,
                                        'image/effects/vert.png', 1))
@@ -3658,6 +3668,7 @@ def load_level(level_name):
     all_things = thing.copy()
 
     all_x_e=np.array([np.concatenate((i.x0,np.array([2*i.z]))) for i in all_things])
+
     all_RA = np.array([i.RA for i in all_things])
 
     types_monst=list(set(levelD[level]['mon']))
@@ -4670,7 +4681,7 @@ while running == 1:
     pygame.display.flip()
 
     if v != 0:
-        v = 1.2 * max(24 * (-milliseconds[0] + time.perf_counter()*1000) / 1000, 1)
+        v = 1.2 * min(max(24 * (-milliseconds[0] + time.perf_counter()*1000) / 1000, 1),1.5)
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('end')
