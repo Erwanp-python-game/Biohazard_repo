@@ -4,11 +4,11 @@ best current version is game_render_global_ray_mem_improve.py
 things to do in full ray rendering
 
 ennemies
--object depth
 -add ennemies when spawned
 -take care of boss
--lighting
 -shooting through walls
+-torche
+-explo
 
 object
 -object destruct
@@ -17,13 +17,11 @@ object
 wall
 -anim
 -faces
--destructible
--moving walls update X
+-destructible_im
 -liquid
--transparency z_tiling
--light
 -torche
-
+-explo
+-background
 
 
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
