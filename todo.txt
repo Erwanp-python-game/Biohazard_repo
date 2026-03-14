@@ -17,7 +17,6 @@ wall
 -liquid
 -torche (+torche shoot background)
 -explo
--background
 -corner issue that is cutted when looking up and down
 
 
