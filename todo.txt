@@ -11,7 +11,6 @@ ennemies
 
 
 wall
--faces
 -liquid
 -torche (+torche shoot background)
 -explo

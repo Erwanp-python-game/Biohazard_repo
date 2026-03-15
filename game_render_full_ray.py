@@ -144,7 +144,7 @@ def build_cell_csr(cell_array):
 @njit(parallel=True, fastmath=True)
 def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
               all_a, all_b, all_X,
-              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc):
+              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side):
 
     X0 = screenP[0, 0]
 
@@ -418,9 +418,13 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                         ind = counter_ // (12 // all_wall_len[obj1])
                     else:
                         ind = all_destruc[obj1]
-                    im = all_wall_im[obj1][ind]
+                    if all_side[obj1]<0:
+                        im = all_wall_im[obj1][ind]
+                    else:
+                        im = all_wall_im2[obj1][ind]
                     Cl=all_light_w[obj1]
                     r=im[gu, gv + shift,0]
+
                     Im[i, jj, 0] =r*Cl[0]
                     Im[i, jj, 1] = im[gu, gv + shift, 1]*Cl[1]
                     Im[i, jj, 2] = im[gu, gv + shift, 2]*Cl[2]
@@ -951,6 +955,15 @@ class Wall():
         self.colorL=colorL
         all_light_w[self.num]=self.colorL
 
+        global all_side
+
+        x_ = self.X[0][0][0]
+        y_ = self.X[0][0][1]
+        a_ = self.b[0][0][0]
+        b_ = self.b[0][0][1]
+        self.side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
+        all_side[self.num]=self.side
+
     def calc_normfast(self):
         self.normf = np.linalg.norm(self.X_middle[0][0][:-1] + 0.5 * self.a_middle[0][0][:-1] + 0.5 * self.b_middle[0][0][:-1] - R_c[:-1])
 
@@ -986,12 +999,14 @@ class Wall():
         #     return (-t - abs(np.dot(-t, -No)) * -No)
 
     def test_behind(self):
+        global all_side
         milliseconds = [time.perf_counter()*1000]
         x_ = self.X[0][0][0]
         y_ = self.X[0][0][1]
         a_ = self.b[0][0][0]
         b_ = self.b[0][0][1]
         self.side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
+        all_side[self.num]=self.side
 
         if self.angle0 < 0:
             Mg = np.stack((self.b_old[0][0][0:-1], -Vg @ Rp), axis=-1)
@@ -3614,7 +3629,7 @@ def load_level(level_name):
     all_inv_det = np.array([1.0 / (all_aa[i]*all_bb[i] - all_ab[i]**2) for i in range(len(all_walls))])
 
 
-    global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc
+    global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side
     all_opening=np.array([i.opening for i in all_walls])
     all_freq=np.array([i.freq for i in all_walls])
     all_phase = np.array([i.phase_ for i in all_walls])
@@ -3624,10 +3639,12 @@ def load_level(level_name):
 
     all_trans_im = List()
     all_wall_im = List()
+    all_wall_im2 = List()
     all_light = List()
     for element in all_walls:
         inner = List.empty_list(types.boolean[:, :])
         inner_im = List.empty_list(types.float32[:,:,:])
+        inner_im2 = List.empty_list(types.float32[:, :, :])
         inner_light= List.empty_list(types.float32[:])
 
         if isinstance(element.trans_im, list) and len(element.trans_im) > 0:
@@ -3637,6 +3654,9 @@ def load_level(level_name):
         if isinstance(element.wall_im, list) and len(element.wall_im) > 0:
             for arr in element.wall_im:
                 inner_im.append(arr.astype(np.float32))
+        if isinstance(element.wall_im2, list) and len(element.wall_im2) > 0:
+            for arr in element.wall_im2:
+                inner_im2.append(arr.astype(np.float32))
 
         if element.ID in light_wall.keys():
             for light_x in light_wall[element.ID]:
@@ -3645,11 +3665,12 @@ def load_level(level_name):
         # If element was 0 or empty → just append empty inner list
         all_trans_im.append(inner)
         all_wall_im.append(inner_im)
+        all_wall_im2.append(inner_im2)
         all_light.append(inner_light)
 
     all_wall_len=np.array([len(i) for i in all_wall_im])
     all_destruc =np.array([i.vie if levelD[level]['deco'][i.deco - 1] in deco_destruc else -1 for i in all_walls])
-
+    all_side=np.array([i.side for i in all_walls])
 
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
@@ -4323,7 +4344,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l=intersect(c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l=intersect(c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side)
     if key[K_u]:
         plt.imshow(Im_ray/255)
         plt.show()
