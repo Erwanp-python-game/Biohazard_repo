@@ -142,9 +142,9 @@ def build_cell_csr(cell_array):
     return cell_start, cell_count, cell_objects
 
 @njit(parallel=True, fastmath=True)
-def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
+def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
               all_a, all_b, all_X,
-              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w):
+              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc):
 
     X0 = screenP[0, 0]
 
@@ -366,7 +366,11 @@ def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
 
                                     else:
                                         shift = 0
-                                    trans=all_trans_im[obj][0]
+                                    if all_destruc[obj]<0:
+                                        ind = counter_ // (12 // all_wall_len[obj])
+                                    else:
+                                        ind=all_destruc[obj]
+                                    trans=all_trans_im[obj][ind]
                                     open=trans[gu,gv+shift]
                                 if open:
                                     t_int[j] = t_
@@ -391,6 +395,7 @@ def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
                     break
 
             if done or g==99:
+
                 for jj in range(h):
                     obj1=wall_ind[i, jj]
                     tile_z = all_tile_z[obj1]
@@ -409,7 +414,11 @@ def intersect(screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
                             shift = 0
                     else:
                         shift = 0
-                    im = all_wall_im[obj1][0]
+                    if all_destruc[obj1] < 0:
+                        ind = counter_ // (12 // all_wall_len[obj1])
+                    else:
+                        ind = all_destruc[obj1]
+                    im = all_wall_im[obj1][ind]
                     Cl=all_light_w[obj1]
                     r=im[gu, gv + shift,0]
                     Im[i, jj, 0] =r*Cl[0]
@@ -1111,11 +1120,12 @@ class Wall():
             return False
 
     def breakable(self):
-        global x_d
+        global x_d,all_destruc
         self.inline=0
         self.shot = []
         self.d_shot=100
         x_d0=[]
+
         for i in range(len(x_d)):
             # inline = min(np.sum(self.U[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
             #                 1)
@@ -1134,9 +1144,10 @@ class Wall():
         x_d=x_d0
 
 
-        if inline or self.explo:
+        if self.inline or self.explo:
             if ((self.d_shot<5 or arme!=0) and arme!=4) or self.explo:
                 self.vie+=1
+                all_destruc[self.num]=min(self.vie,2)
                 s = pygame.mixer.Sound("son/barril.ogg")
                 s.play()
             if self.vie==3:
@@ -3603,7 +3614,7 @@ def load_level(level_name):
     all_inv_det = np.array([1.0 / (all_aa[i]*all_bb[i] - all_ab[i]**2) for i in range(len(all_walls))])
 
 
-    global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w
+    global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc
     all_opening=np.array([i.opening for i in all_walls])
     all_freq=np.array([i.freq for i in all_walls])
     all_phase = np.array([i.phase_ for i in all_walls])
@@ -3636,6 +3647,8 @@ def load_level(level_name):
         all_wall_im.append(inner_im)
         all_light.append(inner_light)
 
+    all_wall_len=np.array([len(i) for i in all_wall_im])
+    all_destruc =np.array([i.vie if levelD[level]['deco'][i.deco - 1] in deco_destruc else -1 for i in all_walls])
 
 
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
@@ -4310,7 +4323,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l=intersect(screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l=intersect(c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc)
     if key[K_u]:
         plt.imshow(Im_ray/255)
         plt.show()

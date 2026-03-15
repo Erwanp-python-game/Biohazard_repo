@@ -11,9 +11,7 @@ ennemies
 
 
 wall
--anim
 -faces
--destructible_im
 -liquid
 -torche (+torche shoot background)
 -explo
