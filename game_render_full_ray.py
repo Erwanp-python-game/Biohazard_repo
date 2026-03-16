@@ -67,6 +67,7 @@ TORCHE = np.expand_dims(
 torch_on = 0
 TORCHE3=TORCHE ** 3
 
+
 R_c = np.array([-1, 0, 0])
 Vg = np.array([1, -sqrt(2) / 2]) / sqrt(3 / 2)
 Vd = np.array([1, sqrt(2) / 2]) / sqrt(3 / 2)
@@ -144,7 +145,7 @@ def build_cell_csr(cell_array):
 @njit(parallel=True, fastmath=True)
 def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
               all_a, all_b, all_X,
-              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side):
+              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE,torch_on,torch_shine):
 
     X0 = screenP[0, 0]
 
@@ -164,7 +165,7 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
     wall_ind = np.zeros((w, h), np.int32)
 
     n_obj = len(all_a)
-
+    torch_glob=np.full((w),False, dtype=bool)
     for i in prange(w):
 
         # Thread-local arrays
@@ -425,9 +426,7 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                     Cl=all_light_w[obj1]
                     r=im[gu, gv + shift,0]
 
-                    Im[i, jj, 0] =r*Cl[0]
-                    Im[i, jj, 1] = im[gu, gv + shift, 1]*Cl[1]
-                    Im[i, jj, 2] = im[gu, gv + shift, 2]*Cl[2]
+
 
 
                     light_x=all_light[obj1]
@@ -439,15 +438,34 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                         d=dx2*dx2+dy2*dy2+dz2*dz2
                         if dm>d:
                             dm=d
-                    POS_l[i, jj]=np.sqrt(dm)
+                    dd=np.sqrt(dm)
+                    POS_l[i, jj]=dd
                     if r==-1:
                         Im[i, jj, 0] = 0
                         Im[i, jj, 1] = 255
                         Im[i, jj, 2] = 255
                         POS_l[i, jj]=1e-9
+                    else:
+                        torch2=1.
+                        if torch_shine:
+                            torch2=TORCHE[i,jj,0]
+                        if dm==1e6:
+                            if torch_on:
+                                torch_glob[i]=True
+                                dz=S[i, jj, 2]
+                                torch=torch2*(0.8*1/(0.01*16*dz)+1/(0.1*np.sqrt(dz))+0.2)
+                            else:
+                                torch=0.
+                        else:
+                            torch=(0.8*1/(0.01*16*dm)+1/(0.1*dd)+0.2)*torch2
+
+
+                        Im[i, jj, 0] = r * Cl[0]*torch
+                        Im[i, jj, 1] = im[gu, gv + shift, 1] * Cl[1]*torch
+                        Im[i, jj, 2] = im[gu, gv + shift, 2] * Cl[2]*torch
                 break
 
-    return S, wall_ind,Xl,Im,POS_l
+    return S, wall_ind,Xl,Im,POS_l,torch_glob.any()
 
 @njit( fastmath=True)
 def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr):
@@ -3843,7 +3861,7 @@ render_w_old=0
 
 
 
-
+torch_shine=False
 while running == 1:
 
     moving_cam = True
@@ -4344,7 +4362,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l=intersect(c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine=intersect(c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine)
     if key[K_u]:
         plt.imshow(Im_ray/255)
         plt.show()
@@ -4485,7 +4503,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('sky')
-    Im = np.minimum((0.8 * (np.divide(Im, 0.01 * np.expand_dims((4 * POS) ** 2, -1)) + np.divide(Im,0.1 * np.expand_dims((POS),-1))) + 0.2 * Im),255)  # ,100)+np.divide(200,np.maximum((depth/5)**2,1))
+    #Im = np.minimum((0.8 * (np.divide(Im, 0.01 * np.expand_dims((4 * POS) ** 2, -1)) + np.divide(Im,0.1 * np.expand_dims((POS),-1))) + 0.2 * Im),255)  # ,100)+np.divide(200,np.maximum((depth/5)**2,1))
+    Im=np.minimum(Im,255)
     if explo!=0:
         a_e = np.full((scrnL[0], scrnL[1], 3), np.array([0,0,1.]))
         b_e = np.full((scrnL[0], scrnL[1], 3), np.array([sin(ang[0]),cos(ang[0]),0.]))
