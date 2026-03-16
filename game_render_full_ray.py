@@ -60,9 +60,13 @@ screenP = screen[:, :, :3]
 
 
 CENTER = np.expand_dims(np.linalg.norm(screen[:, :, :3] - [0, 0, 0], axis=-1).repeat(2, axis=0).repeat(2, axis=1), -1)
+# TORCHE = np.expand_dims(
+#     (np.maximum(np.cos(I_n[:, :, 0] * pi / 2) * np.cos(I_n[:, :, 1] * 2 * pi / 2), 0)).repeat(4, axis=0).repeat(4,
+#                                                                                                                 axis=1),
+#     -1)
+
 TORCHE = np.expand_dims(
-    (np.maximum(np.cos(I_n[:, :, 0] * pi / 2) * np.cos(I_n[:, :, 1] * 2 * pi / 2), 0)).repeat(4, axis=0).repeat(4,
-                                                                                                                axis=1),
+    cv2.resize(np.maximum(np.cos(I_n[:, :, 0] * pi / 2) * np.cos(I_n[:, :, 1] * 2 * pi / 2), 0),None,fx=4,fy=4,interpolation=cv2.INTER_LINEAR),
     -1)
 torch_on = 0
 TORCHE3=TORCHE ** 3
@@ -457,7 +461,11 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                             else:
                                 torch=0.
                         else:
-                            torch=(0.8*1/(0.01*16*dm)+1/(0.1*dd)+0.2)*torch2
+                            if torch_shine and torch_on:
+                                dz=S[i, jj, 2]
+                                torch=torch2*(0.8*1/(0.01*16*dz)+1/(0.1*np.sqrt(dz))+0.2)
+                            else:
+                                torch = (0.8 * 1 / (0.01 * 16 * dm) + 1 / (0.1 * dd) + 0.2)
 
 
                         Im[i, jj, 0] = r * Cl[0]*torch
@@ -465,7 +473,7 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                         Im[i, jj, 2] = im[gu, gv + shift, 2] * Cl[2]*torch
                 break
 
-    return S, wall_ind,Xl,Im,POS_l,torch_glob.any()
+    return S, wall_ind,Xl,Im,POS_l,np.sum(torch_glob)>3
 
 @njit( fastmath=True)
 def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr):

@@ -12,7 +12,7 @@ ennemies
 
 wall
 -liquid
--torche (+torche shoot background)
+-torche shoot background
 -explo
 -corner issue that is cutted when looking up and down
 
