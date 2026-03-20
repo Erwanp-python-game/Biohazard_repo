@@ -149,7 +149,7 @@ def build_cell_csr(cell_array):
 @njit(parallel=True, fastmath=True)
 def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
               all_a, all_b, all_X,
-              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE,torch_on,torch_shine):
+              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE,torch_on,torch_shine,fire):
 
     X0 = screenP[0, 0]
 
@@ -467,16 +467,21 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                             else:
                                 torch = (0.8 * 1 / (0.01 * 16 * dm) + 1 / (0.1 * dd) + 0.2)
 
+                        f=0.
+                        if fire:
+                            f=100*TORCHE[i,jj,0]
 
-                        Im[i, jj, 0] = r * Cl[0]*torch
-                        Im[i, jj, 1] = im[gu, gv + shift, 1] * Cl[1]*torch
-                        Im[i, jj, 2] = im[gu, gv + shift, 2] * Cl[2]*torch
+                        Im[i, jj, 0] = r * Cl[0]*torch+f
+                        Im[i, jj, 1] = im[gu, gv + shift, 1] * Cl[1]*torch+f
+                        Im[i, jj, 2] = im[gu, gv + shift, 2] * Cl[2]*torch+f
+
+
                 break
 
     return S, wall_ind,Xl,Im,POS_l,np.sum(torch_glob)>3
 
 @njit( fastmath=True)
-def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr):
+def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_on):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -547,6 +552,8 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
                                 b=im[ix_r, iy_r, 2]
                                 if r+g+b>0:
                                     l=all_light_e[i]
+                                    if torch_on:
+                                        l=l*TORCHE3[ix,iy,0]/(0.1*np.sqrt(x1))
                                     Im[ix,iy,0] = r*l[0]
                                     Im[ix, iy, 1] = g*l[1]
                                     Im[ix, iy, 2] = b*l[2]
@@ -2176,7 +2183,10 @@ class Object():
             for i in range(len(x_d)):
                 # inline = min(np.sum(self.Ut[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
                 #                 1)
-                inline=True
+                # inline=True
+                inline_e = index_e[int(2*scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(2*scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2*2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2*2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]
+                inline=(inline_e==self.num).any()
+
                 self.inline=(self.inline or inline)
                 self.shot.append(i)
                 if not inline:
@@ -3837,7 +3847,7 @@ pygame.mixer.music.play(-1)
 
 depth = np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
 wall_index = np.full((2 * scrnL[0], 2 * scrnL[1]), 0)
-explo_R=np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
+explo_R=np.full((4 * scrnL[0], 4 * scrnL[1], 1), 100.0)
 horizon = np.full((scrnL[0], 1), 10000.0)
 
 horizon2 = np.full((scrnL[0], len(height_list)), 10000.0)
@@ -4370,7 +4380,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine=intersect(c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine=intersect(c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire)
     if key[K_u]:
         plt.imshow(Im_ray/255)
         plt.show()
@@ -4518,8 +4528,8 @@ while running == 1:
         b_e = np.full((scrnL[0], scrnL[1], 3), np.array([sin(ang[0]),cos(ang[0]),0.]))
         X_e1 = np.full((scrnL[0], scrnL[1], 3), np.array([explo_pt[0],explo_pt[1],0.]))
         S=plane(a_e,b_e,X_e1)
-        S=S.repeat(2,axis=0)
-        S = S.repeat(2, axis=1)
+        S=S.repeat(4,axis=0)
+        S = S.repeat(4, axis=1)
         D_e=np.expand_dims(((S[:, :, 0]) ** 2 + (S[:, :, 1]) ** 2)**0.5,-1)
         Im = np.where((explo_R < 4 * explo+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,explo_R), Im)
         Im = np.where((np.expand_dims(S[:, :, 2],-1)>0)&(np.expand_dims(S[:, :, 2],-1)<depth)& (D_e<(4*explo)+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,D_e), Im)
@@ -4621,8 +4631,8 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things')
 
-    Im,index_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr)
-
+    Im,index_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine)
+    Im = np.minimum(Im, 255)
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
 
@@ -4648,8 +4658,8 @@ while running == 1:
     #     IS_rendered.append(i.render())
     #     #Im = IS_rendered[-1] * 0.5 + Im * (1 - 0.5 * np.expand_dims(i.U, -1))
     #     Im[i.Ub] = IS_rendered[-1][i.Ub]*0.5+Im[i.Ub]*0.5
-    if fire:
-        Im = np.minimum(Im + 100 * TORCHE, 255)
+    # if fire:
+    #     Im = np.minimum(Im + 100 * TORCHE, 255)
 
 
     Im=np.maximum(Im,0)

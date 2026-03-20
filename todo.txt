@@ -6,13 +6,12 @@ things to do in full ray rendering
 ennemies
 -take care of boss
 -shooting through walls
--torche
 -explo
+
 
 
 wall
 -liquid
--torche shoot background
 -explo
 -corner issue that is cutted when looking up and down
 
