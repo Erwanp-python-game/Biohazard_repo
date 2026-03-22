@@ -290,6 +290,37 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                     continue
 
                 ray = rays[j]
+                if False:
+                    # ---- EXPLOSION TEST (INLINE) ----
+
+                    dx0 = X0[0] - explo_pt[0]
+                    dy0 = X0[1] - explo_pt[1]
+                    dz0 = X0[2] - explo_pt[2]
+
+                    a = ray[0] * ray[0] + ray[1] * ray[1] + ray[2] * ray[2]
+                    b = dx0 * ray[0] + dy0 * ray[1] + dz0 * ray[2]
+                    c = dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - explo_R * explo_R
+
+                    disc = b * b - a * c
+
+                    if disc > 0.0:
+
+                        sqrt_disc = np.sqrt(disc)
+
+                        t0 = (-b - sqrt_disc) / a
+                        t1 = (-b + sqrt_disc) / a
+
+                        if t0 > 0.0:
+                            t_exp = t0
+                        elif t1 > 0.0:
+                            t_exp = t1
+                        else:
+                            t_exp = 1e9
+
+                        if t_exp < t_int[j]:
+                            # mark explosion hit
+                            wall_ind[i, j] = -1
+
 
 
 
@@ -393,16 +424,18 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                         #     # ---- SPHERE ----
                         #
                         #     C = all_X[obj]  # center
-                        #     r = 1.  # you must add this array
+                        #     r = 5  # you must add this array
                         #
                         #     dx0 = X0[0] - C[0]
                         #     dy0 = X0[1] - C[1]
                         #     dz0 = X0[2] - C[2]
                         #
+                        #     a = ray[0] * ray[0] + ray[1] * ray[1] + ray[2] * ray[2]
                         #     b = dx0 * ray[0] + dy0 * ray[1] + dz0 * ray[2]
                         #     c = dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - r * r
                         #
-                        #     disc = b * b - c
+                        #     disc = b * b - a * c
+                        #
                         #
                         #     if disc > 0.0:
                         #         t_ = -b - np.sqrt(disc)
@@ -416,6 +449,11 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                         #             nx = (px - C[0]) / r
                         #             ny = (py - C[1]) / r
                         #             nz = (pz - C[2]) / r
+                        #
+                        #             if nz > 1.0:
+                        #                 nz = 1.0
+                        #             elif nz < -1.0:
+                        #                 nz = -1.0
                         #
                         #             u = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
                         #             v = 0.5 - np.arcsin(nz) / np.pi
@@ -599,6 +637,8 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
                                     index_e[ix,iy]=i
                                     depth_e[ix, iy]=x1
     return Im,index_e
+
+
 
 def source_pos(code):
     x = (int(code.split(',')[0]) - 50) * 2
@@ -4422,6 +4462,18 @@ while running == 1:
     S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine=intersect(c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire)
     if key[K_u]:
         plt.imshow(Im_ray/255)
+        plt.show()
+
+        plt.imshow(wall_ind_i)
+        plt.show()
+
+        plt.imshow(S_i[:,:,0])
+        plt.show()
+
+        plt.imshow(S_i[:,:,1])
+        plt.show()
+
+        plt.imshow(S_i[:,:,2])
         plt.show()
 
     milliseconds.append(time.perf_counter() * 1000)

@@ -33,6 +33,7 @@ armor
 fire thrower
 biolance as final weapon
 more destructible obj
+sphere and cylinders
 
 BUG
 
