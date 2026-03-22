@@ -171,6 +171,7 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
         s1 = np.sin(a1)
     
     Im = np.full((w, h, 3), 0, dtype=np.float32)
+    Im2 = np.full((w, h, 4), 0, dtype=np.float32)
     S = np.full((w, h, 3), 1e6, dtype=np.float32)
     S_explo = np.full((w, h, 3), 1e6, dtype=np.float32)
     Xl = np.full((w, h, 3), 1e6, dtype=np.float32)
@@ -577,21 +578,25 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                         Im[i, jj, 1] = im[gu, gv + shift, 1] * Cl[1]*torch+f
                         Im[i, jj, 2] = im[gu, gv + shift, 2] * Cl[2]*torch+f
 
-                        if explo!=0 and S_explo[i,jj,2]<S[i, jj,2]:
-                            de=np.sqrt(S_explo[i,jj,1])+random_explo[i, jj]
-                            if de<explo_R/2:
-                                Im[i, jj, 0]=Im[i, jj, 0]*0.5+127*((1-2*de/explo_R)+2*de/explo_R)
-                                Im[i, jj, 1] = Im[i, jj, 1] * 0.5 + 127 * ((1 - 2*de/explo_R)+2*de/explo_R)
-                                Im[i, jj, 2] = Im[i, jj, 2] * 0.5 + 127 * (1 - 2*de/explo_R)
-                            else:
-                                Im[i, jj, 0]=Im[i, jj, 0]*0.5+127*((1-2*(de-0.5*explo_R)/explo_R)+2*(de-0.5*explo_R)/explo_R)
-                                Im[i, jj, 1] = Im[i, jj, 1] * 0.5 + 127 * ((1 - 2*(de-0.5*explo_R)/explo_R))
-                                Im[i, jj, 2] = Im[i, jj, 2] * 0.5
+                    if explo!=0 and S_explo[i,jj,2]<S[i, jj,2]:
+                        de=np.sqrt(S_explo[i,jj,1])+random_explo[i, jj]
+                        if de<explo_R/2:
+                            Im2[i, jj, 0]=255*((1-2*de/explo_R)+2*de/explo_R)
+                            Im2[i, jj, 1] = 255 * ((1 - 2*de/explo_R)+2*de/explo_R)
+                            Im2[i, jj, 2] = 255 * (1 - 2*de/explo_R)
+                            Im2[i, jj, 3] = 125
+                        else:
+                            Im2[i, jj, 0]=255*((1-2*(de-0.5*explo_R)/explo_R)+2*(de-0.5*explo_R)/explo_R)
+                            Im2[i, jj, 1] = 255 * ((1 - 2*(de-0.5*explo_R)/explo_R))
+                            Im2[i, jj, 3] = 125
+
+
+
 
 
                 break
 
-    return S, wall_ind,Xl,Im,POS_l,np.sum(torch_glob)>3
+    return S, wall_ind,Xl,Im,POS_l,np.sum(torch_glob)>3,Im2
 
 @njit( fastmath=True)
 def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_on):
@@ -4503,7 +4508,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine=intersect(ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2=intersect(ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo)
     if key[K_u]:
         plt.imshow(Im_ray/255)
         plt.show()
@@ -4800,7 +4805,7 @@ while running == 1:
 
     Im=np.maximum(Im,0)
 
-    fond = pygame.Surface((2*160-6,2*80-6))#to improve
+    fond = pygame.Surface((2*160,2*80))#to improve
     Sky_view=True
     if Sky_view:
         if level==6:
@@ -4821,9 +4826,15 @@ while running == 1:
     else:
         movement=0
 
-    fond0 = pygame.surfarray.make_surface(Im[3:-3, 3:-3])
+    fond0 = pygame.surfarray.make_surface(Im)
+
     fond0.set_colorkey((0, 255, 255))
     fond.blit(fond0,(0,0))
+    if explo!=0:
+        Im2=np.swapaxes(np.maximum(np.minimum(Im2,255),0),0,1)
+        Im2 = Im2.astype('uint8')
+        fond1 = pygame.image.frombuffer(Im2.tobytes(), (Im2.shape[1], Im2.shape[0]), "RGBA")
+        fond.blit(fond1, (0, 0))
     if setting['smooth'] == True:
         fond = pygame.transform.smoothscale(fond, window)
     else:

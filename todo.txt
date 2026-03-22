@@ -10,10 +10,6 @@ ennemies
 wall
 -liquid
 
-grenade
--explo on sky(requires to integrate background in intersect)
-
-
 
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
 
