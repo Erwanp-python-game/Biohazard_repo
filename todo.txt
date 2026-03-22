@@ -6,16 +6,17 @@ things to do in full ray rendering
 ennemies
 -take care of boss
 -shooting through walls
--explo
 
 
 
 wall
 -liquid
--explo
 -corner issue that is cutted when looking up and down
 
-
+grenade
+-depth monster not hiding
+-explo on sky
+-explo z
 
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
 

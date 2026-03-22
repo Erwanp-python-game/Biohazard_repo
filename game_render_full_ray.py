@@ -30,6 +30,7 @@ lifts = []
 scrnL = np.array([80, 40])
 screen = np.full((*scrnL, 6), 0.0)
 depth = np.full((2 * scrnL[0], 2 * scrnL[1], 1), 100.0)
+random_explo=np.random.randint(-1,1,(4 * scrnL[0], 4 * scrnL[1]))
 POS = np.full((2 * scrnL[0], 2 * scrnL[1]), 1000.0)
 horizon = np.full((scrnL[0], 1), 100.0)
 height_list=[]
@@ -147,9 +148,9 @@ def build_cell_csr(cell_array):
     return cell_start, cell_count, cell_objects
 
 @njit(parallel=True, fastmath=True)
-def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
+def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
               all_a, all_b, all_X,
-              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE,torch_on,torch_shine,fire):
+              all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE,torch_on,torch_shine,fire,explo,explo_pt,random_explo):
 
     X0 = screenP[0, 0]
 
@@ -161,9 +162,17 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
 
     w=160*2
     h=80*2
+
+    explo_R=4*explo
+    if explo!=0:
+        c0 = np.cos(a0)
+        s0 = np.sin(-a0)
+        c1 = np.cos(a1)
+        s1 = np.sin(a1)
     
     Im = np.full((w, h, 3), 0, dtype=np.float32)
     S = np.full((w, h, 3), 1e6, dtype=np.float32)
+    S_explo = np.full((w, h, 3), 1e6, dtype=np.float32)
     Xl = np.full((w, h, 3), 1e6, dtype=np.float32)
     POS_l = np.full((w, h), 1e6, dtype=np.float32)
     wall_ind = np.zeros((w, h), np.int32)
@@ -290,16 +299,16 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                     continue
 
                 ray = rays[j]
-                if False:
+                if explo!=0:
                     # ---- EXPLOSION TEST (INLINE) ----
-
+                    explo_R0=explo_R+random_explo[i,j]
                     dx0 = X0[0] - explo_pt[0]
                     dy0 = X0[1] - explo_pt[1]
-                    dz0 = X0[2] - explo_pt[2]
+                    dz0 = X0[2] - 2.5
 
                     a = ray[0] * ray[0] + ray[1] * ray[1] + ray[2] * ray[2]
                     b = dx0 * ray[0] + dy0 * ray[1] + dz0 * ray[2]
-                    c = dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - explo_R * explo_R
+                    c = dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - explo_R0 * explo_R0
 
                     disc = b * b - a * c
 
@@ -319,7 +328,21 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
 
                         if t_exp < t_int[j]:
                             # mark explosion hit
-                            wall_ind[i, j] = -1
+                            # rotate
+                            dx1 = X0[0] + t_exp * ray[0]-explo_pt[0]
+                            dy1 = X0[1] + t_exp * ray[1]-explo_pt[1]
+                            dz1 = X0[2] + t_exp * ray[2]-2.5
+                            x1 = c0 * dx1 + s0 * dy1
+                            y1 = -s0 * dx1 + c0 * dy1
+                            z1 = dz1
+
+                            y2 = y1
+                            z2 = s1 * x1 + c1 * z1
+
+                            # camera-plane distance
+                            dist2 = y2 * y2 + z2 * z2
+                            S_explo[i, j, 1]=dist2
+                            S_explo[i, j,2] = t_exp
 
 
 
@@ -551,6 +574,17 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                         Im[i, jj, 0] = r * Cl[0]*torch+f
                         Im[i, jj, 1] = im[gu, gv + shift, 1] * Cl[1]*torch+f
                         Im[i, jj, 2] = im[gu, gv + shift, 2] * Cl[2]*torch+f
+
+                        if explo!=0 and S_explo[i,jj,2]<S[i, jj,2]:
+                            de=np.sqrt(S_explo[i,jj,1])+random_explo[i, jj]
+                            if de<explo_R/2:
+                                Im[i, jj, 0]=Im[i, jj, 0]*0.5+127*((1-2*de/explo_R)+2*de/explo_R)
+                                Im[i, jj, 1] = Im[i, jj, 1] * 0.5 + 127 * ((1 - 2*de/explo_R)+2*de/explo_R)
+                                Im[i, jj, 2] = Im[i, jj, 2] * 0.5 + 127 * (1 - 2*de/explo_R)
+                            else:
+                                Im[i, jj, 0]=Im[i, jj, 0]*0.5+127*((1-2*(de-0.5*explo_R)/explo_R)+2*(de-0.5*explo_R)/explo_R)
+                                Im[i, jj, 1] = Im[i, jj, 1] * 0.5 + 127 * ((1 - 2*(de-0.5*explo_R)/explo_R))
+                                Im[i, jj, 2] = Im[i, jj, 2] * 0.5
 
 
                 break
@@ -2203,7 +2237,7 @@ class Object():
                               'image/effects/spark.png', 1))
                 s.play()
                 explo = 5
-                explo_pt = self.x0
+                explo_pt[:] = self.x0
                 explo_type=0
                 if self.norm < 15:
                     VIE = VIE - explo_deg[explo_type]/2
@@ -4459,7 +4493,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine=intersect(c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine=intersect(ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo)
     if key[K_u]:
         plt.imshow(Im_ray/255)
         plt.show()
@@ -4614,16 +4648,16 @@ while running == 1:
     label_deltat.append('sky')
     #Im = np.minimum((0.8 * (np.divide(Im, 0.01 * np.expand_dims((4 * POS) ** 2, -1)) + np.divide(Im,0.1 * np.expand_dims((POS),-1))) + 0.2 * Im),255)  # ,100)+np.divide(200,np.maximum((depth/5)**2,1))
     Im=np.minimum(Im,255)
-    if explo!=0:
-        a_e = np.full((scrnL[0], scrnL[1], 3), np.array([0,0,1.]))
-        b_e = np.full((scrnL[0], scrnL[1], 3), np.array([sin(ang[0]),cos(ang[0]),0.]))
-        X_e1 = np.full((scrnL[0], scrnL[1], 3), np.array([explo_pt[0],explo_pt[1],0.]))
-        S=plane(a_e,b_e,X_e1)
-        S=S.repeat(4,axis=0)
-        S = S.repeat(4, axis=1)
-        D_e=np.expand_dims(((S[:, :, 0]) ** 2 + (S[:, :, 1]) ** 2)**0.5,-1)
-        Im = np.where((explo_R < 4 * explo+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,explo_R), Im)
-        Im = np.where((np.expand_dims(S[:, :, 2],-1)>0)&(np.expand_dims(S[:, :, 2],-1)<depth)& (D_e<(4*explo)+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,D_e), Im)
+    # if explo!=0:
+    #     a_e = np.full((scrnL[0], scrnL[1], 3), np.array([0,0,1.]))
+    #     b_e = np.full((scrnL[0], scrnL[1], 3), np.array([sin(ang[0]),cos(ang[0]),0.]))
+    #     X_e1 = np.full((scrnL[0], scrnL[1], 3), np.array([explo_pt[0],explo_pt[1],0.]))
+    #     S=plane(a_e,b_e,X_e1)
+    #     S=S.repeat(4,axis=0)
+    #     S = S.repeat(4, axis=1)
+    #     D_e=np.expand_dims(((S[:, :, 0]) ** 2 + (S[:, :, 1]) ** 2)**0.5,-1)
+    #     Im = np.where((explo_R < 4 * explo+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,explo_R), Im)
+    #     Im = np.where((np.expand_dims(S[:, :, 2],-1)>0)&(np.expand_dims(S[:, :, 2],-1)<depth)& (D_e<(4*explo)+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,D_e), Im)
 
         # if explo==4:
         #     plt.imshow(Im/255)
@@ -4816,7 +4850,7 @@ while running == 1:
         fond.blit(BLOOD0, (0, 0))
         bleed = max(bleed - 1, 0)
     if explo != 0:
-        fond.fill((40 * explo, 40 * explo, 40 * explo), special_flags=BLEND_RGB_ADD)
+        # fond.fill((40 * explo, 40 * explo, 40 * explo), special_flags=BLEND_RGB_ADD)
         explo = max(explo - 1, 0)
 
     milliseconds.append(time.perf_counter()*1000)
