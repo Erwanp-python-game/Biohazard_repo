@@ -304,7 +304,7 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                     explo_R0=explo_R+random_explo[i,j]
                     dx0 = X0[0] - explo_pt[0]
                     dy0 = X0[1] - explo_pt[1]
-                    dz0 = X0[2] - 2.5
+                    dz0 = X0[2] - explo_pt[2]
 
                     a = ray[0] * ray[0] + ray[1] * ray[1] + ray[2] * ray[2]
                     b = dx0 * ray[0] + dy0 * ray[1] + dz0 * ray[2]
@@ -331,7 +331,7 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                             # rotate
                             dx1 = X0[0] + t_exp * ray[0]-explo_pt[0]
                             dy1 = X0[1] + t_exp * ray[1]-explo_pt[1]
-                            dz1 = X0[2] + t_exp * ray[2]-2.5
+                            dz1 = X0[2] + t_exp * ray[2]-explo_pt[2]
                             x1 = c0 * dx1 + s0 * dy1
                             y1 = -s0 * dx1 + c0 * dy1
                             z1 = dz1
@@ -570,6 +570,8 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                         f=0.
                         if fire:
                             f=100*TORCHE[i,jj,0]
+                        if explo!=0:
+                            f =40*explo
 
                         Im[i, jj, 0] = r * Cl[0]*torch+f
                         Im[i, jj, 1] = im[gu, gv + shift, 1] * Cl[1]*torch+f
@@ -670,7 +672,8 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
                                     Im[ix, iy, 2] = b*l[2]
                                     index_e[ix,iy]=i
                                     depth_e[ix, iy]=x1
-    return Im,index_e
+
+    return Im,index_e,np.minimum(depth_e,S[:,:,2])
 
 
 
@@ -710,7 +713,13 @@ def cells_crossed_by_segment(X, A, cell_size=1.0, eps=1e-9):
     else:
         t_max_y = float("inf")
         t_delta_y = float("inf")
-
+    ix0=ix
+    iy0=iy
+    if t_max_x < t_max_y:
+        ix0 = ix-step_x
+    else:
+        iy0 = iy-step_y
+    cells.append((ix0, iy0))
     t = 0.0
     while t <= 1.0 + eps:
         if t_max_x < t_max_y:
@@ -722,10 +731,11 @@ def cells_crossed_by_segment(X, A, cell_size=1.0, eps=1e-9):
             t = t_max_y
             t_max_y += t_delta_y
 
+        cells.append((ix, iy))
         if t > 1.0 + eps:
             break
 
-        cells.append((ix, iy))
+
 
     return cells
 
@@ -1723,7 +1733,7 @@ class Thing():
         if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
             colorT = np.array([1, 1, 1.])
         colorT = light_modif(colorT, level, 0)
-        if explo!=0 and np.linalg.norm(self.x0 - explo_pt) < 20:
+        if explo!=0 and np.linalg.norm(self.x0 - explo_pt[:-1]) < 20:
             colorT*=np.array([1,0,0])
         self.light=colorT
 
@@ -1906,7 +1916,7 @@ class Thing():
                                   M_charac['degat'][self.type_M]))
 
     def explo_zone(self):
-        if (np.linalg.norm(self.x0 - explo_pt) < 20 and explo == 1) and self.vie > 0:
+        if (np.linalg.norm(self.x0 - explo_pt[:-1]) < 20 and explo == 1) and self.vie > 0:
             self.vie -= explo_deg[explo_type]*self.shield
             for i in range(randint(5, 10)):
                 if self.type_M<=4:
@@ -2026,7 +2036,7 @@ class Thing():
         if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
             colorT = np.array([1, 1, 1.])
         colorT = light_modif(colorT, level, c3)
-        if explo!=0 and np.linalg.norm(self.x0 - explo_pt) < 20:
+        if explo!=0 and np.linalg.norm(self.x0 - explo_pt[:-1]) < 20:
             colorT*=np.array([1,0,0])
         self.light=colorT
         all_light_e[self.num]=self.light
@@ -2136,7 +2146,7 @@ class Object():
         if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
             colorT = np.array([1, 1, 1])
         colorT = light_modif(colorT, level, 0)
-        if explo!=0 and np.linalg.norm(self.x0 - explo_pt) < 20:
+        if explo!=0 and np.linalg.norm(self.x0 - explo_pt[:-1]) < 20:
             colorT*=np.array([1,0,0])
         if self.color!=0:
             u = np.array([0, 0, 0])
@@ -2224,7 +2234,7 @@ class Object():
         label_m=[]
 
         if ((self.inline and shoot == 2 and (self.norm <= 5 or arme != 0) and arme != 4) or (
-                np.linalg.norm(self.x0 - explo_pt) < 20 and explo == 1)) and self.vie > 0 and self.type_M in destr:
+                np.linalg.norm(self.x0 - explo_pt[:-1]) < 20 and explo == 1)) and self.vie > 0 and self.type_M in destr:
             self.vie = 0
             Killed_O[0] = Killed_O[0] + 1
             if arme != 0:
@@ -2237,7 +2247,7 @@ class Object():
                               'image/effects/spark.png', 1))
                 s.play()
                 explo = 5
-                explo_pt[:] = self.x0
+                explo_pt[:-1] = self.x0
                 explo_type=0
                 if self.norm < 15:
                     VIE = VIE - explo_deg[explo_type]/2
@@ -2255,7 +2265,7 @@ class Object():
         if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
             colorT = np.array([1, 1, 1])
         colorT = light_modif(colorT, level, c3)
-        if explo!=0 and np.linalg.norm(self.x0 - explo_pt) < 20:
+        if explo!=0 and np.linalg.norm(self.x0 - explo_pt[:-1]) < 20:
             colorT*=np.array([1,0,0])
         if self.color != 0:
             u = np.array([0, 0, 0])
@@ -2529,7 +2539,7 @@ class grenade(pygame.sprite.Sprite):
                           'image/effects/spark.png', 1))
             s.play()
             explo = 5
-            explo_pt = self.p[:-1]
+            explo_pt = self.p
             explo_type=1
             if self.D < 15:
                 VIE = VIE - explo_deg[explo_type]/2
@@ -3949,7 +3959,7 @@ shield2=pygame.image.load('image/effects/shield2.png').convert_alpha()
 ttt = []
 bleed = 0
 explo = 0
-explo_pt = np.array([0., 0.])
+explo_pt = np.array([0., 0.,0.])
 Sky_view = 0
 ang = (1e-5, 0)
 explo_cool=0
@@ -4742,7 +4752,7 @@ while running == 1:
                         if key[K_RETURN] and explo_cool==0:
                             s = pygame.mixer.Sound("son/barril.ogg")
                             s.play()
-                            explo_pt=i.x0+np.array([np.cos(-i.orient+pi/2),np.sin(-i.orient+pi/2)])*20
+                            explo_pt=np.concatenate((i.x0+np.array([np.cos(-i.orient+pi/2),np.sin(-i.orient+pi/2)])*20,np.array([0.])))
                             explo=5
                             explo_type=2
                             explo_cool=100
@@ -4756,8 +4766,9 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things')
 
-    Im,index_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine)
+    Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine)
     Im = np.minimum(Im, 255)
+    depth=depth_e[:,:,None]
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
 
