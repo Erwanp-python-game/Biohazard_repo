@@ -387,11 +387,50 @@ def intersect(counter_,screenV, screenP, cell_start, cell_count, cell_objects, c
                                     Xl[i, j, 0]=px
                                     Xl[i, j, 1] = py
                                     Xl[i, j, 2] = pz
-                                    # Im[i, j, 0] =im[gu, gv + shift,0]
-                                    # Im[i, j, 1] = im[gu, gv + shift, 1]
-                                    # Im[i, j, 2] = im[gu, gv + shift, 2]
 
 
+                        # else:
+                        #     # ---- SPHERE ----
+                        #
+                        #     C = all_X[obj]  # center
+                        #     r = 1.  # you must add this array
+                        #
+                        #     dx0 = X0[0] - C[0]
+                        #     dy0 = X0[1] - C[1]
+                        #     dz0 = X0[2] - C[2]
+                        #
+                        #     b = dx0 * ray[0] + dy0 * ray[1] + dz0 * ray[2]
+                        #     c = dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - r * r
+                        #
+                        #     disc = b * b - c
+                        #
+                        #     if disc > 0.0:
+                        #         t_ = -b - np.sqrt(disc)
+                        #
+                        #         if 0.0 < t_ < t_int[j]:
+                        #             px = X0[0] + t_ * ray[0]
+                        #             py = X0[1] + t_ * ray[1]
+                        #             pz = X0[2] + t_ * ray[2]
+                        #
+                        #             # simple spherical UV (optional)
+                        #             nx = (px - C[0]) / r
+                        #             ny = (py - C[1]) / r
+                        #             nz = (pz - C[2]) / r
+                        #
+                        #             u = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
+                        #             v = 0.5 - np.arcsin(nz) / np.pi
+                        #
+                        #             t_int[j] = t_
+                        #
+                        #             S[i, j, 0] = u
+                        #             S[i, j, 1] = v
+                        #             S[i, j, 2] = t_
+                        #
+                        #             wall_ind[i, j] = obj
+                        #
+                        #             Xl[i, j, 0] = px
+                        #             Xl[i, j, 1] = py
+                        #             Xl[i, j, 2] = pz
             # Early exit check
             done = True
             for jj in range(h):
@@ -2315,7 +2354,7 @@ class boule(pygame.sprite.Sprite):
 
     def affiche(self):
         if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and self.D <= \
-                depth[int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))]:
+                depth[int(self.X * 2*scrnL[0]) % (2*2 * scrnL[0])][int(self.Y *2* scrnL[1] % (2*2 * scrnL[1]))]:
 
             colorT = light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2]
             if light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2].sum() == 0:
@@ -2435,7 +2474,7 @@ class grenade(pygame.sprite.Sprite):
 
     def affiche(self):
         if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and self.D <= \
-                depth[int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))]:
+                depth[int(self.X * 2*scrnL[0]) % (2*2 * scrnL[0])][int(self.Y *2* scrnL[1] % (2*2 * scrnL[1]))]:
 
             self.imA = pygame.transform.scale(self.im[(c) % 4], (
                 min(int(Ratio*self.size / self.f0[0]), window[1] // 1), min(int(Ratio*self.size / self.f0[0]), window[1] // 1)))
