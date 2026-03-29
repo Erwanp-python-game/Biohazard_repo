@@ -432,6 +432,8 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                                         ind=all_destruc[obj]
                                     trans=all_trans_im[obj][ind]
                                     open=trans[gu,gv+shift]
+                                if all_liquid[obj]:
+                                    open=False
                                 if open:
                                     t_int[j] = t_
                                     S[i, j, 0] = u
@@ -3786,7 +3788,7 @@ def load_level(level_name):
     all_a=np.array([i.a[0,0,:] for i in all_walls])
     all_b = np.array([i.b[0, 0, :] for i in all_walls])
     all_X = np.array([i.X[0, 0, :] for i in all_walls])
-    all_liquid= np.array([0 for i in all_walls])
+    all_liquid= np.array([i.text[11:-3] in liquid_floor for i in all_walls])
     all_ab=np.array([np.dot(i.a[0, 0, :],i.b[0, 0, :]) for i in all_walls])
     all_aa = np.array([np.dot(i.a[0, 0, :],i.a[0, 0, :]) for i in all_walls])
     all_bb = np.array([np.dot(i.b[0, 0, :], i.b[0, 0, :]) for i in all_walls])
