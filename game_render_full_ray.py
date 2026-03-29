@@ -153,7 +153,7 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
               all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid):
 
     X0 = screenP[0, 0]
-
+    liquid=False
     origin_x = 0.5 * (X0[0] + 100.0)
     origin_y = 0.5 * (X0[1] + 100.0)
 
@@ -172,11 +172,14 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
     
     Im = np.full((w, h, 3), 0, dtype=np.float32)
     Im2 = np.full((w, h, 4), 0, dtype=np.float32)
+    Im_liquid = np.full((w, h, 4), 0, dtype=np.float32)
     S = np.full((w, h, 3), 1e6, dtype=np.float32)
+    S_liquid = np.full((w, h, 3), 1e6, dtype=np.float32)
     S_explo = np.full((w, h, 3), 1e6, dtype=np.float32)
     Xl = np.full((w, h, 3), 1e6, dtype=np.float32)
     POS_l = np.full((w, h), 1e6, dtype=np.float32)
     wall_ind = np.zeros((w, h), np.int32)
+    wall_ind_liquid = np.zeros((w, h), np.int32)
 
     n_obj = len(all_a)
     torch_glob=np.full((w),False, dtype=bool)
@@ -434,6 +437,11 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                                     open=trans[gu,gv+shift]
                                 if all_liquid[obj]:
                                     open=False
+                                    S_liquid[i, j, 0] = u
+                                    S_liquid[i, j, 1] = v
+                                    S_liquid[i, j, 2] = t_
+
+                                    wall_ind_liquid[i, j] = obj
                                 if open:
                                     t_int[j] = t_
                                     S[i, j, 0] = u
@@ -505,11 +513,13 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
             if done or g==99:
 
                 for jj in range(h):
+
                     obj1=wall_ind[i, jj]
                     tile_z = all_tile_z[obj1]
                     u=S[i, jj,0]
                     v=S[i, jj,1]
                     f = all_format[obj1]
+
                     iu = int((1 - u) * f[0])
                     iv = int((1 - v) * f[1])
 
@@ -592,16 +602,84 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                             Im2[i, jj, 1] = 255 * ((1 - 2*(de-0.5*explo_R)/explo_R))
                             Im2[i, jj, 3] = 125
 
+                    if wall_ind_liquid[i, jj] != 0 and S_liquid[i,jj,2]<S[i,jj,2]:
+                        obj1 = wall_ind_liquid[i, jj]
+                        tile_z = all_tile_z[obj1]
+                        u = S_liquid[i, jj, 0]
+                        v = S_liquid[i, jj, 1]
+                        f = all_format[obj1]
+
+                        iu = int((1 - u) * f[0])
+                        iv = int((1 - v) * f[1])
+
+                        gu = iu % 120
+                        gv = iv % 120
+                        freq = all_freq[obj1]
+                        if ((-iv // 120 + all_phase[obj1] - freq + 1) % freq) == 0:
+                            shift = 120
+                            if iu // 120 > 0 and not (tile_z):
+                                shift = 0
+                        else:
+                            shift = 0
+                        if all_destruc[obj1] < 0:
+                            ind = counter_ // (12 // all_wall_len[obj1])
+                        else:
+                            ind = all_destruc[obj1]
+                        if all_side[obj1] < 0:
+                            im = all_wall_im[obj1][ind]
+                        else:
+                            im = all_wall_im2[obj1][ind]
+                        Cl = all_light_w[obj1]
+                        r = im[gu, gv + shift, 0]
+
+                        light_x = all_light[obj1]
+                        dm = 1e6
+                        for k in (light_x):
+                            dx2 = k[0] - Xl[i, jj, 0]
+                            dy2 = k[1] - Xl[i, jj, 1]
+                            dz2 = k[2] - Xl[i, jj, 2]
+                            d = dx2 * dx2 + dy2 * dy2 + dz2 * dz2
+                            if dm > d:
+                                dm = d
+                        dd = np.sqrt(dm)
+                        POS_l[i, jj] = dd
+                        torch2 = 1.
+                        if torch_shine:
+                            torch2 = TORCHE[i, jj, 0]
+                        if dm == 1e6:
+                            if torch_on:
+                                torch_glob[i] = True
+                                dz = S[i, jj, 2]
+                                torch = torch2 * (0.8 * 1 / (0.01 * 16 * dz) + 1 / (0.1 * np.sqrt(dz)) + 0.2)
+                            else:
+                                torch = 0.
+                        else:
+                            if torch_shine and torch_on:
+                                dz = S[i, jj, 2]
+                                torch = torch2 * (0.8 * 1 / (0.01 * 16 * dz) + 1 / (0.1 * np.sqrt(dz)) + 0.2)
+                            else:
+                                torch = (0.8 * 1 / (0.01 * 16 * dm) + 1 / (0.1 * dd) + 0.2)
+
+                        f = 0.
+                        if fire:
+                            f = 100 * TORCHE[i, jj, 0]
+                        if explo != 0:
+                            f = 40 * explo
+
+                        Im_liquid[i, jj, 0] = r * Cl[0] * torch + f
+                        Im_liquid[i, jj, 1] = im[gu, gv + shift, 1] * Cl[1] * torch + f
+                        Im_liquid[i, jj, 2] = im[gu, gv + shift, 2] * Cl[2] * torch + f
+
 
 
 
 
                 break
 
-    return S, wall_ind,Xl,Im,POS_l,np.sum(torch_glob)>3,Im2
+    return S, wall_ind,Xl,Im,POS_l,np.sum(torch_glob)>3,Im2,Im_liquid,liquid,S_liquid
 
 @njit( fastmath=True)
-def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_on):
+def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_on,Im_liquid,liquid,S_liquid):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -679,6 +757,7 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
                                     Im[ix, iy, 2] = b*l[2]
                                     index_e[ix,iy]=i
                                     depth_e[ix, iy]=x1
+    # if liquid:
 
     return Im,index_e,np.minimum(depth_e,S[:,:,2])
 
@@ -4511,7 +4590,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2=intersect(ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid)
     if key[K_u]:
         plt.imshow(Im_ray/255)
         plt.show()
@@ -4774,7 +4853,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things')
 
-    Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine)
+    Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine,Im_liquid,liquid,S_liquid)
     Im = np.minimum(Im, 255)
     depth=depth_e[:,:,None]
     milliseconds.append(time.perf_counter()*1000)
