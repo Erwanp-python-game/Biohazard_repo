@@ -172,7 +172,7 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
     
     Im = np.full((w, h, 3), 0, dtype=np.float32)
     Im2 = np.full((w, h, 4), 0, dtype=np.float32)
-    Im_liquid = np.full((w, h, 4), 0, dtype=np.float32)
+    Im_liquid = np.full((w, h, 3), 0, dtype=np.float32)
     S = np.full((w, h, 3), 1e6, dtype=np.float32)
     S_liquid = np.full((w, h, 3), 1e6, dtype=np.float32)
     S_explo = np.full((w, h, 3), 1e6, dtype=np.float32)
@@ -603,6 +603,7 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                             Im2[i, jj, 3] = 125
 
                     if wall_ind_liquid[i, jj] != 0 and S_liquid[i,jj,2]<S[i,jj,2]:
+
                         obj1 = wall_ind_liquid[i, jj]
                         tile_z = all_tile_z[obj1]
                         u = S_liquid[i, jj, 0]
@@ -665,7 +666,7 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                             f = 100 * TORCHE[i, jj, 0]
                         if explo != 0:
                             f = 40 * explo
-
+                        r = im[gu, gv + shift, 0]
                         Im_liquid[i, jj, 0] = r * Cl[0] * torch + f
                         Im_liquid[i, jj, 1] = im[gu, gv + shift, 1] * Cl[1] * torch + f
                         Im_liquid[i, jj, 2] = im[gu, gv + shift, 2] * Cl[2] * torch + f
@@ -676,6 +677,7 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
 
                 break
 
+    liquid=(wall_ind_liquid!=0).any()
     return S, wall_ind,Xl,Im,POS_l,np.sum(torch_glob)>3,Im2,Im_liquid,liquid,S_liquid
 
 @njit( fastmath=True)
@@ -757,9 +759,15 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
                                     Im[ix, iy, 2] = b*l[2]
                                     index_e[ix,iy]=i
                                     depth_e[ix, iy]=x1
-    # if liquid:
-
-    return Im,index_e,np.minimum(depth_e,S[:,:,2])
+    d=np.minimum(depth_e, S[:, :, 2])
+    if liquid:
+        for i in range(W):
+            for j in range(H):
+                if S_liquid[i,j,2]<d[i,j] and S_liquid[i,j,2]!=1e6:
+                    Im[i, j, 0] = (Im[i, j, 0]+Im_liquid[i,j,0])/2
+                    Im[i, j, 1] = (Im[i, j, 1]+Im_liquid[i, j, 1])/2
+                    Im[i, j, 2] = (Im[i, j, 2]+Im_liquid[i, j, 2])/2
+    return Im,index_e,d
 
 
 
