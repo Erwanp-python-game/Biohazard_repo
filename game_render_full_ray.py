@@ -148,7 +148,7 @@ def build_cell_csr(cell_array):
     return cell_start, cell_count, cell_objects
 
 @njit(parallel=True, fastmath=True)
-def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
+def intersect(c3,a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
               all_a, all_b, all_X,
               all_aa, all_bb, all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid):
 
@@ -610,8 +610,8 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                         v = S_liquid[i, jj, 1]
                         f = all_format[obj1]
 
-                        iu = int((1 - u) * f[0])
-                        iv = int((1 - v) * f[1])
+                        iu = int((1 - u) * f[0]+c3 * 0.5)
+                        iv = int((1 - v) * f[1]+c3 * 0.5)
 
                         gu = iu % 120
                         gv = iv % 120
@@ -666,7 +666,7 @@ def intersect(a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_obje
                             f = 100 * TORCHE[i, jj, 0]
                         if explo != 0:
                             f = 40 * explo
-                        r = im[gu, gv + shift, 0]
+
                         Im_liquid[i, jj, 0] = r * Cl[0] * torch + f
                         Im_liquid[i, jj, 1] = im[gu, gv + shift, 1] * Cl[1] * torch + f
                         Im_liquid[i, jj, 2] = im[gu, gv + shift, 2] * Cl[2] * torch + f
@@ -4598,7 +4598,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid)
     if key[K_u]:
         plt.imshow(Im_ray/255)
         plt.show()
