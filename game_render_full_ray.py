@@ -828,35 +828,83 @@ def cells_crossed_by_segment(X, A, cell_size=1.0, eps=1e-9):
 
     return cells
 
-def cells_covered_by_plane(X, A,B, cell_size=1.0):
-    x0, y0 = X
-    ax, ay = A
-    bx, by = B
+# def cells_covered_by_plane(X, A,B, cell_size=1.0):
+#     x0, y0 = X
+#     ax, ay = A
+#     bx, by = B
+#
+#
+#     ix = np.floor(x0 / cell_size)
+#     iy = np.floor(y0 / cell_size)
+#
+#     ix1 = np.floor((x0+ax) / cell_size)
+#     iy1 = np.floor((y0+by) / cell_size)
+#
+#
+#     xmin = int(min(ix, ix1))
+#     xmax = int(max(ix, ix1))
+#     ymin = int(min(iy, iy1))
+#     ymax = int(max(iy, iy1))
+#     cells = []
+#     for ix in range(xmin, xmax + 1):
+#         for iy in range(ymin, ymax + 1):
+#             cells.append((ix, iy))
+#
+#     return cells
+# def plane(a,b,X):
+#     M = np.stack((a * 1.1, b * 1.1, -screenV), axis=-1)
+#     B = -X + screenP
+#     inv_M = np.linalg.inv(M)
+#     S = np.einsum('...ij,...j->...i', inv_M, B)
+#     return S
+
+import numpy as np
+
+def point_in_parallelogram_ortho(P, X, A, B):
+    AP = P - X
+
+    AA = np.dot(A, A)
+    BB = np.dot(B, B)
+
+    u = np.dot(AP, A) / AA
+    v = np.dot(AP, B) / BB
+
+    return (0 <= u <= 1) and (0 <= v <= 1)
 
 
-    ix = np.floor(x0 / cell_size)
-    iy = np.floor(y0 / cell_size)
+def cells_covered_by_plane(X, A, B, cell_size=1.0):
+    X = np.array(X)
+    A = np.array(A)
+    B = np.array(B)
 
-    ix1 = np.floor((x0+ax) / cell_size)
-    iy1 = np.floor((y0+by) / cell_size)
+    # 4 corners
+    corners = np.array([
+        X,
+        X + A,
+        X + B,
+        X + A + B
+    ])
 
+    # Bounding box
+    ix = np.floor(corners[:, 0] / cell_size)
+    iy = np.floor(corners[:, 1] / cell_size)
 
-    xmin = int(min(ix, ix1))
-    xmax = int(max(ix, ix1))
-    ymin = int(min(iy, iy1))
-    ymax = int(max(iy, iy1))
+    xmin, xmax = int(ix.min()), int(ix.max())
+    ymin, ymax = int(iy.min()), int(iy.max())
+
     cells = []
+
     for ix in range(xmin, xmax + 1):
         for iy in range(ymin, ymax + 1):
-            cells.append((ix, iy))
+            # cell center
+            cx = (ix + 0.5) * cell_size
+            cy = (iy + 0.5) * cell_size
+            P = np.array([cx, cy])
+
+            if point_in_parallelogram_ortho(P, X, A, B):
+                cells.append((ix, iy))
 
     return cells
-def plane(a,b,X):
-    M = np.stack((a * 1.1, b * 1.1, -screenV), axis=-1)
-    B = -X + screenP
-    inv_M = np.linalg.inv(M)
-    S = np.einsum('...ij,...j->...i', inv_M, B)
-    return S
 
 def explo_zone(R,dist):
     if explo_type!=2:
@@ -3439,7 +3487,7 @@ def load_level(level_name):
     cell_array_z[:,:,0]=50
     cell_array_z[:, :, 1] = -50
     cell_array = create_cell_array(cell_size)
-    # fig,ax=plt.subplots(1,4)
+    fig,ax=plt.subplots(1,4)
     for cw,i in enumerate(wall):
         if i not in h_wall:
             cells=cells_crossed_by_segment(0.5*(i.X[0,0,:-1]+100),0.5*i.b[0,0,:-1],cell_size)
@@ -3501,10 +3549,10 @@ def load_level(level_name):
                 if i.X[0,0,-1]>cell_array_z[int(u[0]),int(u[1]),1] and i.X[0,0,-1]<0:
                     cell_array_z[int(u[0]),int(u[1]),1]=i.X[0,0,-1]
 
-    # ax[1].imshow(cell_array_N)
-    # ax[2].imshow(cell_array_z[:,:,0])
-    # ax[3].imshow(cell_array_z[:, :, 1])
-    # plt.show()
+    ax[1].imshow(cell_array_N)
+    ax[2].imshow(cell_array_z[:,:,0])
+    ax[3].imshow(cell_array_z[:, :, 1])
+    plt.show()
     cell_start, cell_count, cell_objects = build_cell_csr(cell_array)
     all_walls=wall.copy()
     all_a=np.array([i.a[0,0,:] for i in all_walls])

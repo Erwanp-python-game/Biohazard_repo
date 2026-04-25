@@ -23,7 +23,7 @@ GAMEPLAY
 
 flames
 sphere and cylinders
-rotated platforms
+rotated platforms (requires to deal with light filling in level)
 moving platform and mechanism
 armor
 fire thrower
