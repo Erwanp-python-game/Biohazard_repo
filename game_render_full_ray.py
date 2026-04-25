@@ -9,8 +9,7 @@ import pickle
 import cv2
 pygame.init()
 import os
-# import torch
-# os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+
 from random import random, randint
 from PATH import astar, Node
 import ast
@@ -18,13 +17,7 @@ import datetime as dt
 from Boss import BOSS, LIZARD, nearest_valid, rot_z, rot_y, rot_plan, light_modif
 from numba.typed import List
 from numba import types
-# def rot_z(theta):
-# return np.array([[np.cos(theta),-np.sin(theta),0],[np.sin(theta),np.cos(theta),0],[0,0,1]])
-# def rot_y(theta):
-# return np.array([[np.cos(theta),0,np.sin(theta)],[0,1,0],[-np.sin(theta),0,np.cos(theta)]])
 
-# def rot_plan(theta):
-# return np.array([[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]])
 activatedT = []
 lifts = []
 scrnL = np.array([80, 40])
@@ -61,17 +54,11 @@ screenP = screen[:, :, :3]
 
 
 CENTER = np.expand_dims(np.linalg.norm(screen[:, :, :3] - [0, 0, 0], axis=-1).repeat(2, axis=0).repeat(2, axis=1), -1)
-# TORCHE = np.expand_dims(
-#     (np.maximum(np.cos(I_n[:, :, 0] * pi / 2) * np.cos(I_n[:, :, 1] * 2 * pi / 2), 0)).repeat(4, axis=0).repeat(4,
-#                                                                                                                 axis=1),
-#     -1)
-
 TORCHE = np.expand_dims(
     cv2.resize(np.maximum(np.cos(I_n[:, :, 0] * pi / 2) * np.cos(I_n[:, :, 1] * 2 * pi / 2), 0),None,fx=4,fy=4,interpolation=cv2.INTER_LINEAR),
     -1)
 torch_on = 0
 TORCHE3=TORCHE ** 3
-
 
 R_c = np.array([-1, 0, 0])
 Vg = np.array([1, -sqrt(2) / 2]) / sqrt(3 / 2)
@@ -874,7 +861,7 @@ def explo_zone(R,dist):
         white = np.array([[[1, 1, 1]]])
         yellow=np.array([[[1,1,1]]])
         red=np.array([[[0.5,0.5,1]]])
-    #color=yellow*(1-(dist/R))+red*(dist/R)
+
     color = np.where(dist<R/2,white*(1-(2*dist/R))+yellow*(2*dist/R),yellow*(1-(2*(dist-0.5*R)/R))+red*(2*(dist-0.5*R)/R))
     return color
 
@@ -1146,12 +1133,7 @@ class Wall():
             colo = (50, 50, 255)
         verrou.fill(colo, special_flags=BLEND_RGB_MULT)
         Imdeco.blit(verrou, (0, 0))
-        # IM = np.transpose(pygame.surfarray.pixels3d(Imdeco), (1, 0, 2))
-        # IM = np.where(np.expand_dims(((IM - np.array([255, 0, 255])) == 0).all(-1), -1), -1, IM)
-        # IM = np.where(np.expand_dims(((IM - np.array([0, 255, 255])) == 0).all(-1), -1), -2, IM)
-        # self.window = np.sum(IM <= -1)
-        #
-        # self.wall_im[0] = np.flip(np.minimum(IM + 1, 255), (0, 1))
+
         IM = np.transpose(pygame.surfarray.pixels3d(Imdeco), (1, 0, 2))
 
         self.wall_im[0] = np.flip(np.minimum(IM, 255), (0, 1))
@@ -1187,13 +1169,7 @@ class Wall():
                 (self.X_middle[0][0] + V[0] * self.a_old[0][0] + V[1] * self.b_old[0][0])[:-1] - (
                             R_c[:-1] ))
 
-        # if self.text.split('/')[1]=='flat':
-        #     add0=np.linalg.norm(self.X[0][0][:-1]-R_c[:-1])
-        #     add1 = np.linalg.norm(self.X[0][0][:-1] - R_c[:-1])
-        #     add2 = np.linalg.norm(self.X[0][0][:-1] - R_c[:-1])
-        #     add3 = np.linalg.norm(self.X[0][0][:-1] - R_c[:-1])
-        #     self.add=(add0+add1+add2+add3)/4
-        #     self.norm+=self.add*1e-3
+
         self.inter=V
         self.reset_rend()
         if (shoot == 1 or self.explo) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco != 0:
@@ -1225,14 +1201,6 @@ class Wall():
         No = self.n[:-1]
         No = No / np.linalg.norm(No)
 
-        # rap = [-t[0] * No[1] + t[1] * No[0], -t[0] * No[0] - t[1] * No[1]]
-        # rap0 = [-(cos(-ang[0]) * No[1] + sin(-ang[0]) * No[0]), (-cos(-ang[0]) * No[0] - sin(-ang[0]) * No[1])]
-        #
-        # Sang=np.arctan2(rap[0], rap[1])
-        # Sang0 = np.arctan2(rap0[0], rap0[1])
-
-
-
         x_ = self.X_middle[0][0][0]
         y_ = self.X_middle[0][0][1]
         a_ = self.b_old[0][0][0]
@@ -1245,10 +1213,7 @@ class Wall():
             return No
         else:
             return -No
-        # if self.side < 0:
-        #     return (-t - abs(np.dot(-t, No)) * No)
-        # else:
-        #     return (-t - abs(np.dot(-t, -No)) * -No)
+
 
     def test_behind(self):
         global all_side
@@ -1442,34 +1407,7 @@ class Wall():
         else:
             return False
 
-    def compute_mask_fast(self):
 
-        S = self.S  # local bind
-        d = depth[:,:,0]  # local bind
-
-        a0 = S[..., 0]
-        a1 = S[..., 1]
-        a2 = S[..., 2]
-
-        # tmp_bool = ((a0 <= d) & (a0 > 0)) combined with channels 1 and 2, in-place
-        np.less_equal(a0, d, out=self._tmp_bool)  # tmp = a0 <= d
-        np.logical_and(self._tmp_bool, a0 > 0, out=self._tmp_bool)  # tmp &= (a0 > 0)
-        # combine channel 1
-        np.logical_and(self._tmp_bool, a1 <= d, out=self._tmp_bool)
-        np.logical_and(self._tmp_bool, a1 > 0, out=self._tmp_bool)
-        # combine channel 2
-        np.logical_and(self._tmp_bool, a2 <= d, out=self._tmp_bool)
-        np.logical_and(self._tmp_bool, a2 > 0, out=self._tmp_bool)
-        # now tmp_bool is mask1
-
-        # tmp_bool2 = (a0 < 1) & (a1 < 1)
-        np.less(a0, 1, out=self._tmp_bool2)
-        np.logical_and(self._tmp_bool2, a1 < 1, out=self._tmp_bool2)
-        # final U = tmp_bool & tmp_bool2  (reuse self.U as output)
-        np.logical_and(self._tmp_bool, self._tmp_bool2, out=self.U)
-
-        # fill Ub without allocation
-        self.Ub[:] = self.U
 
     def render(self):
         global depth, POS, Sky_view,explo_R,wall_index
@@ -1478,78 +1416,14 @@ class Wall():
         self.time=(0,0)
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
-        # self.M = np.stack((self.a[::2, ::2, :] * 1.01, self.b[::2, ::2, :] * 1.01, -screenV[::2, ::2, :]), axis=-1)
-        # self.B = -self.X[::2, ::2, :] + screenP[::2, ::2, :]
-        #
-        # # self.S=(np.linalg.solve(self.M.astype(np.float32),self.B.astype(np.float32)))
-        # inv_M = np.linalg.inv(self.M)
-        # self.S = np.einsum('...ij,...j->...i', inv_M, self.B)
 
-
-        # M = self._M
-        # B = self._B
-        # M[..., 0] = self.a_sliced
-        # M[..., 1 ] = self.b_sliced
-        # M[..., 2] = -v_
-        #
-        # # --- fill B in-place ---
-        # B[...] = p_ - self.X_sliced
-        #
-        # # --- solve batched 3x3 systems ---
-        # self.S = np.linalg.solve(M, B)
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('solving')
 
-        # self.M=torch.tensor(np.stack((self.a[:,:,:]*1.01,self.b[:,:,:]*1.01,-screenV[:,:,:]),axis=-1))
-        # self.B=torch.tensor(-self.X[:,:,:]+screenP[:,:,:])
-        # self.S=(torch.linalg.solve(self.M.to('cuda'),self.B.to('cuda'))).to('cpu').numpy()
-
-        # for i in range(2):
-        #     self.S = self.S.repeat(2, axis=0).repeat(2, axis=1)
-        #     self.S[:, :, :-1] = (np.roll(self.S[:, :, :-1], 1, axis=0) + np.roll(self.S[:, :, :-1], 1,
-        #                                                                          axis=1) + np.roll(self.S[:, :, :-1],
-        #                                                                                            -1,
-        #                                                                                            axis=1) + np.roll(
-        #         self.S[:, :, :-1], -1, axis=0)) / 4
-        #     AbsS = np.absolute(self.S[:, :, -1])
-        #     self.S[:, :, -1] = (np.sign(self.S[:, :, -1]) * (
-        #                 np.roll(AbsS, 1, axis=0) + np.roll(AbsS, 1, axis=1) + np.roll(AbsS, -1, axis=1) + np.roll(AbsS,
-        #                                                                                                           -1,
-        
-        # S00=np.sign(self.S[:,:,-1])
-        # S00=cv2.resize(S00,None,fx=4,fy=4,interpolation=cv2.INTER_NEAREST)
-        # self.S[:, :, -1]=np.absolute(self.S[:,:,-1])
-        # self.S=cv2.resize(self.S,None,fx=4,fy=4,interpolation=cv2.INTER_LINEAR)
-        # self.S[:, :, -1]=self.S[:, :, -1]*S00
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('upscale')
-
-        #self.compute_mask_fast()
-
-        # if not(self.sky) and self.window:
-        #
-        #     u = ((1 - self.S[ :,:, :-1]) * self.format).astype(int)
-        #     G_g = np.mod(np.maximum(u, 0), 120)
-        #     if self.side < 0:
-        #         w_im = self.wall_im
-        #         t_im = self.trans_im
-        #     else:
-        #         w_im = self.wall_im2
-        #         t_im = self.trans_im2
-        #     if levelD[level]['deco'][self.deco - 1] not in deco_destruc:
-        #         ind = c // (12 // len(t_im))
-        #     else:
-        #         ind=min(self.vie,2)
-        #     texture = t_im[ind][G_g[:, :, 0], G_g[:, :, 1] + 120 * ((((-u[:, :, 1] // 120 + self.phase_-self.freq+1) % self.freq)) == 0) * (u[:, :, 0] < 120 + 1000 * self.tile_z)]
-        #     self.Ub=self.Ub&(texture)
-
-
-
-        # wall_index[self.Ub] = len(wall_rend)
-        # depth[..., 0][self.Ub] = self.S[:, :, -1][self.Ub]
-
 
 
         milliseconds.append(time.perf_counter()*1000)
@@ -1563,128 +1437,18 @@ class Wall():
             if self.transp:
                 Sky_view = 1
                 return -1 * np.dstack((Ue, Ue, Ue))
-            # self.G=np.full((self.U.shape[0],self.U.shape[1],2),0)
-            # self.G[self.Ub]=np.mod(
-            #     np.maximum(((1 - self.S[:, :, :-1][self.Ub]) * self.format).astype(int), 0) + int(self.phase * c3 * 0.5),
-            #     self.borne)
+
 
 
             milliseconds.append(time.perf_counter()*1000)
             label_m.append('indexing')
 
-            # colorL = [1, 1, 1]
-            # if self.ID in light_color.keys():
-            #     colorL = np.round(np.maximum(np.array(light_color[self.ID]), 0.1), 2)
-            #
-            # colorL = light_modif(colorL, level, c3)
-            #
-            # x_ = self.X[0][0][0]
-            # y_ = self.X[0][0][1]
-            # a_ = self.b[0][0][0]
-            # b_ = self.b[0][0][1]
-            # side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
-            # self.Ar[:]=self.Ar*0.
-            # self.Gx[:] = self.G[..., 0]
-            # self.Gy[:] = self.G[..., 1]
-            #
-            # if levelD[level]['deco'][self.deco - 1] not in deco_destruc:
-            #     if side < 0:
-            #         ind = c // (12 // len(self.wall_im))
-            #
-            #         # boolean mask
-            #         Ub = self.Ub
-            #
-            #         # fast coordinate extraction (no python loops)
-            #         gx = self.Gx[Ub]
-            #         gy = self.Gy[Ub]
-            #
-            #         # fast vectorized texture lookup
-            #         wall_vals = self.wall_im[ind][gx, gy]
-            #
-            #         # assign colored pixels
-            #         self.Ar[Ub] = wall_vals * colorL
-            #
-            #     else:
-            #         ind2 = c // (12 // len(self.wall_im))
-            #
-            #         # boolean mask
-            #         Ub = self.Ub
-            #
-            #         # fast coordinate extraction (no python loops)
-            #         gx = self.Gx[Ub]
-            #         gy = self.Gy[Ub]
-            #
-            #         # fast vectorized texture lookup
-            #         wall_vals = self.wall_im2[ind2][gx, gy]
-            #
-            #         # assign colored pixels
-            #         self.Ar[Ub] = wall_vals * colorL
-            # else:
-            #     ind = min(self.vie,2)
-            #
-            #     # boolean mask
-            #     Ub = self.Ub
-            #
-            #     # fast coordinate extraction (no python loops)
-            #     gx = self.Gx[Ub]
-            #     gy = self.Gy[Ub]
-            #
-            #     # fast vectorized texture lookup
-            #     wall_vals = self.wall_im2[ind][gx, gy]
-            #
-            #     # assign colored pixels
-            #     self.Ar[Ub] = wall_vals * colorL
-
             milliseconds.append(time.perf_counter()*1000)
             label_m.append('render')
-            # # 1) Build filt quickly (no expand_dims, no all(2))
-            # self.filt[:] = ~(self.Ar == 0).all(axis=2)
-            #
-            # # filt is (H, W) boolean
-            #
-            # # 2) If needed, write depth in masked locations
-            # if self.text[11:-3] not in liquid_floor:
-            #     depth[..., 0][self.filt] = self.S[:, :, -1][self.filt]
-            #
-            # # 3) Update U
-            # self.U &= self.filt  # faster than multiply and no temp arrays
-            # self.Ub[:] = self.U  # already boolean so no .astype(bool)
-            #
-            # # 4) Vectorized Xl construction (remove expand_dims, use broadcasting)
-            # self.Xl_small[:] = (
-            #         self.S[::2, ::2, 0, None] * (self.a * self.overlap) +
-            #         self.S[::2, ::2, 1, None] * (self.b * self.overlap) +
-            #         self.X
-            # )
-            #
-            # # Upscale 2× using np.repeat once (repeat twice is slow)
-            #
-            # self.Xl = cv2.resize(self.Xl_small,None,fx=2,fy=2,interpolation=cv2.INTER_LINEAR)
 
-            # 5) Make D fast
-            # self.Da[:] =1000.#
             milliseconds.append(time.perf_counter() * 1000)
             label_m.append('global clipping')
 
-
-            # if self.ID in light_wall.keys():
-            #     Y0 = [np.linalg.norm(source_pos(i) - R_c) for i in light_wall[self.ID]]
-            #     X0 = [x for _, x in sorted(zip(Y0, light_wall[self.ID]))]
-            #     for i in X0[:min(len(X0), 4)]:
-            #         Xsource = source_pos(i)#+np.array([10*sin(c3/100),10*sin(c3/100),0.])
-            #         self.Da[self.Ub] = np.minimum(self.Da[self.Ub], np.linalg.norm(self.Xl[self.Ub] - Xsource, axis=-1))
-            #     POS[self.Ub] = self.Da[self.Ub]
-            #     self.Ar = self.Ar * level_light
-            # else:
-            #     self.Da[self.Ub] = np.minimum(self.Da[self.Ub], (np.linalg.norm(self.Xl[self.Ub] - R_c, axis=-1) ** 0.5))
-            #     POS[self.Ub] = self.Da[self.Ub]
-            #     self.Ar = self.Ar * torch_on * TORCHE ** 3
-            # if explo!=0:
-            #     explo_R=np.minimum(explo_R,np.expand_dims(np.linalg.norm(self.Xl - np.array([explo_pt[0],explo_pt[1],0.]), axis=-1)*self.U+100*(1-self.U),-1))
-            # if explo==4:
-            #     self.explo=np.sum(explo_R<20)
-            # else:
-            #     self.explo=0
 
 
             milliseconds.append(time.perf_counter()*1000)
@@ -1715,65 +1479,6 @@ def render_numba(screenX, screenY, wallN, wall_a, wall_b, wall_x, screenV, scree
             S_out[i, j] = S
 
     return S_out
-
-#
-# @njit(parallel=True, fastmath=True)
-# def render_ray_step_sign(screenX, screenY, wallN, wall_a, wall_b, wall_x, screenV, screenP,
-#                          step_size=10., max_steps=50):
-#     """
-#     Ray-stepping renderer that correctly handles wall side orientation.
-#
-#     screenX, screenY: screen resolution
-#     wallN: number of walls
-#     wall_a, wall_b: wall direction vectors (3D)
-#     wall_x: wall positions (3D)
-#     screenV: ray direction vector (3D)
-#     screenP: ray origin (3D)
-#     step_size: distance increment along ray
-#     max_steps: maximum number of steps per pixel
-#     """
-#     S_out = np.zeros((screenX, screenY, 3))  # final intersection points or last position
-#
-#     for i in prange(screenX):  # only outer loop parallel
-#         for j in range(screenY):
-#             ray_pos = screenP.copy()
-#             intersect_found = False
-#
-#             for k in range(wallN):
-#                 # precompute wall normal and initial side
-#                 a = wall_a[k]
-#                 b = wall_b[k]
-#                 x0 = wall_x[k]
-#                 normal = np.cross(a, b)
-#                 initial_side = np.dot(ray_pos - x0, normal)
-#
-#                 # store for comparison
-#                 wall_a[k] = normal  # optional if needed
-#
-#             for s in range(max_steps):
-#                 for k in range(wallN):
-#                     a = wall_a[k]
-#                     b = wall_b[k]  # unused here; just keep loop structure
-#                     x0 = wall_x[k]
-#                     normal = np.cross(a, b)
-#                     side = np.dot(ray_pos - x0, normal)
-#
-#                     # detect sign flip relative to initial side
-#                     if side * initial_side <= 0.0:
-#                         S_out[i, j] = ray_pos
-#                         intersect_found = True
-#                         break  # exit wall loop
-#
-#                 if intersect_found:
-#                     break  # exit stepping loop
-#
-#                 ray_pos += np.array([1.,0.,0.])
-#
-#             if not intersect_found:
-#                 S_out[i, j] = ray_pos
-#
-#     return S_out
-
 
 
 
@@ -1848,10 +1553,9 @@ class Thing():
             self.angle = A
             all_angle[self.num]=self.angle
 
-            self.im = self.im_dict[c // 3][self.angle]  # np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
-            self.vis = self.vis_dict[c // 3][self.angle]  # np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
-            # self.im = np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
-            # self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+            self.im = self.im_dict[c // 3][self.angle]
+            self.vis = self.vis_dict[c // 3][self.angle]
+
 
     def preprocess_walk(self):
         dict0 = {}
@@ -1916,8 +1620,8 @@ class Thing():
 
     def walk(self):
 
-        self.im = self.im_dict[c//3][self.angle]#np.minimum(pygame.surfarray.pixels3d(MD[self.type_M][c // 3][self.angle]), 255)
-        self.vis = self.vis_dict[c//3][self.angle]#np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+        self.im = self.im_dict[c//3][self.angle]
+        self.vis = self.vis_dict[c//3][self.angle]
         if self.type_M == 6 and self.shield == 0:
             self.im = self.im_dict_shield[c // 3][self.angle]
             self.vis = self.vis_dict_shield[c // 3][self.angle]
@@ -2016,11 +1720,11 @@ class Thing():
             self.vie -= explo_deg[explo_type]*self.shield
             for i in range(randint(5, 10)):
                 if self.type_M<=4:
-                    Boule.append(boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(), 0.1 * random(), 2,
+                    Boule.append(boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(), 0.2+0.1 * random(), 4,
                                        'image/effects/vert.png', 0))
                 else:
                     Boule.append(
-                        boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(), 0.1 * random(), 2,
+                        boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(), 0.2+0.1 * random(), 4,
                               'image/effects/rouge.png', 0))
             if self.active == 0:
                 self.active = 1
@@ -2034,33 +1738,12 @@ class Thing():
         global Killed_E,x_d,all_mort,all_light_e
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
-        # if self.attack_range and self.active and self.vie > 0:
-        #     if self.range == 0:
-        #         self.im = self.im_dict_attack[c//4]
-        #         self.vis=self.vis_dict_attack[c//4]
-        #     else:
-        #
-        #         self.im = self.im_dict_attack[c2//8]
-        #         self.vis=self.vis_dict_attack[c2//8]
-        #
-        #     if self.type_M==6 and self.shield==0:
-        #         if self.range == 0:
-        #             im=self.im_dict_attack_s[c // 4]
-        #             vis=self.vis_dict_attack_s[c // 4]
-        #         else:
-        #             im = self.im_dict_attack_s[c2 // 8]
-        #             vis = self.vis_dict_attack_s[c2 // 8]
-        #         self.im = im
-        #         self.vis =vis
+
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('attack')
         if (self.inline and shoot == 2 and (self.attack_range or arme != 0)) and self.vie > 0 and arme != 4:
-            # self.im = self.im_dict_attack[4]
-            # self.vis = self.vis_dict_attack[4]
-            # if self.type_M==6 and self.shield==0:
-            #     self.im = self.im_dict_attack_s[4]
-            #     vis = self.vis_dict_attack_s[4]
+
 
             if shoot:
                 if arme==2:
@@ -2076,11 +1759,11 @@ class Thing():
                     for i in range(randint(5, 10)):
                         if self.type_M <= 4:
                             Boule.append(
-                                boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(), 0.1 * random(), 2,
+                                boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(), 0.2+0.1 * random(), 4,
                                       'image/effects/vert.png', 0))
                         else:
                             Boule.append(
-                                boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(), 0.1 * random(), 2,
+                                boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(), 0.2+0.1 * random(), 4,
                                       'image/effects/rouge.png', 0))
                 if arme != 0:
                     Accuracy[0] = Accuracy[0] + 1
@@ -2095,8 +1778,6 @@ class Thing():
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('hit and move')
         if self.vie <= 0:
-            # self.im = self.im_dict_attack[4 + int(self.mort)]
-            # self.vis = self.vis_dict_attack[4 + int(self.mort)]
             all_mort[self.num]=self.mort
             if self.mort < 4:
                 self.mort = min(self.mort + 0.5, 3)
@@ -2136,44 +1817,24 @@ class Thing():
             colorT*=np.array([1,0,0])
         self.light=colorT
         all_light_e[self.num]=self.light
-        #
-        #
-        # self.SQUARE[:] = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
-        #             Xthing >= self.DX + scrnL[0]) & (Ything <= self.widthY + self.DY + scrnL[1]) & (
-        #                      Ything >= self.DY + scrnL[1]).astype(bool)
+
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('square')
 
 
-        # # channel 0
-        # self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
-        # self.U[..., 0] *= self.SQUARE
-        #
-        # # channel 1
-        # self.U[..., 1] = (Ything - self.DY - scrnL[1]) / self.widthY
-        # self.U[..., 1] *= self.SQUARE
-
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('U')
-        # self.G = np.maximum((self.U * 160).astype(int), 0)
+
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('G')
 
-        # self.Ar=self.im[self.G[..., 0], self.G[..., 1]]*colorT
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('Ar')
-        # if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
-        #     self.Ar = self.Ar * torch_on * TORCHE3
-        #     self.Ar /=  0.1 * np.sqrt(self.norm)
-        #     np.minimum(self.Ar, 255, out=self.Ar)
-        # else:
-        #     self.Ar = self.Ar * level_light
+
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('light')
-
-        # self.Ut = self.vis[self.G[..., 0], self.G[..., 1]]
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('Ut')
@@ -2182,8 +1843,6 @@ class Thing():
             self.shot = []
             x_d0=[]
             for i in range(len(x_d)):
-                # inline = min(np.sum(self.Ut[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
-                #                 1)
 
                 inline_e = index_e[int(2*scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(2*scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2*2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2*2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]
                 inline=(inline_e==self.num).any()
@@ -2276,14 +1935,14 @@ class Object():
             self.angle = A
             all_angle[self.num]=self.angle
 
-            #self.im = np.minimum(pygame.surfarray.pixels3d(MO[self.type_M][self.angle]), 255)
+
             self.im=self.im_dict[self.angle]
             if self.color != 0:
                 u = [0, 0, 0]
                 u[self.color - 1] = 1
                 self.im = u * self.im
             self.vis=self.vis_dict[self.angle]
-            #self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
+
 
         if self.norm < 5:
             if self.type_M == 1:
@@ -2352,8 +2011,6 @@ class Object():
                     s.play()#
 
         if self.mort < 4 and self.vie <= 0:# improve
-            # self.im = np.minimum(pygame.surfarray.pixels3d(Mod[self.type_M][int(self.mort)]), 255)
-            # self.vis = np.where(np.sum(self.im, axis=-1) != 0, 1, 0)
             self.mort = min(self.mort + 1, 3)
             all_mort[self.num]=self.mort
 
@@ -2371,38 +2028,13 @@ class Object():
             self.light = colorT
         all_light_e[self.num]=self.light
 
-        # SQUARE = np.all(self.norm <= depth, axis=-1) & (Xthing <= self.width + self.DX + scrnL[0]) & (
-        #             Xthing >= self.DX + scrnL[0]) & (Ything <= self.widthY + self.DY + scrnL[1]) & (
-        #                      Ything >= self.DY + scrnL[1])
 
-
-
-        # # channel 0
-        # self.U[..., 0] = (Xthing - self.DX - scrnL[0]) /self.width
-        # self.U[..., 0] *= SQUARE
-        #
-        # # channel 1
-        # self.U[..., 1] = (Ything - self.DY - scrnL[1]) / self.widthY
-        # self.U[..., 1] *= SQUARE
-        #
-        # self.G = np.maximum((self.U * 160).astype(int), 0)
-
-        # self.Ar = self.im[self.G[..., 0], self.G[..., 1]] * colorT
-        # if light_array[int(self.x0[0] + 101) // 2][int(self.x0[1] + 101) // 2].sum() == 0:
-        #     self.Ar = self.Ar * torch_on * TORCHE3
-        #     self.Ar /=  0.1 * np.sqrt(self.norm)
-        #     np.minimum(self.Ar, 255, out=self.Ar)
-        # else:
-        #     self.Ar = self.Ar * level_light
-        # self.Ut = self.vis[self.G[..., 0], self.G[..., 1]]
         self.shot=[]
         if shoot==1:
             x_d0=[]
             self.inline=False
             for i in range(len(x_d)):
-                # inline = min(np.sum(self.Ut[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
-                #                 1)
-                # inline=True
+
                 inline_e = index_e[int(2*scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(2*scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2*2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2*2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]
                 inline=(inline_e==self.num).any()
 
@@ -2585,13 +2217,7 @@ class grenade(pygame.sprite.Sprite):
         self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
         self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
 
-        # global VIE, HIT
-        # if np.linalg.norm((self.p[:-1] - x)) < 2 and self.lifetime >= 100:
-        # 	VIE -= self.deg
-        # 	HIT = 1
-        # 	s = pygame.mixer.Sound("son/aie.ogg")
-        # 	s.play()
-        # 	return True
+
 
         self.cool = max(0, self.cool - 1)
 
@@ -3470,7 +3096,6 @@ def show_MAP(MAP):
         (xm - ll * cos(ang[0] + pi / 4 + pi / 2), ym + ll * sin(ang[0] + pi / 4 + pi / 2)),
         (xm + ll * cos(ang[0] + pi / 2), ym - ll * sin(ang[0] + pi / 2)),
         (xm - ll * cos(ang[0] - pi / 4 + pi / 2), ym + ll * sin(ang[0] - pi / 4 + pi / 2))), 3)
-        #pygame.draw.circle(fenetre, (255, 0, 0), (xm, ym), int(0.01 * window[1]))
 
     fenetre.blit(mapback, (int(window[0] / 2 - 0.375 * window[1]), int(0.125 * window[1])))
 
@@ -3671,12 +3296,10 @@ def load_level(level_name):
     fenetre.fill((0, 0, 0))
     fenetre.blit(IMLOAD, (0, int(0.2 * window[1])))
     text = fontH.render(level_nameL[level], True, (255, 255, 255))
-    textRect = text.get_rect()
     fenetre.blit(text, (int(window[0] * 0.05), int(window[1] * 0.05)))
     pygame.time.wait(50)
     pygame.display.flip()
     pygame.time.wait(3000)
-    #fenetre.fill((0, 0, 0))
     pygame.display.flip()
     pygame.time.wait(500)
     pygame.mouse.set_pos([window[0] // 2 - 10, window[1] // 2 + 10])
@@ -3712,7 +3335,7 @@ def load_level(level_name):
     draw_AMMO()
 
     wall = []
-    doors = []  # '2'#'Titounet'
+    doors = []
     f = open("level/" + level_name, "rb")
     level_w = pickle.load(f)
     level_h = pickle.load(f)
@@ -4348,7 +3971,6 @@ while running == 1:
                 if i.norm3 < 3:
 
                     if (i.door and i.closed) or not i.door:
-                        #trans = i.normal(trans @ Rp) @ rot_plan(-ang[0])
                         if i.inter[1]<1 and i.inter[1]>0 or (previous in [0,1.] and i.inter[1]in [0,1.]):
                             if not(i.door_deco) or (i.door_deco and i.cross_wall(trans)):
                                 No+=i.normal()
@@ -4470,130 +4092,8 @@ while running == 1:
     cw=0
     max_depth=1000
     wall_rend=[]
-    render_type = 'ray'
+
     IS = []
-    if render_type!='ray':
-        if moving_cam == True:
-
-            v_ = screenV[::2, ::2]
-            p_ = screenP[::2, ::2]
-            Sky_view = 0
-
-            empty_pixel_count=128000
-            for ci,i in enumerate(wall[0:wall_count]):
-
-                cw+=1
-                devant = True
-                if i not in h_wall:
-                    devant = i.test_behind()
-
-                    time_in_behind+=i.time_behind
-                    if i.window > 0 and devant:
-                        CLOSED = 1
-                        if i.sky>0:
-                            Sky_view = 1
-                else:
-
-                    if i.norm > 6 and i.text[11:-3] not in liquid_floor:
-                        # if len(add_h)<6:# for more floor maybe 4 if previous empty_pixel is big
-                        #     add_h.append(i)
-                        if i.ID in link_h:
-                            add_h.append(i)
-
-
-                        devant = False
-                        # if CLOSED != 0:  # and h_wall.index(i)<=6: # INSTEAD CHECK IF ASSOCIATED DOOR WITH THIS FLOOR IS OPEN AND VISIBLE---COMPLICATED
-                        #     devant = True
-                    else:
-                        ID0=i.ID
-                render_w2 += 1
-
-                if devant:
-                    if i.door==0:
-
-                        link_h+=i.linked
-
-
-                    if i.text[11:-3] not in liquid_floor:
-
-                        render_w += 1
-                        rend=i.render()
-                        wall_rend.append(i)
-                        # Im[i.Ub]=rend[i.Ub]
-                        if np.min(depth)!=100:
-                            max_depth=np.max(depth[depth!=100])
-                        # Im = i.render() + Im * (1 - np.expand_dims(i.U, -1))
-
-                        #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
-
-                        empty_pixel_count = np.sum((depth == 100).astype(int))
-
-
-                        if render_w==1 :#and c3==1:
-
-                            time_in_render=i.time[0]
-                            label_t_render=i.time[1]
-                        else:
-                            time_in_render+=i.time[0]
-                            label_t_render = i.time[1]
-
-
-                    else:
-                        IS.append(i)
-
-
-                if (empty_pixel_count < 4 ) or i.norm>150 or ci==wall_count-1:
-
-                    render_w_add=0
-
-                    add_h+=[k for k in h_wall if k.ID in link_h and k.rendered==False]
-
-                    if empty_pixel_count>4 :
-                        for j in add_h:
-                            if j.rendered==False and j.text[11:-3] not in liquid_floor:
-                                rend = j.render()
-                                wall_rend.append(j)
-                                # Im[j.Ub] = rend[j.Ub]
-                                render_w_add+=1
-                                time_in_render += j.time[0]
-                                label_t_render = j.time[1]
-                    #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
-                    empty_pixel_count = np.sum((depth == 100).astype(int))
-                    break
-
-            if render_w2>wall_count-10:
-                elastic_count += 10
-                if render_w_add>0 and empty_pixel_count<4:
-                    elastic_count -= 10
-            else:
-                elastic_count = max(elastic_count-10,0)
-        render_w_old=render_w
-
-        if moving_cam == True:
-            render_w_add2=0
-            if empty_pixel_count<4 and (horizon!=10000).any():
-                [i.calc_normfast() for i in add_h if i.rendered == False]
-                add_h2=[i for i in add_h if i.normf<max(horizon[horizon!=10000.]) and i.rendered==False and i.text[11:-3] not in liquid_floor and i in h_wall]
-                for j in add_h2:
-
-                    rend = j.render()
-                    wall_rend.append(j)
-                    # Im[j.Ub] = rend[j.Ub]
-                    render_w_add2 += 1
-                        #empty_pixel_count = np.sum((np.sum(Im[3:-3:3, 3:-3:3], axis=-1) == 0).astype(int))
-
-            render_sup_wall=0
-            for ci,i in enumerate( wall[cw:cw+10]):
-                if i.rendered == False and i.test_behind() and i not in h_wall:
-                    render_sup_wall+=1
-                    rend = i.render()
-                    wall_rend.append(i)
-                    # Im[i.Ub] = rend[i.Ub]
-
-
-
-        #print(render_w,render_w_add,render_w_add2,render_sup_wall,empty_pixel_count)
-        render_w=render_w+render_w_add+render_w_add2+render_sup_wall
 
 
 
@@ -4602,94 +4102,37 @@ while running == 1:
     label_deltat.append('walls')
 
     S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid)
-    if key[K_u]:
-        plt.imshow(Im_ray/255)
-        plt.show()
-
-        plt.imshow(wall_ind_i)
-        plt.show()
-
-        plt.imshow(S_i[:,:,0])
-        plt.show()
-
-        plt.imshow(S_i[:,:,1])
-        plt.show()
-
-        plt.imshow(S_i[:,:,2])
-        plt.show()
+    # if key[K_u]:
+    #     plt.imshow(Im_ray/255)
+    #     plt.show()
+    #
+    #     plt.imshow(wall_ind_i)
+    #     plt.show()
+    #
+    #     plt.imshow(S_i[:,:,0])
+    #     plt.show()
+    #
+    #     plt.imshow(S_i[:,:,1])
+    #     plt.show()
+    #
+    #     plt.imshow(S_i[:,:,2])
+    #     plt.show()
 
     milliseconds.append(time.perf_counter() * 1000)
 
     label_deltat.append('intersect')
     depth=S_i[:,:,-1,None]
-    if render_type=='ray':
 
-        uniq, wall_index = np.unique(wall_ind_i, return_inverse=True)
-        # wall_index = wall_index.reshape(wall_ind_i.shape)
-        #
-        wall_rend = np.array(all_walls)[uniq]
-        render_w = uniq.size
+    uniq, wall_index = np.unique(wall_ind_i, return_inverse=True)
+
+    wall_rend = np.array(all_walls)[uniq]
+    render_w = uniq.size
 
 
-        # ind_l = [
-        #     c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
-        #     else c // (12 // len(i.wall_im2)) if (
-        #                 i.side > 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
-        #     else min(i.vie, 2) if (levelD[level]['deco'][i.deco - 1] in deco_destruc)
-        #     else 0
-        #     for i in wall_rend
-        # ]
-        #
-        # wall_im_g = np.concatenate(
-        #     [i.wall_im[ind_l[c0]] if i.side < 0 else i.wall_im2[ind_l[c0]] for c0, i in enumerate(wall_rend)],
-        #     axis=0)
-        # freq_g = np.array([i.freq for i in wall_rend])
-        # phase_g = np.array([i.phase_ - i.freq + 1 for i in wall_rend])
-        # tile_z_g = np.array([i.tile_z for i in wall_rend])
-        # light_g = np.array([light_modif(i.colorL, level, c3) for i in wall_rend])
-        #
-        # format_g = np.stack([i.format for i in wall_rend], axis=0)
-        # i_, j_ = np.indices(wall_index.shape)
-        # S_g_r = S_i
-        #
-        #
-        # u = ((1 - S_g_r[:, :, :-1]) * format_g[wall_index, :]).astype(int)
-        # G_g = np.mod(np.maximum(u, 0), 120)
+    texture=Im_ray
+    Im = texture
 
-        # texture = wall_im_g[120 * wall_index + G_g[:, :, 0], G_g[:, :, 1] + 120 * (
-        #             (((-u[:, :, 1] // 120 + phase_g[wall_index]) % freq_g[wall_index])) == 0) * (
-        #                                 u[:, :, 0] < 120 + 1000 * tile_z_g[wall_index])] * light_g[wall_index]
-        texture=Im_ray
-        Im = texture
-        # Xsource_g = np.empty((4, len(wall_rend), 3))
-        # torch_shine = False
-        # for cg, i in enumerate(wall_rend):
-        #     if i.ID in light_wall.keys():
-        #         Y0 = [np.linalg.norm(source_pos(j) - R_c) for j in light_wall[i.ID]]
-        #         X0 = [x for _, x in sorted(zip(Y0, light_wall[i.ID]))]
-        #         Xsource_g[:, cg, :] = np.array(
-        #             [source_pos(X0[k]) if k < len(X0) else np.array([1e9, 0., 0.]) for k in range(4)])
-        #     else:
-        #         if uniq[cg]!=0:
-        #             torch_shine = True
-        #
-        # a_g = np.array([i.a[0, 0, :] for i in wall_rend])
-        # b_g = np.array([i.b[0, 0, :] for i in wall_rend])
-        # x_g = np.array([i.X[0, 0, :] for i in wall_rend])
-        #
-        # # Xl = S_g_r[:, :, 0, None] * a_g[wall_index, :] + S_g_r[:, :, 1, None] * b_g[wall_index, :] + x_g[wall_index,
-        # #                                                                                              :]
-        # if torch_shine:
-        #     Im = Im * torch_on * TORCHE ** 3
-        #     POS = np.linalg.norm(Xl - R_c, axis=-1) ** 0.5
-        # else:
-        #     POS = np.amin(np.linalg.norm(Xl[:, :, :] - Xsource_g[:, wall_index, :], axis=-1), axis=0)
-        #
-        # if explo != 0:
-        #     explo_R = np.minimum(explo_R,
-        #                          np.linalg.norm(Xl - np.array([explo_pt[0], explo_pt[1], 0.]), axis=-1)[:, :, None])
-
-        POS=POS_l
+    POS=POS_l
 
 
 
@@ -4709,26 +4152,6 @@ while running == 1:
     label_deltat.append('glob_walls')
 
 
-    # #NUMBA ATTEMPT
-    # wall_a=[]
-    # wall_b = []
-    # wall_X = []
-    # for i in wall[0:wall_count]:
-    #     wall_a.append(i.a[0,0,:])
-    #     wall_b.append(i.b[0, 0, :])
-    #     wall_X.append(i.X[0, 0, :])
-    #
-    # # xx=render_ray_step_sign(scrnL[0],scrnL[1],10,np.array(wall_a),np.array(wall_b),np.array(wall_X),screenV0, screenP0, R_c0)
-    # milliseconds.append(time.perf_counter()*1000)
-    # label_deltat.append('numba attempt ray tracing deactivated')
-    # xx=render_numba(scrnL[0], scrnL[1], 10, np.array(wall_a), np.array(wall_b), np.array(wall_X), screenV,screenP, R_c)
-    # # plt.imshow(xx[:,:,-1])
-    # # plt.show()
-    # milliseconds.append(time.perf_counter()*1000)
-    # label_deltat.append('numba attempt solving')
-    # #NUMBA ATTEMPT
-
-
 
     if level in [2]:
         if randint(0, 100) == 0:
@@ -4737,40 +4160,12 @@ while running == 1:
             level_light = np.minimum(level_light + 0.1 * np.array([1, 1, 1.]), np.array([1, 1, 1.]))
 
     old_render_sky=False
-    # Sky_view=True
-    # if Sky_view and old_render_sky:
-    #     LAND = np.roll(LAND0, int(ang[0] * 12 * scrnL[0] / (2 * pi)), axis=0)
-    #     LAND = LAND[:2 * scrnL[0], :, :]
-    #     LAND = np.roll(LAND, -int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]), axis=1)
-    #     LAND = LAND[:, :2 * scrnL[1], :]
-    #
-    #     SKY = np.roll(SKY0, int(ang[0] * 6 * scrnL[0] / (2 * pi)), axis=0)
-    #     SKY = SKY[:2 * scrnL[0], :, :]
-    #     SKY = np.roll(SKY, -int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]), axis=1)
-    #     SKY = SKY[:, :2 * scrnL[1], :]
-    #     POS = POS * ((Im > -1).all(-1)) + ((Im <= -1).all(-1)) * 10
-    #
-    #     Im = np.where(np.expand_dims(((Im > 0).all(-1)), -1), Im, LAND)
-    #     Im = np.where(np.expand_dims(((Im > 0).all(-1)), -1), Im, SKY)
+
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('sky')
-    #Im = np.minimum((0.8 * (np.divide(Im, 0.01 * np.expand_dims((4 * POS) ** 2, -1)) + np.divide(Im,0.1 * np.expand_dims((POS),-1))) + 0.2 * Im),255)  # ,100)+np.divide(200,np.maximum((depth/5)**2,1))
-    Im=np.minimum(Im,255)
-    # if explo!=0:
-    #     a_e = np.full((scrnL[0], scrnL[1], 3), np.array([0,0,1.]))
-    #     b_e = np.full((scrnL[0], scrnL[1], 3), np.array([sin(ang[0]),cos(ang[0]),0.]))
-    #     X_e1 = np.full((scrnL[0], scrnL[1], 3), np.array([explo_pt[0],explo_pt[1],0.]))
-    #     S=plane(a_e,b_e,X_e1)
-    #     S=S.repeat(4,axis=0)
-    #     S = S.repeat(4, axis=1)
-    #     D_e=np.expand_dims(((S[:, :, 0]) ** 2 + (S[:, :, 1]) ** 2)**0.5,-1)
-    #     Im = np.where((explo_R < 4 * explo+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,explo_R), Im)
-    #     Im = np.where((np.expand_dims(S[:, :, 2],-1)>0)&(np.expand_dims(S[:, :, 2],-1)<depth)& (D_e<(4*explo)+np.random.randint(-1,1,explo_R.shape)), (0.5*255+Im *0.5)* explo_zone(4*explo,D_e), Im)
 
-        # if explo==4:
-        #     plt.imshow(Im/255)
-        #     plt.show()
+    Im=np.minimum(Im,255)
 
 
 
@@ -4779,7 +4174,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('lights')
 
-    # ttt0=time.time()
+
     [i.move() for i in ennemies[0:10]]
 
     milliseconds.append(time.perf_counter()*1000)
@@ -4836,11 +4231,7 @@ while running == 1:
             if i.test_behind():
                 render_C += 1
                 rend_=i.render()
-                # mask=i.Ut.astype(bool)
-                # Im[mask] = rend_[mask]
-                #Im =  rend_* np.expand_dims(i.Ut, -1) + Im * (1 - np.expand_dims(i.Ut, -1))
 
-                # depth[mask] = i.norm
                 if i in ennemies :
                     render_w_e += 1
                     if render_w_e == 1 :  # and c3==1:
@@ -4955,9 +4346,8 @@ while running == 1:
             impact2=pygame.transform.rotate(impact2,360*random())
             fond.blit(impact2,(int(window[0]//2-Ratio*200/depth1+y_d[i][0]*window[0]),int(window[1]//2-Ratio*200/depth1+y_d[i][1]*window[1])))
     GUN_im.set_colorkey((0,0,0))
-    fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * yg / 20)) ** 2))))
+    fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+5*Ratio * (1-max(cos(2 * pi * (c3 / 75)),0))))))
 
-    # fond.blit(GUN_im, ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * yg / 20)) ** 2))))
 
     if HIT:
         bleed = 20
@@ -4968,7 +4358,6 @@ while running == 1:
         fond.blit(BLOOD0, (0, 0))
         bleed = max(bleed - 1, 0)
     if explo != 0:
-        # fond.fill((40 * explo, 40 * explo, 40 * explo), special_flags=BLEND_RGB_ADD)
         explo = max(explo - 1, 0)
 
     milliseconds.append(time.perf_counter()*1000)
@@ -5079,14 +4468,14 @@ while running == 1:
         count=np.full(max(nb_wall)+1,0.)
         for i in range(len(nb_wall)):
             mean_time[nb_wall[i]]+=time_tot[i]
-            # mean_time_wall[nb_wall[i]] += time_wall[i]
+
             count[nb_wall[i]]+=1
         mean_time=np.divide(mean_time,np.maximum(count,1))
         mean_time_wall = np.divide(mean_time_wall, np.maximum(count, 1))
         if  plot_stats :
 
             fig,ax=plt.subplots(1,2)
-            # ax[0].scatter(nb_wall,time_wall,color='blue',label='wall')
+
             ax[0].scatter(nb_wall, time_behind, color='red', label='behind')
             ax[0].scatter(nb_wall, time_tot, color='orange',label='total')
             ax[0].plot(np.linspace(0,max(nb_wall),max(nb_wall)+1), mean_time, color='maroon', label='total')

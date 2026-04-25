@@ -4,7 +4,6 @@ best current version is game_render_full_ray
 things to do in full ray rendering
 
 ennemies
--take care of boss
 -shooting through walls
 
 -flames
