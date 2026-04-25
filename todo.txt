@@ -3,16 +3,9 @@ best current version is game_render_full_ray
 
 things to do in full ray rendering
 
-ennemies
--shooting through walls
-
--flames
-
-
--be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
+finish level
 
 boss invulnerable a envoyer dans incinérateur
-
 mecano lezard blood
 
 
@@ -21,6 +14,8 @@ low priority:
 
 GAMEPLAY
 
+sphere
+flames
 armor
 fire thrower
 biolance as final weapon
@@ -29,9 +24,10 @@ sphere and cylinders
 
 BUG
 
+bug -> shooting through walls ennemies
 bug -> destroy walls with grenades
-bug -> grenade through walls
 bug -> issue with normal in walls with a cut
+-be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
 
 
 
