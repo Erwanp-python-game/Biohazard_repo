@@ -1,4 +1,4 @@
-best current version is game_render_global_ray_mem_improve.py
+best current version is game_render_full_ray
 
 
 things to do in full ray rendering
@@ -6,6 +6,8 @@ things to do in full ray rendering
 ennemies
 -take care of boss
 -shooting through walls
+
+-flames
 
 
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
@@ -31,8 +33,7 @@ BUG
 bug -> destroy walls with grenades
 bug -> grenade through walls
 bug -> issue with normal in walls with a cut
-bug -> test_behind when looking up in high ceiling room (small bug no easy to fix)
-bug -> sky is not hiding walls that are behind in horizon, make sense for roof maybe not for walls
+
 
 
 

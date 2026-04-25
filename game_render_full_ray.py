@@ -681,7 +681,7 @@ def intersect(c3,a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_o
     return S, wall_ind,Xl,Im,POS_l,np.sum(torch_glob)>50,Im2,Im_liquid,liquid,S_liquid
 
 @njit( fastmath=True)
-def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_on,Im_liquid,liquid,S_liquid):
+def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_on,Im_liquid,liquid,S_liquid,boss_im):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -699,7 +699,7 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
     for i in range(len(all_x_e)):
         x_e=all_x_e[i]
         mort = int(all_mort[i])
-        if all_obj_mon[i]:
+        if all_obj_mon[i]==1:
 
             if mort==0:
                 if all_attack_range[i]:
@@ -713,12 +713,14 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
             else:
                 im=all_ima_m[all_types_e[i],4+mort,:,:,:]
 
-
-        else:
+        if all_obj_mon[i] == 0:
             if mort == 0:
                 im = all_im_o[all_types_e[i], int(all_angle[i]//45), :, :, :]
             else:
                 im = all_im_o_d[all_types_e[i], mort, :, :, :]
+        if all_obj_mon[i] == 2:
+            im=boss_im
+
         d = x_e - x_perso
         dx, dy, dz = d
 
@@ -3972,7 +3974,7 @@ def load_level(level_name):
             if thing[-1].type_M == 1:
                 difficulty_var[3] +=20
 
-    global all_im_o_d,all_destr,all_things,all_x_e,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e
+    global boss_im,all_im_o_d,all_destr,all_things,all_x_e,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e
     all_things = thing.copy()
 
     all_x_e=np.array([np.concatenate((i.x0,np.array([2*i.z]))) for i in all_things])
@@ -3988,6 +3990,7 @@ def load_level(level_name):
                 all_im_m[c_0,t_0,t_1,:,:,:]=np.minimum(pygame.surfarray.pixels3d(MD[t_2][t_0][45*t_1]),255)
             all_ima_m[c_0, t_1, :, :, :] = np.minimum(pygame.surfarray.pixels3d(MDa[t_2][t_1]), 255)
 
+    boss_im=all_ima_m[0,0,:,:,:].copy()
 
     types_obj=list(set(levelD[level]['obj']))
     all_im_o=np.full((len(types_obj),8,160,160,3),0.)
@@ -4792,6 +4795,9 @@ while running == 1:
         Deg, Boul = L0[0].pattern(x, scrnL, c, ang, TAN1, TAN2, z, authorized_map, horizon, zmap)
         all_angle[L0[0].num]=L0[0].angle
         all_x_e[L0[0].num]=np.concatenate((L0[0].x0, np.array([2 * L0[0].z])))
+
+        boss_im=(L0[0].im).astype(np.float64)
+
         if Deg != 0:
             VIE = VIE - Deg
             HIT = 1
@@ -4864,19 +4870,16 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things')
 
-    Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine,Im_liquid,liquid,S_liquid)
+    Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine,Im_liquid,liquid,S_liquid,boss_im)
     Im = np.minimum(Im, 255)
     depth=depth_e[:,:,None]
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
 
-    # if len(L0) > 0:
-    #     if L0[0].test_behind(TAN2, scrnL, horizon):
-    #         Im = L0[0].render(depth, Xthing, Ything, scrnL, light_array, level_light, TORCHE, torch_on, arme, shoot,
-    #                           explo, explo_pt, DEGAT, c3) * np.expand_dims(L0[0].Ut, -1) + Im * (
-    #                          1 - np.expand_dims(L0[0].Ut, -1))
-    #         depth = depth * (1 - np.expand_dims(L0[0].Ut, -1)) + np.expand_dims(L0[0].Ut, -1) * L0[0].norm
-
+    if len(L0) > 0:
+        x_d,light_boss=L0[0].render(depth, Xthing, Ything, scrnL, light_array, level_light, TORCHE, torch_on, arme, shoot,
+                                  explo, explo_pt, DEGAT, c3,x_d,index_e,gun_width)
+        all_light_e[L0[0].num] = light_boss
 
     if colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]):
         colorGUN = tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2])

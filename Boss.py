@@ -75,7 +75,7 @@ class BOSS():
 		self.V=0.25
 		self.f0=(self.x0-x)@rot_plan(-ang[0])
 		self.U=0
-		self.RA=9#levelD[level]['RAmon'][type_M]*(1+(random()*0.2-0.1))
+		self.RA=8#levelD[level]['RAmon'][type_M]*(1+(random()*0.2-0.1))
 		self.BL=[]
 		self.light=np.array([1, 1, 1.])
 
@@ -151,7 +151,7 @@ class BOSS():
 
 		
 	def move_to_x(self,x,authorized_map,TAN2,scrnL,horizon,zmap):
-		self.attack_range=self.norm<=5
+		self.attack_range=self.norm<=10
 		if self.range==1:
 			self.attack_range=(self.check_inline(x,authorized_map))&(self.norm<=20)
 			
@@ -214,9 +214,9 @@ class BOSS():
 			s.play()
 		
 		
-	def render(self,depth,Xthing,Ything,scrnL,light_array,level_light,TORCHE,torch_on,arme,shoot,explo,explo_pt,DEGAT,c):
+	def render(self,depth,Xthing,Ything,scrnL,light_array,level_light,TORCHE,torch_on,arme,shoot,explo,explo_pt,DEGAT,c,x_d,index_e,gun_width):
 		
-		self.hitten(arme,shoot,explo,explo_pt,DEGAT)
+
 		if self.vie<=0:
 			self.die()
 		
@@ -226,19 +226,46 @@ class BOSS():
 		
 		colorT=light_modif(colorT,self.level,c)
 		
-		SQUARE=np.all(self.norm<=depth,axis=-1) & (Xthing<=self.width+self.DX+scrnL[0]) & (Xthing>=self.DX+scrnL[0])& (Ything<=self.widthY+self.DY+scrnL[1]) & (Ything>=self.DY+scrnL[1])
-		
-		self.U=np.stack(((Xthing-self.DX-scrnL[0])/self.width,(Ything-self.DY-scrnL[1])/self.widthY),-1)*np.expand_dims(SQUARE,-1)
-		self.G=np.maximum((self.U*160).astype(int),0)
-		Ar=np.moveaxis(self.im[tuple(map(tuple,self.G.T))]*colorT,1,0)
-		if light_array[int(self.x0[0]+101)//2][int(self.x0[1]+101)//2].sum()==0:
-			Ar=Ar*torch_on*TORCHE**3
-			Ar=np.minimum(np.divide(Ar,0.1*self.norm**0.5),255)
+		# SQUARE=np.all(self.norm<=depth,axis=-1) & (Xthing<=self.width+self.DX+scrnL[0]) & (Xthing>=self.DX+scrnL[0])& (Ything<=self.widthY+self.DY+scrnL[1]) & (Ything>=self.DY+scrnL[1])
+		#
+		# self.U=np.stack(((Xthing-self.DX-scrnL[0])/self.width,(Ything-self.DY-scrnL[1])/self.widthY),-1)*np.expand_dims(SQUARE,-1)
+		# self.G=np.maximum((self.U*160).astype(int),0)
+		# Ar=np.moveaxis(self.im[tuple(map(tuple,self.G.T))]*colorT,1,0)
+		# if light_array[int(self.x0[0]+101)//2][int(self.x0[1]+101)//2].sum()==0:
+		# 	Ar=Ar*torch_on*TORCHE**3
+		# 	Ar=np.minimum(np.divide(Ar,0.1*self.norm**0.5),255)
+		# else:
+		# 	Ar=Ar*level_light
+		#self.Ut=np.moveaxis(self.vis[tuple(map(tuple,self.G.T))],1,0)
+
+		self.inline = False
+		self.shot = []
+		if shoot == 1:
+			x_d0 = []
+			for i in range(len(x_d)):
+				# inline = min(np.sum(self.Ut[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
+				#                 1)
+
+				inline_e = index_e[int(2 * scrnL[0] * (1 + 2 * x_d[i][0]) - gun_width):int(
+					2 * scrnL[0] * (1 + 2 * x_d[i][0]) + gun_width),
+						   int(2 * 2 * scrnL[1] * (1 + 2 * x_d[i][1]) // 2 - gun_width):int(
+							   2 * 2 * scrnL[1] * (1 + 2 * x_d[i][1]) // 2 + gun_width)]
+				inline = (inline_e == self.num).any()
+
+				self.inline = (self.inline or inline)
+				self.shot.append(i)
+				if not inline:
+					x_d0.append(x_d[i])
+			self.hitten(arme, shoot, explo, explo_pt, DEGAT)
+			return x_d0,colorT
 		else:
-			Ar=Ar*level_light
-		self.Ut=np.moveaxis(self.vis[tuple(map(tuple,self.G.T))],1,0)
-		self.inline=min(np.sum(self.Ut[scrnL[0]-10:scrnL[0]+10,3*scrnL[1]//2-10:3*scrnL[1]//2+10]),1)
-		return Ar
+			return x_d,colorT
+
+
+
+
+		#self.inline=True#min(np.sum(self.Ut[scrnL[0]-10:scrnL[0]+10,3*scrnL[1]//2-10:3*scrnL[1]//2+10]),1)
+
 
 
 class LIZARD(BOSS):
@@ -274,7 +301,7 @@ class LIZARD(BOSS):
 			if self.range==0:
 				self.V=max(self.V-0.01,0.75)
 				self.patternX-=1
-				if self.norm>5 and self.patternX<-48 :
+				if self.norm>10 and self.patternX<-48 :
 					self.range=1
 					self.patternX=0
 					self.step=-12
