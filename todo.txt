@@ -5,6 +5,7 @@ things to do in full ray rendering
 
 reimplement
 -shield lizard visible
+-explo_color
 
 finish level
 
@@ -32,7 +33,7 @@ more destructible obj
 
 BUG
 
-bug -> explo_color
+
 bug ->rescaling of guns when hitting +
 bug -> shooting through walls ennemies
 bug ->grenade not always visible
