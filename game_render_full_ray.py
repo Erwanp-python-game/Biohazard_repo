@@ -3726,12 +3726,16 @@ nb_wall = []
 time_wall = []
 time_tot=[]
 time_behind = []
-plot_stats=False
+plot_stats=True
 sensitivity=500#500
 movement=0
 render_w_old=0
 
-
+BLOOD0=[]
+for i in range(20):
+    bl_= BLOOD.copy()
+    bl_.fill((255, 255, 255, 255 * i / 20), special_flags=BLEND_RGBA_MULT)
+    BLOOD0.append(bl_)
 
 torch_shine=False
 while running == 1:
@@ -4363,10 +4367,11 @@ while running == 1:
         bleed = 20
         draw_vie()
     if bleed != 0:
-        BLOOD0 = BLOOD.copy()
-        BLOOD0.fill((255, 255, 255, 255 * bleed / 20), special_flags=BLEND_RGBA_MULT)
-        fond.blit(BLOOD0, (0, 0))
+        #BLOOD0 = BLOOD.copy()
+        #BLOOD0.fill((255, 255, 255, 255 * bleed / 20), special_flags=BLEND_RGBA_MULT)
         bleed = max(bleed - 1, 0)
+        fond.blit(BLOOD0[bleed], (0, 0))
+
     if explo != 0:
         explo = max(explo - 1, 0)
 
