@@ -100,6 +100,12 @@ def create_cell_array(cell_size):
 from numba import njit, prange
 import numpy as np
 
+def distance_point_segment(X, A, Y):
+    t = np.dot(Y - X, A) / np.dot(A, A)
+    t = max(0.0, min(1.0, t))
+    P = X + t * A
+    return np.linalg.norm(Y - P)
+
 def build_cell_csr(cell_array):
 
     nx = len(cell_array)
@@ -1172,7 +1178,7 @@ class Wall():
 
         self.inter=V
         self.reset_rend()
-        if (shoot == 1 or self.explo) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco != 0:
+        if (shoot == 1 or explo!=0) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco != 0:
             self.breakable()
 
         colorL = [1, 1, 1]
@@ -1375,6 +1381,10 @@ class Wall():
                 self.d_shot=min(self.d_shot,depth_cached[int(depth_[0] * (x_d[0][0] + 0.5))][int(depth_[1] * (x_d[0][1] + 0.5))])
         x_d=x_d0
 
+        if explo==4:
+            self.explo=(distance_point_segment(self.X[0,0,:],self.a[0,0,:],explo_pt)<20)
+        else:
+            self.explo=0
 
         if self.inline or self.explo:
             if ((self.d_shot<5 or arme!=0) and arme!=4) or self.explo:

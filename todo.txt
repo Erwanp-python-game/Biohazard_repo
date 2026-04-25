@@ -3,6 +3,9 @@ best current version is game_render_full_ray
 
 things to do in full ray rendering
 
+reimplement
+-shield lizard visible
+
 finish level
 
 boss invulnerable a envoyer dans incinérateur
@@ -10,23 +13,31 @@ mecano lezard blood
 
 
 ----------------------------------
-low priority:
+SPEEDUP
+->bleed is slowing things
+->check walkthing and calcnorm
 
 GAMEPLAY
 
-sphere
+
 flames
+sphere and cylinders
+rotated platforms
+moving platform and mechanism
 armor
 fire thrower
 biolance as final weapon
 more destructible obj
-sphere and cylinders
+
 
 BUG
 
+bug -> explo_color
+bug ->rescaling of guns when hitting +
 bug -> shooting through walls ennemies
-bug -> destroy walls with grenades
+bug ->grenade not always visible
 bug -> issue with normal in walls with a cut
+
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
 
 
