@@ -45,6 +45,8 @@ def rot_plan(theta):
 
 class BOSS():
 	def __init__(self,x0,num,x,scrnL,ang,zmap,level,vie):
+		self.num = 0
+		self.thing_t = 2
 		self.x0=2*(x0-50)
 		self.group=99
 		self.level=level
@@ -75,6 +77,7 @@ class BOSS():
 		self.U=0
 		self.RA=9#levelD[level]['RAmon'][type_M]*(1+(random()*0.2-0.1))
 		self.BL=[]
+		self.light=np.array([1, 1, 1.])
 
 	def loadim(self):
 		f = open("image/BossD", "rb")
@@ -108,7 +111,9 @@ class BOSS():
 			self.angle=A
 			self.im=np.minimum(pygame.surfarray.pixels3d(self.MD[c//3][self.angle]),255)
 			self.vis=np.where(np.sum(self.im,axis=-1)!=0,1,0)
-	
+
+
+
 	def walk(self,c):
 		
 		self.im=np.minimum(pygame.surfarray.pixels3d(self.MD[c//3][self.angle]),255)
@@ -185,7 +190,7 @@ class BOSS():
 
 	def hitten(self,arme,shoot,explo,explo_pt,DEGAT):
 		
-		if ((self.inline and shoot==1 and (self.attack_range or arme!=0)) or(np.linalg.norm(self.x0-explo_pt)<20 and explo==1)) and self.vie>0:
+		if ((self.inline and shoot==1 and (self.attack_range or arme!=0)) or(np.linalg.norm(self.x0-explo_pt[:-1])<20 and explo==1)) and self.vie>0:
 
 			self.im=np.minimum(pygame.surfarray.pixels3d(self.MDhit[0]),255)
 			self.vis=np.where(np.sum(self.im,axis=-1)!=0,1,0)

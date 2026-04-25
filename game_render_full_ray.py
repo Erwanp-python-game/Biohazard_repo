@@ -82,7 +82,7 @@ height_list=[]
 setting = {}
 setting['smooth'] = False
 destr = [0, 4, 6,11]
-level = 5
+level = 3
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
 level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
@@ -678,7 +678,7 @@ def intersect(c3,a0,a1,counter_,screenV, screenP, cell_start, cell_count, cell_o
                 break
 
     liquid=(wall_ind_liquid!=0).any()
-    return S, wall_ind,Xl,Im,POS_l,np.sum(torch_glob)>3,Im2,Im_liquid,liquid,S_liquid
+    return S, wall_ind,Xl,Im,POS_l,np.sum(torch_glob)>50,Im2,Im_liquid,liquid,S_liquid
 
 @njit( fastmath=True)
 def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_on,Im_liquid,liquid,S_liquid):
@@ -2784,7 +2784,7 @@ pygame.time.wait(100)
 ang = [0.0, 0.0]
 pygame.mouse.set_visible(0)
 v = 1.2
-x = np.array([-1, 0])
+x = np.array([-1., 0.])
 c = 0
 c2 = 0
 z = 0
@@ -2853,7 +2853,7 @@ coolD = 0
 arme = 0
 TotAr = 1
 COOLDOWN = [10, 10, 17, 0, 10]
-REC = [0, 1, 3, 0, 0]
+REC = [0., 1., 3., 0., 0.]
 DEGAT = [35, 25, 70, 30, 150]
 explo_deg=[50,DEGAT[4],5000]
 PREC=[0,pi/200,pi/100,pi/100]
@@ -2941,9 +2941,9 @@ def reset_all():
     colorGUN = (1., 1., 1.)
     mouse_c = 1
     ang = [1e-5, 0.0]
-    x = np.array([-1, 0])
+    x = np.array([-1., 0.])
     z = 0
-    R_c = np.array([-1, 0, 0])
+    R_c = np.array([-1., 0., 0.])
     screen = np.full((*scrnL, 6), 0.0)
     screen[:, :, 1:3] = I_n
     screen[:, :, 4] = np.sin(Ang[:, :, 0])
@@ -3649,7 +3649,7 @@ def load_level(level_name):
             op.append(Object_parallax([ xra, yra * signra, 200], rr))
 
     TotAr = level_arme[level]
-    v = 0
+    v = 0.
     skip = True
     activatedT = []
     if not skip:
@@ -3804,7 +3804,7 @@ def load_level(level_name):
     cell_array_z[:,:,0]=50
     cell_array_z[:, :, 1] = -50
     cell_array = create_cell_array(cell_size)
-    fig,ax=plt.subplots(1,4)
+    # fig,ax=plt.subplots(1,4)
     for cw,i in enumerate(wall):
         if i not in h_wall:
             cells=cells_crossed_by_segment(0.5*(i.X[0,0,:-1]+100),0.5*i.b[0,0,:-1],cell_size)
@@ -3812,7 +3812,7 @@ def load_level(level_name):
                 cell_array_N[int(u[0])][int(u[1])]+=1
                 cell_array[int(u[0])][int(u[1])].append(cw)
 
-            ax[0].scatter([i[0] for i in cells],[i[1] for i in cells])
+            # ax[0].scatter([i[0] for i in cells],[i[1] for i in cells])
             count_w=0
             h_wall_temp=[]
             for j in h_wall:
@@ -3866,10 +3866,10 @@ def load_level(level_name):
                 if i.X[0,0,-1]>cell_array_z[int(u[0]),int(u[1]),1] and i.X[0,0,-1]<0:
                     cell_array_z[int(u[0]),int(u[1]),1]=i.X[0,0,-1]
 
-    ax[1].imshow(cell_array_N)
-    ax[2].imshow(cell_array_z[:,:,0])
-    ax[3].imshow(cell_array_z[:, :, 1])
-    plt.show()
+    # ax[1].imshow(cell_array_N)
+    # ax[2].imshow(cell_array_z[:,:,0])
+    # ax[3].imshow(cell_array_z[:, :, 1])
+    # plt.show()
     cell_start, cell_count, cell_objects = build_cell_csr(cell_array)
     all_walls=wall.copy()
     all_a=np.array([i.a[0,0,:] for i in all_walls])
@@ -4003,7 +4003,7 @@ def load_level(level_name):
 
 
 
-    all_types_e = np.array([types_monst.index(i.type_M)  if i.thing_t==1 else types_obj.index(i.type_M)  for i in all_things])
+    all_types_e = np.array([types_monst.index(i.type_M)  if i.thing_t==1 else types_obj.index(i.type_M) if i.thing_t==0  else i.thing_t  for i in all_things])
     all_mort = np.array(
         [i.mort if i.thing_t == 1 else i.mort for i in all_things])
     all_obj_mon = np.array([i.thing_t for i in all_things])
@@ -4090,7 +4090,7 @@ nb_wall = []
 time_wall = []
 time_tot=[]
 time_behind = []
-plot_stats=True
+plot_stats=False
 sensitivity=500#500
 movement=0
 render_w_old=0
@@ -4132,14 +4132,14 @@ while running == 1:
         if abs(2 * (i[0] - 50) - x[0]) < 5 and abs(2 * (i[1] - 50) - x[1]) < 5:
             if j % 2 == 0:
                 nextS = stairs[j + 1]
-                trans = 2 * (-i + nextS)
+                trans = 2.0 * (-i + nextS)
                 x = x + trans
                 z = zmap[int(x[1] + 100) // 2][int(x[0] + 100) // 2]
-                screen[:, :, :3] = screen[:, :, :3] + np.hstack((trans, [0]))
+                screen[:, :, :3] = screen[:, :, :3] + np.hstack((trans, [0.]))
                 screen[:, :, 2] = z * 2
                 zprev = z
                 R_c = np.hstack((x, [2 * z]))
-                trans = np.array([0, 0])
+                trans = np.array([0., 0.])
                 moving_cam = True
                 [i.calc_norm() for i in wall]
 
@@ -4152,14 +4152,14 @@ while running == 1:
                 s = pygame.mixer.Sound("son/lift.ogg")
                 s.play()
                 nextL = lifts[j + 1]
-                trans = 2 * (-i + nextL)
+                trans = 2.0 * (-i + nextL)
                 liftC = 20
 
             if j % 2 == 1 and key[K_SPACE] and liftC == 0:
                 s = pygame.mixer.Sound("son/lift.ogg")
                 s.play()
                 nextL = lifts[j - 1]
-                trans = 2 * (-i + nextL)
+                trans = 2.0 * (-i + nextL)
                 liftC = 20
 
             if key[K_SPACE] and liftC == 20:
@@ -4169,7 +4169,7 @@ while running == 1:
                 screen[:, :, 2] = z * 2
                 zprev = z
                 R_c = np.hstack((x, [2 * z]))
-                trans = np.array([0, 0])
+                trans = np.array([0., 0.])
                 moving_cam = True
                 [i.calc_norm() for i in wall]
             liftC = max(0, liftC - 1)
@@ -4319,7 +4319,7 @@ while running == 1:
     if key[K_UP] or key[K_z]:
         moving_cam = True
         yg = (yg + 1) % 100
-        trans = trans + [-v, 0.]
+        trans = trans + np.array([-v, 0.])
     if key[K_DOWN] or key[K_s]:
         moving_cam = True
         yg = (yg + 1) % 100
@@ -4333,8 +4333,8 @@ while running == 1:
         xg = (xg + 1) % 100
         trans = trans + [0., v]
     trans = trans + [recoil, 0.]
-    recoil = 0
-    No=np.array([0.,0])
+    recoil = 0.
+    No=np.array([0.,0.])
     previous=0.5
 
     if trans.any() != np.array([0.0, 0.0]).any():
@@ -4364,7 +4364,7 @@ while running == 1:
         #     trans=trans*0.
 
         z = zmap[int(x[1] + 100) // 2][int(x[0] + 100) // 2]
-        screen[:, :, :3] = screen[:, :, :3] - np.hstack((trans @ Rp, [0]))
+        screen[:, :, :3] = screen[:, :, :3] - np.hstack((trans @ Rp, [0.]))
         screen[:, :, 2] = z * 2
         zprev = z
         R_c = np.hstack((x, [2 * z]))
@@ -4627,6 +4627,7 @@ while running == 1:
         wall_rend = np.array(all_walls)[uniq]
         render_w = uniq.size
 
+
         # ind_l = [
         #     c // (12 // len(i.wall_im)) if (i.side < 0 and levelD[level]['deco'][i.deco - 1] not in deco_destruc)
         #     else c // (12 // len(i.wall_im2)) if (
@@ -4789,6 +4790,8 @@ while running == 1:
     label_deltat.append('walkthings')
     if len(L0) > 0:
         Deg, Boul = L0[0].pattern(x, scrnL, c, ang, TAN1, TAN2, z, authorized_map, horizon, zmap)
+        all_angle[L0[0].num]=L0[0].angle
+        all_x_e[L0[0].num]=np.concatenate((L0[0].x0, np.array([2 * L0[0].z])))
         if Deg != 0:
             VIE = VIE - Deg
             HIT = 1
@@ -4867,12 +4870,12 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
 
-    if len(L0) > 0:
-        if L0[0].test_behind(TAN2, scrnL, horizon):
-            Im = L0[0].render(depth, Xthing, Ything, scrnL, light_array, level_light, TORCHE, torch_on, arme, shoot,
-                              explo, explo_pt, DEGAT, c3) * np.expand_dims(L0[0].Ut, -1) + Im * (
-                             1 - np.expand_dims(L0[0].Ut, -1))
-            depth = depth * (1 - np.expand_dims(L0[0].Ut, -1)) + np.expand_dims(L0[0].Ut, -1) * L0[0].norm
+    # if len(L0) > 0:
+    #     if L0[0].test_behind(TAN2, scrnL, horizon):
+    #         Im = L0[0].render(depth, Xthing, Ything, scrnL, light_array, level_light, TORCHE, torch_on, arme, shoot,
+    #                           explo, explo_pt, DEGAT, c3) * np.expand_dims(L0[0].Ut, -1) + Im * (
+    #                          1 - np.expand_dims(L0[0].Ut, -1))
+    #         depth = depth * (1 - np.expand_dims(L0[0].Ut, -1)) + np.expand_dims(L0[0].Ut, -1) * L0[0].norm
 
 
     if colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]):
@@ -4987,7 +4990,7 @@ while running == 1:
             if Number != -1 and code_cool == 0:
                 code = code + Number * (10 ** (3 - code_num))
                 code_num = (code_num + 1) % 4
-                code_cool = 15
+                code_cool = 5
 
         fenetre.blit(code1, (int(0.5 * window[0] - 0.4 * window[1]), int(0.84 * window[1])))
         col_code = (255, 255, 255)
