@@ -85,6 +85,11 @@ level_start[99] = 4
 
 z_tileable_deco = [26, 28, 31]
 Im = np.full((2 * scrnL[0], 2 * scrnL[1], 3), 0)
+def chirp(t,f1,f2,tau):
+    return (1+np.exp(-t/tau))*np.sin(2*pi*f1*t*np.exp(-t/tau)+2*pi*f2*t*(1-np.exp(-t/tau)))
+# plt.plot(np.linspace(0,1000,1000),np.maximum(chirp(np.linspace(0,1000,1000),3/75,1/75,75*6),0))
+# plt.show()
+
 def create_cell_array(cell_size):
     n = 500 // cell_size
 
@@ -1701,7 +1706,7 @@ class Thing():
             return False
 
     def move(self):
-        global VIE, HIT,all_x_e,all_attack_range,all_range
+        global VIE, HIT,all_x_e,all_attack_range,all_range,fc
         self.explo_zone()
         self.attack_range = self.norm <= 5
         if self.range == 1:
@@ -1745,6 +1750,7 @@ class Thing():
             spot = 0
         if self.norm < 20 + min(shoot, 1) * 20 * spot and self.active == 0 and self.vie > 0:
             self.active = 1
+            fc=c3
             s = pygame.mixer.Sound("son/grognespot%s.ogg" % (self.type_M + 1))
             s.play()
             X0 = nearest_valid(authorized_map, x)
@@ -1754,7 +1760,7 @@ class Thing():
             if self.range == 0:
                 if c // 4 == 2 and c % 3 == 0:
                     HIT = 1
-
+                    fc=c3
                     VIE -= M_charac['degat'][self.type_M]
                     s = pygame.mixer.Sound("son/aie.ogg")
                     s.play()
@@ -1774,6 +1780,7 @@ class Thing():
                                   M_charac['degat'][self.type_M]))
 
     def explo_zone(self):
+        global fc
         if (np.linalg.norm(self.x0 - explo_pt[:-1]) < 20 and explo == 1) and self.vie > 0:
             self.vie -= explo_deg[explo_type]*self.shield
             for i in range(randint(5, 10)):
@@ -1786,6 +1793,7 @@ class Thing():
                               'image/effects/rouge.png', 0))
             if self.active == 0:
                 self.active = 1
+                fc=c3
                 X0 = nearest_valid(authorized_map, x)
                 self.track = astar(authorized_map, (int(self.x0[1] + 101) // 2, int(self.x0[0] + 101) // 2),
                                    (X0[1], X0[0]))
@@ -1793,7 +1801,7 @@ class Thing():
                 s.play()
 
     def render(self):
-        global Killed_E,x_d,all_mort,all_light_e
+        global Killed_E,x_d,all_mort,all_light_e,fc
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
 
@@ -1828,6 +1836,7 @@ class Thing():
 
             if self.active == 0:
                 self.active = 1
+                fc=c3
                 X0 = nearest_valid(authorized_map, x)
                 self.track = astar(authorized_map, (int(self.x0[1] + 101) // 2, int(self.x0[0] + 101) // 2),
                                    (X0[1], X0[0]))
@@ -2041,7 +2050,7 @@ class Object():
             return False
 
     def render(self):
-        global Boule, explo, VIE, explo_pt, Killed_O, HIT,x_d,explo_type,all_mort
+        global Boule, explo, VIE, explo_pt, Killed_O, HIT,x_d,explo_type,all_mort,fc
         self.time=(0,0)
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
@@ -2064,6 +2073,7 @@ class Object():
                 explo_type=0
                 if self.norm < 15:
                     VIE = VIE - explo_deg[explo_type]/2
+                    fc=c3
                     HIT = 1
                     s = pygame.mixer.Sound("son/aie.ogg")
                     s.play()#
@@ -2204,9 +2214,10 @@ class boule(pygame.sprite.Sprite):
         self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
         self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
 
-        global VIE, HIT
+        global VIE, HIT,fc
         if np.linalg.norm((self.p[:-1] - x)) < 2 and self.hit == 1:
             VIE -= self.deg
+            fc=c3
             HIT = 1
             s = pygame.mixer.Sound("son/aie.ogg")
             s.play()
@@ -2311,7 +2322,7 @@ class grenade(pygame.sprite.Sprite):
                         break
 
         if self.lifetime == 50:
-            global explo, Boule, explo_pt, VIE, HIT,explo_type
+            global explo, Boule, explo_pt, VIE, HIT,explo_type,fc
             s = pygame.mixer.Sound("son/barril.ogg")
             for i in range(randint(5, 10)):
                 Boule.append(
@@ -2322,6 +2333,7 @@ class grenade(pygame.sprite.Sprite):
             explo_pt = self.p
             explo_type=1
             if self.D < 15:
+                fc=c3
                 VIE = VIE - explo_deg[explo_type]/2
                 HIT = 1
                 s = pygame.mixer.Sound("son/aie.ogg")
@@ -3774,10 +3786,11 @@ nb_wall = []
 time_wall = []
 time_tot=[]
 time_behind = []
-plot_stats=True
+plot_stats=False
 sensitivity=500#500
 movement=0
 render_w_old=0
+fc=-1000
 
 BLOOD0=[]
 for i in range(20):
@@ -3786,6 +3799,7 @@ for i in range(20):
     BLOOD0.append(bl_)
 
 torch_shine=False
+amp=1
 while running == 1:
 
     moving_cam = True
@@ -3814,6 +3828,7 @@ while running == 1:
     HIT = 0
     rset_L = 0
     recoil = 0.
+
     milliseconds.append(time.perf_counter()*1000)
     label_deltat = ['reset']
     for j, i in enumerate(stairs):
@@ -4257,6 +4272,7 @@ while running == 1:
 
         if Deg != 0:
             VIE = VIE - Deg
+            fc=c3
             HIT = 1
             s = pygame.mixer.Sound("son/aie.ogg")
             s.play()
@@ -4408,7 +4424,12 @@ while running == 1:
             impact2=pygame.transform.rotate(impact2,360*random())
             fond.blit(impact2,(int(window[0]//2-Ratio*200/depth1+y_d[i][0]*window[0]),int(window[1]//2-Ratio*200/depth1+y_d[i][1]*window[1])))
     GUN_im.set_colorkey((0,0,0))
-    fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+5*Ratio * (1-max(cos(2 * pi * (c3 / 75)),0))))))
+
+    if np.sum(trans)==0:
+        resp=5*Ratio * (max(chirp(c3-fc,3/75,1/75,75*6),0)-1)
+    else:
+        resp=0
+    fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+resp))))
 
 
     if HIT:
