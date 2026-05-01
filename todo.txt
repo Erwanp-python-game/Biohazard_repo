@@ -20,9 +20,10 @@ SPEEDUP
 
 GAMEPLAY
 
-
+breath sound
 flames
 sphere and cylinders
+reload gun
 rotated platforms (requires to deal with light filling in level)
 moving platform and mechanism
 armor

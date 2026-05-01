@@ -236,7 +236,7 @@ def flood_fill(arr,xl,wall_liste,col):
 		if A[x[0]][x[1]-1]==0 and (x[0],x[1]-1) not in P:
 			P.append((x[0],x[1]-1))
 	
-	for i in h_liste:
+	for i in h_liste:# here for rotation
 		X1=i[2]+50
 		X2=i[0]+i[1]+X1
 		V=0.5*(i[0]+i[1])
@@ -342,6 +342,7 @@ lift=0
 stair=0
 slope=0
 erase=1
+angle_flat=0
 Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 Amp.fill(255*np.array(Clight),special_flags=BLEND_RGB_MULT)
 while running==1:
@@ -371,6 +372,12 @@ while running==1:
 			Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 	else:
 		ammoT=0
+
+
+	if key[K_i]:
+		angle_flat=(angle_flat+1)%360
+		print('angle_flat',angle_flat)
+		pygame.time.wait(300)
 
 	if key[K_h]:
 		add_roof=(add_roof+1)%2
@@ -985,6 +992,7 @@ while running==1:
 						if slope==0:
 							h_liste.append((np.array([X2[0]-X1[0],0,0]),np.array([0,X2[1]-X1[1],h2-h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
 						else:
+							print('angle_flat',angle_flat)
 							h_liste.append((np.array([X2[0] - X1[0], 0, 0]), np.array([0, X2[1] - X1[1], h2 - h1]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
 							if pente==0:
@@ -1010,9 +1018,7 @@ while running==1:
 									wall_liste.append((
 													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door, h1+2.5, 0, 0,
 													  deco, freq, phase, slant))
-									# wall_liste.append((
-									# 				  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door, -2.5, 0, -2.5*2-(5+2*h1),
-									# 				  deco, freq, phase, slant))
+
 									col = np.where(np.expand_dims(
 										(np.absolute(c * X[:, :, 1] - a * X[:, :, 0] - b) < 0.5 * (abs(a) + abs(c))) & (
 													X[:, :, 0] <= max(X1p[xx][0], X2p[xx][0]) + 0) & (
