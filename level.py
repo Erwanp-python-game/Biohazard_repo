@@ -993,7 +993,14 @@ while running==1:
 							h_liste.append((np.array([X2[0]-X1[0],0,0]),np.array([0,X2[1]-X1[1],h2-h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
 						else:
 							print('angle_flat',angle_flat)
-							h_liste.append((np.array([X2[0] - X1[0], 0, 0]), np.array([0, X2[1] - X1[1], h2 - h1]),
+							# format is a,b,x0
+							# X1 and X2 not changing but a and b yes --> needs rotation
+							ax=(X2[0] - X1[0])*cos(angle_flat)
+							ay = -(X2[0] - X1[0]) * sin(angle_flat)
+							bx = (X2[1] - X1[1]) * sin(angle_flat)
+							by=(X2[1] - X1[1])*cos(angle_flat)
+
+							h_liste.append((np.array([ax, 0, 0]), np.array([bx,by , h2 - h1]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
 							if pente==0:
 								print('platform')
