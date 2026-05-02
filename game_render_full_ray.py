@@ -770,6 +770,57 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
     return Im,index_e,d
 
 
+class flamme():
+    def __init__(self, x,y,z):
+        self.n = +randint(6, 12)
+        self.p = self.p = np.array([x, y, z])
+        self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
+        self.im = pygame.image.load("image/effects/fire3.png").convert_alpha()
+        self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
+        self.Y = 1 * (self.p[-1] / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
+        self.D = np.linalg.norm(x - self.p[:-1])
+
+    def update(self):
+        self.D = np.linalg.norm(x - self.p[:-1])
+        self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
+
+        self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
+        self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
+
+    def affiche(self):
+        self.x = np.array([self.p[1] * (e / self.D) + 700, self.p[2] * (e / self.D) + 350])
+        print('b',self.D,self.f0)
+        if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and 0*self.D <= \
+                depth[int(self.X * 2*scrnL[0]) % (2*2 * scrnL[0])][int(self.Y *2* scrnL[1] % (2*2 * scrnL[1]))]:
+            print('c')
+
+
+            self.imb=self.im.copy()
+
+
+            b=0
+            for i in range(0, self.n):
+                self.imA = pygame.transform.scale(self.imb, (
+                    min(int(Ratio * (500-200*i/self.n) / self.f0[0]), window[1] // 1),
+                    min(int(Ratio * (500-200*i/self.n) / self.f0[0]), window[1] // 1)))
+                fond.blit(self.imA, (int((window[0] // 2) * self.X+(b/ self.f0[0]) / TAN2), int((window[1] // 2) * self.Y+(-50*i/ self.f0[0]) / TAN1)))
+                b += np.random.uniform(-10, 10)
+
+
+class foyer(pygame.sprite.Sprite):
+    def __init__(self, posi):
+        self.liste = []
+        for i in range(1, 5):
+            self.liste.append(flamme(posi[0],posi[1],0.))
+
+    def update(self):
+        [i.update() for i in self.liste]
+
+    def parcours(self):
+        print('a')
+        for i in self.liste:
+            i.affiche()
+
 
 def source_pos(code):
     x = (int(code.split(',')[0]) - 50) * 2
@@ -3713,6 +3764,9 @@ def load_level(level_name):
 
     all_destr=np.array([i.type_M in destr  for i in all_things])
 
+    global fire_
+    fire_ = foyer(ennemies[0].x0)
+    print(ennemies[0].type_M)
 
     if 0 in groupD:
         groupD.remove(0)
@@ -3800,6 +3854,9 @@ for i in range(20):
 
 torch_shine=False
 amp=1
+
+
+
 while running == 1:
 
     moving_cam = True
@@ -4447,7 +4504,12 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('bleed, explo, effects')
 
+    fire_.update()
+    fire_.parcours()
     fenetre.blit(fond, (0, 0))
+
+
+
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('blit image')
