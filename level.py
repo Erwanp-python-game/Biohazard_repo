@@ -11,6 +11,41 @@ print('level name ?')
 name=input()
 font = pygame.font.Font('freesansbold.ttf', 13)
 
+import math
+def rectangle_fixed_A_C(A, C, theta_deg):
+    x1, y1 = A
+    x2, y2 = C
+
+    # Vector AC
+    dx = x2 - x1
+    dy = y2 - y1
+
+    # Unit vector u (direction of rectangle side)
+    theta = math.radians(theta_deg)
+    ux = math.cos(theta)
+    uy = math.sin(theta)
+
+    # Perpendicular vector v
+    vx = -uy
+    vy = ux
+
+    # Solve: u * a + v * b = AC
+    # => [ux vx][a] = [dx]
+    #    [uy vy][b]   [dy]
+
+    det = ux * vy - uy * vx  # should be 1 for orthonormal basis
+
+    a = (dx * vy - dy * vx) / det
+    b = (ux * dy - uy * dx) / det
+
+    # Build points
+    B = (x1 + a * ux, y1 + a * uy)
+    D = (x1 + b * vx, y1 + b * vy)
+
+    return np.array(A), np.array(B), np.array(C), np.array(D)
+
+
+
 
 panel=pygame.Surface((350, 500))
 col_t=[[155,155,0],[0,155,155],[100,0,155],[80,80,150],[80,150,80],[150,0,0],[20,20,200],[200,20,100],[10,100,200],[100,50,20],[20,100,50],[50,20,100],[190,0,0],[0,190,0],[0,0,190],[0,190,0],[0,0,190],[0,190,0],[0,0,190],[0,190,0],[0,0,190],[0,190,0],[0,0,190]]
@@ -66,7 +101,7 @@ for c_0, i in enumerate(levelD[int(name)]['deco']):
 
 
 window=(500,500)
-fenetre = pygame.display.set_mode((window[0]+350,window[1]))
+fenetre = pygame.display.set_mode((window[0]+350+500,window[1]))
 running=1
 level_w=np.full((window[0],window[1]),0.0)
 level_w_transp=np.full((window[0],window[1]),0.0)
@@ -92,6 +127,17 @@ surf.fill((0,0,0))
 transColor = surf.get_at((0,0))
 surf.set_colorkey(transColor)
 #print(transColor,B.get_at((0,0)))
+
+editor_controls=pygame.Surface((window[0]+350+500,window[1]))
+
+
+
+with open("editor controls.txt") as f:
+  for c,x in enumerate(f):
+	  text = font.render(x, True, (255, 255, 255))
+	  textRect = text.get_rect()
+	  editor_controls.blit(text, (window[0] + 350, c*13))
+
 
 zmap=np.full((window[0],window[1]),0.0)
 hmap=np.full((window[0],window[1]),0.0)
@@ -347,6 +393,7 @@ Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 Amp.fill(255*np.array(Clight),special_flags=BLEND_RGB_MULT)
 while running==1:
 	fenetre.fill((0,0,0))
+	fenetre.blit(editor_controls, (0, 0))
 	for event in pygame.event.get():
 		if event.type == QUIT:
 			running=0
@@ -375,7 +422,7 @@ while running==1:
 
 
 	if key[K_i]:
-		angle_flat=(angle_flat+1)%360
+		angle_flat=(angle_flat+5)%360
 		print('angle_flat',angle_flat)
 		pygame.time.wait(300)
 
@@ -995,10 +1042,13 @@ while running==1:
 							print('angle_flat',angle_flat)
 							# format is a,b,x0
 							# X1 and X2 not changing but a and b yes --> needs rotation
-							ax=(X2[0] - X1[0])*cos(angle_flat)
-							ay = -(X2[0] - X1[0]) * sin(angle_flat)
-							bx = (X2[1] - X1[1]) * sin(angle_flat)
-							by=(X2[1] - X1[1])*cos(angle_flat)
+							ax=(X2[0] - X1[0])*cos(angle_flat*2*pi/360)
+							ay = -(X2[0] - X1[0]) * sin(angle_flat*2*pi/360)
+							bx = (X2[1] - X1[1]) * sin(angle_flat*2*pi/360)
+							by=(X2[1] - X1[1])*cos(angle_flat*2*pi/360)
+
+							A,B,C,D=rectangle_fixed_A_C(X1,X2,angle_flat)
+
 
 							h_liste.append((np.array([ax, 0, 0]), np.array([bx,by , h2 - h1]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
@@ -1006,17 +1056,17 @@ while running==1:
 								print('platform')
 								X1p=[]
 								X2p=[]
-								X1p.append(np.array([X1[0],X1[1]]))
-								X2p.append(np.array([X1[0]+ax,X1[1]+ay]))
+								X1p.append(A)
+								X2p.append(B)
 
-								X1p.append(np.array([X1[0]+ax,X1[1]+ay]))
-								X2p.append(np.array([X2[0],X2[1]]))
+								X1p.append(B)
+								X2p.append(C)
 
-								X1p.append(np.array([X2[0],X2[1]]))
-								X2p.append(np.array([X1[0]+bx,X1[1]+by]))
+								X1p.append(C)
+								X2p.append(D)
 
-								X1p.append(np.array([X1[0]+bx,X1[1]+by]))
-								X2p.append(np.array([X1[0],X1[1]]))
+								X1p.append(D)
+								X2p.append(A)
 
 								# X1p.append(np.array([X1[0],X1[1]]))
 								# X2p.append(np.array([X2[0],X1[1]]))
