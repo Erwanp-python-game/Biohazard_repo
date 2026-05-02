@@ -1007,21 +1007,37 @@ while running==1:
 								X1p=[]
 								X2p=[]
 								X1p.append(np.array([X1[0],X1[1]]))
-								X2p.append(np.array([X2[0],X1[1]]))
+								X2p.append(np.array([X1[0]+ax,X1[1]+ay]))
 
-								X1p.append(np.array([X2[0],X1[1]]))
+								X1p.append(np.array([X1[0]+ax,X1[1]+ay]))
 								X2p.append(np.array([X2[0],X2[1]]))
 
 								X1p.append(np.array([X2[0],X2[1]]))
-								X2p.append(np.array([X1[0],X2[1]]))
+								X2p.append(np.array([X1[0]+bx,X1[1]+by]))
 
-								X1p.append(np.array([X1[0],X2[1]]))
+								X1p.append(np.array([X1[0]+bx,X1[1]+by]))
 								X2p.append(np.array([X1[0],X1[1]]))
+
+								# X1p.append(np.array([X1[0],X1[1]]))
+								# X2p.append(np.array([X2[0],X1[1]]))
+								#
+								# X1p.append(np.array([X2[0],X1[1]]))
+								# X2p.append(np.array([X2[0],X2[1]]))
+								#
+								# X1p.append(np.array([X2[0],X2[1]]))
+								# X2p.append(np.array([X1[0],X2[1]]))
+								#
+								# X1p.append(np.array([X1[0],X2[1]]))
+								# X2p.append(np.array([X1[0],X1[1]]))
 								
 								for xx in range(len(X1p)):
 									b = (X1p[xx][0] - X2p[xx][0]) * X1p[xx][1] - X1p[xx][0] * (X1p[xx][1] - X2p[xx][1])
 									a = (X1p[xx][1] - X2p[xx][1])
 									c = (X1p[xx][0] - X2p[xx][0])
+									# b = (X1p[xx][0] - X2p[xx][0]) * X1p[xx][1] - X1p[xx][0] * (X1p[xx][1] - X2p[xx][1])
+									# a = (X1p[xx][1] - X2p[xx][1])
+									# c = (X1p[xx][0] - X2p[xx][0])
+
 									wall_liste.append((
 													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door, h1+2.5, 0, 0,
 													  deco, freq, phase, slant))
