@@ -20,7 +20,6 @@ SPEEDUP
 
 GAMEPLAY
 
-breath sound
 flames
 sphere and cylinders
 reload gun

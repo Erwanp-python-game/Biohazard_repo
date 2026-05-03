@@ -87,6 +87,8 @@ z_tileable_deco = [26, 28, 31]
 Im = np.full((2 * scrnL[0], 2 * scrnL[1], 3), 0)
 def chirp(t,f1,f2,tau):
     return (1+np.exp(-t/tau))*np.sin(2*pi*f1*t*np.exp(-t/tau)+2*pi*f2*t*(1-np.exp(-t/tau)))
+def chirp_decay(t,tau):
+    return np.exp(-t/tau)
 # plt.plot(np.linspace(0,1000,1000),np.maximum(chirp(np.linspace(0,1000,1000),3/75,1/75,75*6),0))
 # plt.show()
 
@@ -773,26 +775,30 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
 class flamme():
     def __init__(self, x,y,z):
         self.n = +randint(6, 12)
+        self.dx=[]
+        for i in range(self.n):
+            self.dx.append(np.random.uniform(-10, 10))
         self.p = self.p = np.array([x, y, z])
         self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
         self.im = pygame.image.load("image/effects/fire3.png").convert_alpha()
         self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
         self.Y = 1 * (self.p[-1] / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
         self.D = np.linalg.norm(x - self.p[:-1])
+        self.dY=2 * (2.5 / self.f0[0]) / TAN1
 
     def update(self):
-        self.D = np.linalg.norm(x - self.p[:-1])
+        self.D = np.linalg.norm(R_c - self.p)
         self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
-
+        self.dY = 2 * (2.5 / self.f0[0]) / TAN1
         self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
         self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
 
     def affiche(self):
         self.x = np.array([self.p[1] * (e / self.D) + 700, self.p[2] * (e / self.D) + 350])
-        print('b',self.D,self.f0)
-        if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and 0*self.D <= \
+        #print('b',self.D,self.f0,depth[int(self.X * 2*scrnL[0]) % (2*2 * scrnL[0])][int(self.Y *2* scrnL[1] % (2*2 * scrnL[1]))])
+        if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and self.D <= \
                 depth[int(self.X * 2*scrnL[0]) % (2*2 * scrnL[0])][int(self.Y *2* scrnL[1] % (2*2 * scrnL[1]))]:
-            print('c')
+            #print('c')
 
 
             self.imb=self.im.copy()
@@ -800,24 +806,27 @@ class flamme():
 
             b=0
             for i in range(0, self.n):
+                b+=self.dx[i]
                 self.imA = pygame.transform.scale(self.imb, (
-                    min(int(Ratio * (500-200*i/self.n) / self.f0[0]), window[1] // 1),
-                    min(int(Ratio * (500-200*i/self.n) / self.f0[0]), window[1] // 1)))
-                fond.blit(self.imA, (int((window[0] // 2) * self.X+(b/ self.f0[0]) / TAN2), int((window[1] // 2) * self.Y+(-50*i/ self.f0[0]) / TAN1)))
-                b += np.random.uniform(-10, 10)
+                    min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1),
+                    min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)))
+                self.imA.fill((255, 255 - 10 * i, 255 - 10 * i), special_flags=pygame.BLEND_RGBA_MULT)
+                fond.blit(self.imA, (int((window[0] // 2) * self.X+(b/ self.f0[0]) / TAN2)-min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)//2, int((window[1] // 2) * (self.Y+self.dY)+(-40*i/ self.f0[0]) / TAN1)))
+                #b += np.random.uniform(-10, 10)
+            self.dx.insert(0,np.random.uniform(-10, 10))
+            self.dx.pop(-1)
 
 
 class foyer(pygame.sprite.Sprite):
     def __init__(self, posi):
         self.liste = []
         for i in range(1, 5):
-            self.liste.append(flamme(posi[0],posi[1],0.))
+            self.liste.append(flamme(posi[0]+0.1*randint(-10,10),posi[1]+0.1*randint(-10,10),0.))
 
     def update(self):
         [i.update() for i in self.liste]
 
     def parcours(self):
-        print('a')
         for i in self.liste:
             i.affiche()
 
@@ -2101,7 +2110,7 @@ class Object():
             return False
 
     def render(self):
-        global Boule, explo, VIE, explo_pt, Killed_O, HIT,x_d,explo_type,all_mort,fc
+        global Boule, explo, VIE, explo_pt, Killed_O, HIT,x_d,explo_type,all_mort,fc,foyer
         self.time=(0,0)
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
@@ -2122,6 +2131,8 @@ class Object():
                 explo = 5
                 explo_pt[:-1] = self.x0
                 explo_type=0
+                fire_.append(foyer(self.x0))
+
                 if self.norm < 15:
                     VIE = VIE - explo_deg[explo_type]/2
                     fc=c3
@@ -3550,7 +3561,7 @@ def load_level(level_name):
     cell_array_z[:,:,0]=50
     cell_array_z[:, :, 1] = -50
     cell_array = create_cell_array(cell_size)
-    fig,ax=plt.subplots(1,4)
+    # fig,ax=plt.subplots(1,4)
     for cw,i in enumerate(wall):
         if i not in h_wall:
             cells=cells_crossed_by_segment(0.5*(i.X[0,0,:-1]+100),0.5*i.b[0,0,:-1],cell_size)
@@ -3612,10 +3623,10 @@ def load_level(level_name):
                 if i.X[0,0,-1]>cell_array_z[int(u[0]),int(u[1]),1] and i.X[0,0,-1]<0:
                     cell_array_z[int(u[0]),int(u[1]),1]=i.X[0,0,-1]
 
-    ax[1].imshow(cell_array_N)
-    ax[2].imshow(cell_array_z[:,:,0])
-    ax[3].imshow(cell_array_z[:, :, 1])
-    plt.show()
+    # ax[1].imshow(cell_array_N)
+    # ax[2].imshow(cell_array_z[:,:,0])
+    # ax[3].imshow(cell_array_z[:, :, 1])
+    # plt.show()
     cell_start, cell_count, cell_objects = build_cell_csr(cell_array)
     all_walls=wall.copy()
     all_a=np.array([i.a[0,0,:] for i in all_walls])
@@ -3765,8 +3776,8 @@ def load_level(level_name):
     all_destr=np.array([i.type_M in destr  for i in all_things])
 
     global fire_
-    fire_ = foyer(ennemies[0].x0)
-    print(ennemies[0].type_M)
+    fire_ = [foyer(ennemies[0].x0)]
+
 
     if 0 in groupD:
         groupD.remove(0)
@@ -3854,8 +3865,8 @@ for i in range(20):
 
 torch_shine=False
 amp=1
-
-
+breath=-2
+prev_res=0
 
 while running == 1:
 
@@ -4483,9 +4494,29 @@ while running == 1:
     GUN_im.set_colorkey((0,0,0))
 
     if np.sum(trans)==0:
-        resp=5*Ratio * (max(chirp(c3-fc,3/75,1/75,75*6),0)-1)
+        resp=5*Ratio * (-max(chirp(c3-fc,3/75,1/75,75*6),0)+1)
+        amp=chirp_decay(c3-fc,75*6)
+        print(breath,resp)
+        if resp<0.01 and breath==2:
+            breath=1
+        if resp <= 5. and resp>0.01 and breath==-2 and resp-prev_res<0:
+            breath=-1
+        if breath==1:
+            s = pygame.mixer.Sound("son/expi.ogg")
+            s.play()  #
+            s.set_volume(0.2+amp)
+            breath=-2
+        if breath == -1:
+            s = pygame.mixer.Sound("son/inspi.ogg")
+            s.play()  #
+            s.set_volume(0.2+amp)
+            breath = 2
+        prev_res=resp
     else:
         resp=0
+    for ff in fire_:
+        ff.update()
+        ff.parcours()
     fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+resp))))
 
 
@@ -4504,8 +4535,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('bleed, explo, effects')
 
-    fire_.update()
-    fire_.parcours()
+
     fenetre.blit(fond, (0, 0))
 
 
