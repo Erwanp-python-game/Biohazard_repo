@@ -794,6 +794,36 @@ class flamme():
         self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
 
     def affiche(self):
+        c0 = np.cos(ang[0])
+        s0 = np.sin(-ang[0])
+
+        c1 = np.cos(ang[1])
+        s1 = np.sin(ang[1])
+
+        W = scrnL[0] * 2 * 2
+        H = scrnL[1] * 2 * 2
+
+        f1 = scrnL[0] * 2 / TAN2
+        f2 = scrnL[1] * 2 / TAN1
+        d = self.p - R_c
+        dx, dy, dz = d
+
+        x1 = c0 * dx + s0 * dy
+        if x1>0:
+            y1 = -s0 * dx + c0 * dy
+            z1 = -dz+(0.75*5-5)
+
+            x2 = c1 * x1 - s1 * z1
+            y2 = y1
+            z2 = s1 * x1 + c1 * z1
+
+            sx =1.+ y2 / x2
+            sy =1.+ z2 / x2
+
+
+
+
+
         self.x = np.array([self.p[1] * (e / self.D) + 700, self.p[2] * (e / self.D) + 350])
         #print('b',self.D,self.f0,depth[int(self.X * 2*scrnL[0]) % (2*2 * scrnL[0])][int(self.Y *2* scrnL[1] % (2*2 * scrnL[1]))])
         if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and self.D <= \
@@ -4493,31 +4523,32 @@ while running == 1:
             fond.blit(impact2,(int(window[0]//2-Ratio*200/depth1+y_d[i][0]*window[0]),int(window[1]//2-Ratio*200/depth1+y_d[i][1]*window[1])))
     GUN_im.set_colorkey((0,0,0))
 
-    if np.sum(trans)==0:
-        resp=5*Ratio * (-max(chirp(c3-fc,3/75,1/75,75*6),0)+1)
-        amp=chirp_decay(c3-fc,75*6)
-        print(breath,resp)
-        if resp<0.01 and breath==2:
-            breath=1
-        if resp <= 5. and resp>0.01 and breath==-2 and resp-prev_res<0:
-            breath=-1
-        if breath==1:
-            s = pygame.mixer.Sound("son/expi.ogg")
-            s.play()  #
-            s.set_volume(0.2+amp)
-            breath=-2
-        if breath == -1:
-            s = pygame.mixer.Sound("son/inspi.ogg")
-            s.play()  #
-            s.set_volume(0.2+amp)
-            breath = 2
-        prev_res=resp
+
+    resp=5*Ratio * (-max(chirp(c3-fc,3/75,1/75,75*6),0)+1)
+    amp=chirp_decay(c3-fc,75*6)
+    if resp<0.01 and breath==2:
+        breath=1
+    if resp <= 5. and resp>0.01 and breath==-2 and resp-prev_res<0:
+        breath=-1
+    if breath==1:
+        s = pygame.mixer.Sound("son/expi.ogg")
+        s.play()  #
+        s.set_volume(0.2+amp)
+        breath=-2
+    if breath == -1:
+        s = pygame.mixer.Sound("son/inspi.ogg")
+        s.play()  #
+        s.set_volume(0.2+amp)
+        breath = 2
+    prev_res=resp
+    if np.sum(trans) == 0:
+        resp0=resp
     else:
-        resp=0
+        resp0=0
     for ff in fire_:
         ff.update()
         ff.parcours()
-    fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+resp))))
+    fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+resp0))))
 
 
     if HIT:
