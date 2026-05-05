@@ -817,7 +817,7 @@ class flamme():
 
         # self.x = np.array([self.p[1] * (e / self.D) + 700, self.p[2] * (e / self.D) + 350])
 
-        if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and self.D <= \
+        if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and 0*self.D <= \
                 depth[int(self.X * 2*scrnL[0]) % (2*2 * scrnL[0])][int(self.Y *2* scrnL[1] % (2*2 * scrnL[1]))]:
 
 
@@ -830,7 +830,7 @@ class flamme():
             for i in range(0, self.n):
                 if x1 > 0:
                     y1 = -s0 * dx + c0 * dy
-                    z1 = -dz - (2.5)+i/5
+                    z1 = -dz - (5)+i/5
 
                     x2 = c1 * x1 - s1 * z1
                     y2 = y1
@@ -846,7 +846,12 @@ class flamme():
                     min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1),
                     min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)))
                 self.imA.fill((255, 255 - 10 * i, 255 - 10 * i), special_flags=pygame.BLEND_RGBA_MULT)
-                fond.blit(self.imA, (int((window[0] // 2) * sx+(b/ self.f0[0]) / TAN2)-min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)//2, int((window[1] // 2) * (sy))))
+
+                ix=int(sx*W*0.5)
+                iy=int(sy*H*0.5)
+                if ix<W and ix>=0 and iy<H and iy>=0:
+                    if depth[ix,iy,0]>x1:
+                        fond.blit(self.imA, (int((window[0] // 2) * sx+(b/ self.f0[0]) / TAN2)-min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)//2, int((window[1] // 2) * (sy))))
 
             self.dx.insert(0,np.random.uniform(-10, 10))
             self.dx.pop(-1)
@@ -856,7 +861,7 @@ class foyer(pygame.sprite.Sprite):
     def __init__(self, posi):
         self.liste = []
         for i in range(1, 5):
-            self.liste.append(flamme(posi[0]+0.1*randint(-10,10),posi[1]+0.1*randint(-10,10),0.))
+            self.liste.append(flamme(posi[0]+0.2*randint(-10,10),posi[1]+0.2*randint(-10,10),0.))
 
     def update(self):
         [i.update() for i in self.liste]
