@@ -809,22 +809,13 @@ class flamme():
         dx, dy, dz = d
 
         x1 = c0 * dx + s0 * dy
-        if x1>0:
-            y1 = -s0 * dx + c0 * dy
-            z1 = -dz+(0.75*5-5)
-
-            x2 = c1 * x1 - s1 * z1
-            y2 = y1
-            z2 = s1 * x1 + c1 * z1
-
-            sx =1.+ f1*y2 / x2
-            sy =1.- f2*z2 / x2
 
 
 
 
 
-        self.x = np.array([self.p[1] * (e / self.D) + 700, self.p[2] * (e / self.D) + 350])
+
+        # self.x = np.array([self.p[1] * (e / self.D) + 700, self.p[2] * (e / self.D) + 350])
 
         if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and self.D <= \
                 depth[int(self.X * 2*scrnL[0]) % (2*2 * scrnL[0])][int(self.Y *2* scrnL[1] % (2*2 * scrnL[1]))]:
@@ -834,13 +825,28 @@ class flamme():
             self.imb=self.im.copy()
 
             b=0
+            sx=0
+            sy=0
             for i in range(0, self.n):
+                if x1 > 0:
+                    y1 = -s0 * dx + c0 * dy
+                    z1 = -dz - (2.5)+i/5
+
+                    x2 = c1 * x1 - s1 * z1
+                    y2 = y1
+                    z2 = s1 * x1 + c1 * z1
+
+                    sx = 1. + f1 * y2 / x2
+                    sy = 1. - f2 * z2 / x2
+
+
+
                 b+=self.dx[i]
                 self.imA = pygame.transform.scale(self.imb, (
                     min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1),
                     min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)))
                 self.imA.fill((255, 255 - 10 * i, 255 - 10 * i), special_flags=pygame.BLEND_RGBA_MULT)
-                fond.blit(self.imA, (int((window[0] // 2) * sx+(b/ self.f0[0]) / TAN2)-min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)//2, int((window[1] // 2) * (sy+self.dY)+(-40*i/ self.f0[0]) / TAN1)))
+                fond.blit(self.imA, (int((window[0] // 2) * sx+(b/ self.f0[0]) / TAN2)-min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)//2, int((window[1] // 2) * (sy))))
 
             self.dx.insert(0,np.random.uniform(-10, 10))
             self.dx.pop(-1)
