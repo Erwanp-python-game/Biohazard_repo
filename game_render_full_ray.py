@@ -803,8 +803,8 @@ class flamme():
         W = scrnL[0] * 2 * 2
         H = scrnL[1] * 2 * 2
 
-        f1 = scrnL[0] * 2 / TAN2
-        f2 = scrnL[1] * 2 / TAN1
+        f1 =  2 / TAN2
+        f2 =  2 / TAN1
         d = self.p - R_c
         dx, dy, dz = d
 
@@ -817,8 +817,8 @@ class flamme():
             y2 = y1
             z2 = s1 * x1 + c1 * z1
 
-            sx =1.+ y2 / x2
-            sy =1.+ z2 / x2
+            sx =1.+ 0.5*f1*y2 / x2
+            sy =1.- 0.5*f2*z2 / x2
 
 
 
@@ -832,7 +832,8 @@ class flamme():
 
 
             self.imb=self.im.copy()
-
+            # self.X=1.#sx
+            # self.Y=1.#sy
 
             b=0
             for i in range(0, self.n):
@@ -841,7 +842,7 @@ class flamme():
                     min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1),
                     min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)))
                 self.imA.fill((255, 255 - 10 * i, 255 - 10 * i), special_flags=pygame.BLEND_RGBA_MULT)
-                fond.blit(self.imA, (int((window[0] // 2) * self.X+(b/ self.f0[0]) / TAN2)-min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)//2, int((window[1] // 2) * (self.Y+self.dY)+(-40*i/ self.f0[0]) / TAN1)))
+                fond.blit(self.imA, (int((window[0] // 2) * sx+(b/ self.f0[0]) / TAN2)-min(int(Ratio * (1000-900*i/self.n) / self.f0[0]), window[1] // 1)//2, int((window[1] // 2) * (sy+self.dY)+(-40*i/ self.f0[0]) / TAN1)))
                 #b += np.random.uniform(-10, 10)
             self.dx.insert(0,np.random.uniform(-10, 10))
             self.dx.pop(-1)
