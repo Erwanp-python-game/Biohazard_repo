@@ -2434,9 +2434,10 @@ class grenade(pygame.sprite.Sprite):
                         break
 
         if self.lifetime == 50:
-            global explo, Boule, explo_pt, VIE, HIT,explo_type,fc,foyer
+            global explo, Boule, explo_pt, VIE, HIT,explo_type,fc,fire_
             s = pygame.mixer.Sound("son/barril.ogg")
-            fire_.append(foyer(self.p[:-1], self.p[2]))
+
+            fire_.append(foyer(self.p[:-1], zmap[int(self.p[1] + 100) // 2][int(self.p[0] + 100) // 2]))
             for i in range(randint(5, 10)):
                 Boule.append(
                     boule(self.p[0], self.p[1], self.p[2], pi * random(), 2 * pi * random(), 2 * random() + 0.2, 1,
