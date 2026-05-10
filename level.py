@@ -1078,7 +1078,6 @@ while running==1:
 			h1=h2
 			h2=height
 			seg=(seg+1)%2
-			print(X1)
 			A_, B_, C_, D_ = rectangle_fixed_A_C(X1, X2, angle_flat)
 			C_ = A_ + (B_ - A_) + (D_ - A_)
 			if seg==0:
@@ -1099,7 +1098,7 @@ while running==1:
 					# 				zmap)
 					if add_roof:
 						if slope==0:
-							h_liste.append((np.array([X2[0]-X1[0],0,0]),np.array([0,X2[1]-X1[1],h2-h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
+							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1] , 0]),np.array([D_[0]-A_[0],D_[1]-A_[1] , h2 - h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
 						else:
 							print('angle_flat',angle_flat)
 							# format is a,b,x0
@@ -1167,8 +1166,8 @@ while running==1:
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50
 							y0=i[1]+x0
-							if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
-
+							#if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
+							if point_in_parallelogram(x0,A_,B_,D_) and point_in_parallelogram(y0,A_,B_,D_):
 								if -np.sign((i[1])[1]*(X2[1]-X1[1]))>0:# HERE #tuple(list(i[:-4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+i[-1])
 									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
 								else:
