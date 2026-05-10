@@ -774,7 +774,8 @@ def thing_render(counter,counter2,a0,a1,x_perso,all_x_e,Im,S,all_RA,all_im_m,all
 
 class flamme():
     def __init__(self, x,y,z):
-        self.n = +randint(6, 12)
+        self.n = randint(6, 12)
+        self.vie=24*30+randint(0,24*5)
         self.dx=[]
         for i in range(self.n):
             self.dx.append(np.random.uniform(-10, 10))
@@ -787,6 +788,11 @@ class flamme():
         self.dY=2 * (2.5 / self.f0[0]) / TAN1
 
     def update(self):
+        self.vie=max(self.vie-1,0)
+        if self.vie==24*5:
+            self.n0=self.n
+        if self.vie < 24 * 5:
+            self.n=1+int((self.n0-1)*(self.vie/(24  * 5)))
         self.D = np.linalg.norm(R_c - self.p)
         self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
         self.dY = 2 * (2.5 / self.f0[0]) / TAN1
@@ -858,13 +864,17 @@ class flamme():
 
 
 class foyer(pygame.sprite.Sprite):
-    def __init__(self, posi):
+    def __init__(self, posi,z):
         self.liste = []
-        for i in range(1, 5):
-            self.liste.append(flamme(posi[0]+0.2*randint(-10,10),posi[1]+0.2*randint(-10,10),0.))
+        for i in range(4, 10):
+            self.liste.append(flamme(posi[0]+0.2*randint(-10,10),posi[1]+0.2*randint(-10,10),z))
 
     def update(self):
         [i.update() for i in self.liste]
+        for c,i in enumerate(self.liste):
+            if i.vie==0:
+                self.liste.pop(c)
+
 
     def parcours(self):
         for i in self.liste:
@@ -2171,7 +2181,7 @@ class Object():
                 explo = 5
                 explo_pt[:-1] = self.x0
                 explo_type=0
-                fire_.append(foyer(self.x0))
+                fire_.append(foyer(self.x0,self.z))
 
                 if self.norm < 15:
                     VIE = VIE - explo_deg[explo_type]/2
@@ -2424,8 +2434,9 @@ class grenade(pygame.sprite.Sprite):
                         break
 
         if self.lifetime == 50:
-            global explo, Boule, explo_pt, VIE, HIT,explo_type,fc
+            global explo, Boule, explo_pt, VIE, HIT,explo_type,fc,foyer
             s = pygame.mixer.Sound("son/barril.ogg")
+            fire_.append(foyer(self.p[:-1], self.p[2]))
             for i in range(randint(5, 10)):
                 Boule.append(
                     boule(self.p[0], self.p[1], self.p[2], pi * random(), 2 * pi * random(), 2 * random() + 0.2, 1,
@@ -3816,7 +3827,7 @@ def load_level(level_name):
     all_destr=np.array([i.type_M in destr  for i in all_things])
 
     global fire_
-    fire_ = [foyer(ennemies[0].x0)]
+    fire_ = []
 
 
     if 0 in groupD:
@@ -4558,6 +4569,7 @@ while running == 1:
     for ff in fire_:
         ff.update()
         ff.parcours()
+
     fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+resp0))))
 
 
