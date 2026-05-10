@@ -14,21 +14,27 @@ font = pygame.font.Font('freesansbold.ttf', 13)
 import math
 import numpy as np
 
+import numpy as np
+
 def point_in_parallelogram(P, A, B, D, eps=1e-9):
     """
-    Check if point P is inside the parallelogram defined by A, B, D.
-    The 4th vertex C is implied as C = B + D - A.
+    Vectorized check for points inside a parallelogram.
 
     Parameters
     ----------
-    P, A, B, D : array-like
-        Coordinates as numpy arrays or compatible sequences.
+    P : array (..., 2)
+        Array of points, e.g. shape (l1, l2, 2)
+    A, B, D : array-like shape (2,)
+        Parallelogram vertices.
+        A is the origin corner,
+        AB and AD are the edge vectors.
     eps : float
         Numerical tolerance.
 
     Returns
     -------
-    bool
+    mask : ndarray (...)
+        Boolean array with same leading shape as P.
     """
     P = np.asarray(P, dtype=float)
     A = np.asarray(A, dtype=float)
@@ -37,13 +43,24 @@ def point_in_parallelogram(P, A, B, D, eps=1e-9):
 
     AB = B - A
     AD = D - A
-    AP = P - A
+
+    # Matrix whose columns are the parallelogram edges
+    M = np.stack([AB, AD], axis=1)   # shape (2,2)
+    M_inv = np.linalg.inv(M)
+
+    # Coordinates relative to A
+    AP = P - A                       # shape (...,2)
 
     # Solve AP = u*AB + v*AD
-    M = np.column_stack((AB, AD))
-    u, v = np.linalg.solve(M, AP)
+    uv = AP @ M_inv.T                # shape (...,2)
 
-    return (-eps <= u <= 1 + eps) and (-eps <= v <= 1 + eps)
+    u = uv[..., 0]
+    v = uv[..., 1]
+
+    return (
+        (-eps <= u) & (u <= 1 + eps) &
+        (-eps <= v) & (v <= 1 + eps)
+    )
 def rectangle_fixed_A_C(A1, C1, theta_deg):
     x1, y1 = A1
     x2, y2 = C1
@@ -831,8 +848,10 @@ while running==1:
 				L_temp.append(h_liste[i])
 			else:
 				U=h_liste[i]
-				X1=U[2]+50
-				X2=U[0]+X1+U[1]
+				X1=(U[2]+50)
+				X2=(U[0]+X1+U[1])
+				X1=X1[:-1]
+				X2=X2[:-1]
 				#print(X1,X2)
 				col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,0,0],col)
 		h_liste=L_temp
@@ -1059,19 +1078,25 @@ while running==1:
 			h1=h2
 			h2=height
 			seg=(seg+1)%2
+			print(X1)
 			A_, B_, C_, D_ = rectangle_fixed_A_C(X1, X2, angle_flat)
 			C_ = A_ + (B_ - A_) + (D_ - A_)
 			if seg==0:
-				hmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),H,hmap)
+				hmap=np.where(point_in_parallelogram(X,A_,B_,D_),H,hmap)
+				#hmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),H,hmap)
 
 				if rot:
 					pente=((h2-h1)/(X2[1]-X1[1]))
 					alt=np.expand_dims(pente*(X[:,:,1]-X1[1]),-1)
 					if add_roof:
-						col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
+						# col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
+						# print(point_in_parallelogram(X,A_,B_,D_).shape)
+						col=np.where(np.expand_dims((point_in_parallelogram(X,A_,B_,D_))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
 
-					zmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),alt[:,:,0]+h1,zmap)
-
+					zmap=np.where((point_in_parallelogram(X,A_,B_,D_)),alt[:,:,0]+h1,zmap)
+					# zmap = np.where((X[:, :, 0] >= min(X1[0], X2[0])) & (X[:, :, 0] <= max(X1[0], X2[0])) & (
+					# 			X[:, :, 1] >= min(X1[1], X2[1])) & (X[:, :, 1] <= max(X1[1], X2[1])), alt[:, :, 0] + h1,
+					# 				zmap)
 					if add_roof:
 						if slope==0:
 							h_liste.append((np.array([X2[0]-X1[0],0,0]),np.array([0,X2[1]-X1[1],h2-h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
@@ -1138,7 +1163,7 @@ while running==1:
 													X[:, :, 1] <= max(X1p[xx][1], X2p[xx][1]) + 0) & (
 													X[:, :, 1] >= min(X1p[xx][1], X2p[xx][1]) - 0) & (
 													X[:, :, 0] >= min(X1p[xx][0], X2p[xx][0]) - 0) & (level_w == 0), -1), CC, col)
-					if slope == 0:
+					if slope == 0: # below this finish parallelogram stuff
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50
 							y0=i[1]+x0
