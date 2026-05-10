@@ -1176,14 +1176,19 @@ while running==1:
 					pente=((h2-h1)/(X2[0]-X1[0]))
 					alt=np.expand_dims(pente*(X[:,:,0]-X1[0]),-1)
 					if add_roof:
-						col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
-					zmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),alt[:,:,0]+h1,zmap)
+						col=np.where(np.expand_dims((point_in_parallelogram(X,A_,B_,D_))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
+						#col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
+					zmap=np.where(point_in_parallelogram(X,A_,B_,D_),alt[:,:,0]+h1,zmap)
+					#zmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),alt[:,:,0]+h1,zmap)
 
 					if add_roof:
 						if slope==0:
-							h_liste.append((np.array([X2[0]-X1[0],0,h2-h1]),np.array([0,X2[1]-X1[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
+							#h_liste.append((np.array([X2[0]-X1[0],0,h2-h1]),np.array([0,X2[1]-X1[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
+							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1],h2-h1]),np.array([D_[0]-A_[0],D_[1]-A_[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
 						else:
-							h_liste.append((np.array([X2[0] - X1[0], 0, h2 - h1]), np.array([0, X2[1] - X1[1], 0]),
+							# h_liste.append((np.array([X2[0] - X1[0], 0, h2 - h1]), np.array([0, X2[1] - X1[1], 0]),
+							# 				np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
+							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1], h2 - h1]), np.array([D_[0]-A_[0],D_[1]-A_[1], 0]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
 							if pente==0:
 								print('platform')
@@ -1191,7 +1196,8 @@ while running==1:
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50
 							y0=i[1]+x0
-							if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
+							if point_in_parallelogram(x0,A_,B_,D_) and point_in_parallelogram(y0,A_,B_,D_):
+							#if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
 								#HERE
 								if -np.sign((i[1])[0]*(X2[0]-X1[0]))>0:
 									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
