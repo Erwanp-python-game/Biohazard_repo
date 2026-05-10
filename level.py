@@ -42,7 +42,7 @@ def rectangle_fixed_A_C(A, C, theta_deg):
     B = (x1 + a * ux, y1 + a * uy)
     D = (x1 + b * vx, y1 + b * vy)
 
-    return np.array(A), np.array(B), np.array(C), np.array(D)
+    return np.array(A).astype(int), np.array(B).astype(int), np.array(C).astype(int), np.array(D).astype(int)
 
 
 
@@ -697,8 +697,8 @@ while running==1:
 		for i in range(len(svg)):
 			if i in sel_wall:
 			
-				xs=svg[i][0]+50
-				ys=svg[i][1]+xs
+				xs=svg[i][0].astype(int)+50
+				ys=svg[i][1].astype(int)+xs
 				b=(xs[0]-ys[0])*xs[1]-xs[0]*(xs[1]-ys[1])
 				a=(xs[1]-ys[1])
 				c=(xs[0]-ys[0])
@@ -899,8 +899,10 @@ while running==1:
 					x0=i[0]+50
 					y0=i[1]+x0
 					if x0[0]<max(X1[0],X2[0]) and x0[1]<max(X1[1],X2[1]) and x0[0]>min(X1[0],X2[0]) and x0[1]>min(X1[1],X2[1]) and y0[0]<max(X1[0],X2[0]) and y0[1]<max(X1[1],X2[1]) and y0[0]>min(X1[0],X2[0]) and y0[1]>min(X1[1],X2[1]):
-						col[x0[0],x0[1]]=[255,255,0]
-						col[y0[0],y0[1]]=[255,255,0]
+						print(y0, x0)
+						col[int(x0[0]),int(x0[1])]=[255,255,0]
+
+						col[int(y0[0]),int(y0[1])]=[255,255,0]
 						selected=1
 						sel_wall.append(j)
 						#wall_liste.remove(i)
@@ -1042,31 +1044,34 @@ while running==1:
 							print('angle_flat',angle_flat)
 							# format is a,b,x0
 							# X1 and X2 not changing but a and b yes --> needs rotation
-							ax=(X2[0] - X1[0])*cos(angle_flat*2*pi/360)
-							ay = -(X2[0] - X1[0]) * sin(angle_flat*2*pi/360)
-							bx = (X2[1] - X1[1]) * sin(angle_flat*2*pi/360)
-							by=(X2[1] - X1[1])*cos(angle_flat*2*pi/360)
+							# ax=(X2[0] - X1[0])*cos(angle_flat*2*pi/360)
+							# ay = -(X2[0] - X1[0]) * sin(angle_flat*2*pi/360)
+							# bx = (X2[1] - X1[1]) * sin(angle_flat*2*pi/360)
+							# by=(X2[1] - X1[1])*cos(angle_flat*2*pi/360)
 
-							A,B,C,D=rectangle_fixed_A_C(X1,X2,angle_flat)
+							A_,B_,C_,D_=rectangle_fixed_A_C(X1,X2,angle_flat)
 
-
-							h_liste.append((np.array([ax, 0, 0]), np.array([bx,by , h2 - h1]),
+							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1] , 0]), np.array([D_[0]-A_[0],D_[1]-A_[1] , h2 - h1]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
+
+
+							# h_liste.append((np.array([ax, 0, 0]), np.array([bx,by , h2 - h1]),
+							# 				np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
 							if pente==0:
 								print('platform')
 								X1p=[]
 								X2p=[]
-								X1p.append(A)
-								X2p.append(B)
+								X1p.append(A_)
+								X2p.append(B_)
 
-								X1p.append(B)
-								X2p.append(C)
+								X1p.append(B_)
+								X2p.append(C_)
 
-								X1p.append(C)
-								X2p.append(D)
+								X1p.append(C_)
+								X2p.append(D_)
 
-								X1p.append(D)
-								X2p.append(A)
+								X1p.append(D_)
+								X2p.append(A_)
 
 								# X1p.append(np.array([X1[0],X1[1]]))
 								# X2p.append(np.array([X2[0],X1[1]]))

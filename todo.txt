@@ -20,7 +20,7 @@ SPEEDUP
 
 GAMEPLAY
 
-flames
+flames_damage
 sphere and cylinders
 reload gun
 rotated platforms (requires to deal with light filling in level)
@@ -33,7 +33,7 @@ more destructible obj
 
 BUG
 
-
+bug ->flame order of drawing
 bug ->rescaling of guns when hitting +
 bug -> shooting through walls ennemies
 bug ->grenade not always visible
