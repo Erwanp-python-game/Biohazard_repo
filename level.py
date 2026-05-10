@@ -151,6 +151,8 @@ for c_0, i in enumerate(levelD[int(name)]['deco']):
 
 window=(500,500)
 fenetre = pygame.display.set_mode((window[0]+350+500,window[1]))
+fenetre2 = pygame.Surface((window[0],window[1]))
+fenetre2.set_colorkey((0,0,0))
 running=1
 level_w=np.full((window[0],window[1]),0.0)
 level_w_transp=np.full((window[0],window[1]),0.0)
@@ -442,6 +444,7 @@ Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 Amp.fill(255*np.array(Clight),special_flags=BLEND_RGB_MULT)
 while running==1:
 	fenetre.fill((0,0,0))
+	fenetre2.fill((0, 0, 0))
 	fenetre.blit(editor_controls, (0, 0))
 	for event in pygame.event.get():
 		if event.type == QUIT:
@@ -1217,11 +1220,11 @@ while running==1:
 
 				A_0, B_0, C_0, D_0 = rectangle_fixed_A_C(X2, np.array([mouse[0]//5+x,mouse[1]//5+y]), angle_flat)
 				C_0 = A_0 + (B_0 - A_0) + (D_0 - A_0)
-				pygame.draw.polygon(fenetre, [(50 * (height)) % 255, 100, 100],
+				pygame.draw.polygon(fenetre2, [(50 * (height)) % 255, 100, 200],
 								 (5 * A_0 - 5 * np.array([x, y]), 5*B_0 - 5 * np.array([x, y]),5*C_0 - 5 * np.array([x, y]),5*D_0 - 5 * np.array([x, y])))
 
 			else:
-				pygame.draw.rect(fenetre, [(50 * (height)) % 255, 255, 100],
+				pygame.draw.rect(fenetre2, [(50 * (height)) % 255, 255, 200],
 								 (5 * X2 - 5 * np.array([x, y]), mouse - 5 * X2 + 5 * np.array([x, y])))
 		
 	if select==0 and plafond==0 and light==1 and Monstre==0 and trigger==0 and lift==0 and stair==0:
@@ -1261,6 +1264,7 @@ while running==1:
 	C=pygame.surfarray.make_surface(col[x:100+x,y:100+y,:])
 	C.set_colorkey((0,0,0))
 	fenetre.blit(pygame.transform.scale(C,window),(0,0))
+	fenetre.blit(fenetre2,(0,0))
 	
 	if seg and select and plafond==0 and light==0 and trigger==0 and lift==0 and stair==0:
 		pygame.draw.rect(fenetre,[155,0,55],(5*X2-5*np.array([x,y]),mouse-5*X2+5*np.array([x,y])))
