@@ -12,9 +12,41 @@ name=input()
 font = pygame.font.Font('freesansbold.ttf', 13)
 
 import math
-def rectangle_fixed_A_C(A, C, theta_deg):
-    x1, y1 = A
-    x2, y2 = C
+import numpy as np
+
+def point_in_parallelogram(P, A, B, D, eps=1e-9):
+    """
+    Check if point P is inside the parallelogram defined by A, B, D.
+    The 4th vertex C is implied as C = B + D - A.
+
+    Parameters
+    ----------
+    P, A, B, D : array-like
+        Coordinates as numpy arrays or compatible sequences.
+    eps : float
+        Numerical tolerance.
+
+    Returns
+    -------
+    bool
+    """
+    P = np.asarray(P, dtype=float)
+    A = np.asarray(A, dtype=float)
+    B = np.asarray(B, dtype=float)
+    D = np.asarray(D, dtype=float)
+
+    AB = B - A
+    AD = D - A
+    AP = P - A
+
+    # Solve AP = u*AB + v*AD
+    M = np.column_stack((AB, AD))
+    u, v = np.linalg.solve(M, AP)
+
+    return (-eps <= u <= 1 + eps) and (-eps <= v <= 1 + eps)
+def rectangle_fixed_A_C(A1, C1, theta_deg):
+    x1, y1 = A1
+    x2, y2 = C1
 
     # Vector AC
     dx = x2 - x1
@@ -39,10 +71,10 @@ def rectangle_fixed_A_C(A, C, theta_deg):
     b = (ux * dy - uy * dx) / det
 
     # Build points
-    B = (x1 + a * ux, y1 + a * uy)
-    D = (x1 + b * vx, y1 + b * vy)
+    B1 = (x1 + a * ux, y1 + a * uy)
+    D1 = (x1 + b * vx, y1 + b * vy)
 
-    return np.array(A).astype(int), np.array(B).astype(int), np.array(C).astype(int), np.array(D).astype(int)
+    return np.array(A1).astype(int), np.array(B1).astype(int), np.array(C1).astype(int), np.array(D1).astype(int)
 
 
 
@@ -1027,6 +1059,8 @@ while running==1:
 			h1=h2
 			h2=height
 			seg=(seg+1)%2
+			A_, B_, C_, D_ = rectangle_fixed_A_C(X1, X2, angle_flat)
+			C_ = A_ + (B_ - A_) + (D_ - A_)
 			if seg==0:
 				hmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),H,hmap)
 
@@ -1035,6 +1069,7 @@ while running==1:
 					alt=np.expand_dims(pente*(X[:,:,1]-X1[1]),-1)
 					if add_roof:
 						col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
+
 					zmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),alt[:,:,0]+h1,zmap)
 
 					if add_roof:
@@ -1049,7 +1084,7 @@ while running==1:
 							# bx = (X2[1] - X1[1]) * sin(angle_flat*2*pi/360)
 							# by=(X2[1] - X1[1])*cos(angle_flat*2*pi/360)
 
-							A_,B_,C_,D_=rectangle_fixed_A_C(X1,X2,angle_flat)
+
 
 							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1] , 0]), np.array([D_[0]-A_[0],D_[1]-A_[1] , h2 - h1]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
@@ -1148,7 +1183,13 @@ while running==1:
 			
 		if seg:
 			if add_roof:
-				pygame.draw.rect(fenetre,[(50*(height))%255,100,100],(5*X2-5*np.array([x,y]),mouse-5*X2+5*np.array([x,y])))
+				# pygame.draw.rect(fenetre,[(50*(height))%255,100,100],(5*X2-5*np.array([x,y]),mouse-5*X2+5*np.array([x,y])))
+
+				A_0, B_0, C_0, D_0 = rectangle_fixed_A_C(X2, np.array([mouse[0]//5+x,mouse[1]//5+y]), angle_flat)
+				C_0 = A_0 + (B_0 - A_0) + (D_0 - A_0)
+				pygame.draw.polygon(fenetre, [(50 * (height)) % 255, 100, 100],
+								 (5 * A_0 - 5 * np.array([x, y]), 5*B_0 - 5 * np.array([x, y]),5*C_0 - 5 * np.array([x, y]),5*D_0 - 5 * np.array([x, y])))
+
 			else:
 				pygame.draw.rect(fenetre, [(50 * (height)) % 255, 255, 100],
 								 (5 * X2 - 5 * np.array([x, y]), mouse - 5 * X2 + 5 * np.array([x, y])))
