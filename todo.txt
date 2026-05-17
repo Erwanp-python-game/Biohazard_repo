@@ -33,12 +33,15 @@ more destructible obj
 
 BUG
 
+
+bug -> light in platform tilted
 bug ->flame order of drawing
 bug ->rescaling of guns when hitting +
 bug -> shooting through walls ennemies
 bug ->grenade not always visible
 bug -> issue with normal in walls with a cut
 
+-stairs cannot be rotated
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
 
 
