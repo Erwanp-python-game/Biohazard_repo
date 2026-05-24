@@ -2816,17 +2816,17 @@ def load_level(level_name):
     CARTE = [0, 0, 0]
     level = int(level_name)
     if level==5:
-        SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel1.png'))
-        LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape1.png'))
-        LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
+        # SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel1.png'))
+        # LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape1.png'))
+        # LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
         SKY0_im = pygame.image.load('image/ciel/ciel1.png')
         SKY0_im = pygame.transform.scale(SKY0_im, (SKY0_im.get_width() * 2, SKY0_im.get_height() * 2))
         LAND0_im = pygame.image.load('image/ciel/lanscape1.png')
         LAND0_im = pygame.transform.scale(LAND0_im, (LAND0_im.get_width() * 2, LAND0_im.get_height() * 2))
     if level==6:
-        SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel2.png'))
-        LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape2.png'))
-        LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
+        # SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel2.png'))
+        # LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape2.png'))
+        # LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
         SKY0_im = pygame.image.load('image/ciel/ciel2.png')
         SKY0_im = pygame.transform.scale(SKY0_im, (SKY0_im.get_width() * 2, SKY0_im.get_height() * 2))
         LAND0_im = pygame.image.load('image/ciel/lanscape2.png')
@@ -3181,6 +3181,8 @@ def load_level(level_name):
     all_RA = np.array([i.RA for i in all_things])
 
     types_monst=list(set(levelD[level]['mon']))
+    time1=time.perf_counter()*1000
+    print((time1-time0)/1000,'declaring_all_ims')
     all_im_m=np.full((len(types_monst),4,8,160,160,3),0.)
     all_ima_m = np.full((len(types_monst), 8, 160, 160, 3), 0.)
     for c_0,t_2 in enumerate(types_monst):
@@ -3192,6 +3194,7 @@ def load_level(level_name):
     boss_im=all_ima_m[0,0,:,:,:].copy()
 
     types_obj=list(set(levelD[level]['obj']))
+
     all_im_o=np.full((len(types_obj),8,160,160,3),0.)
     all_im_o_d = np.full((len(types_obj), 4, 160, 160, 3), 0.)
 
@@ -4133,9 +4136,5 @@ while running == 1:
         time_tot=[]
         averaged_time = np.full((23), 0.)
 
-
-    if c3==1:
-        time1 = time.perf_counter() * 1000
-        print((time1 - time0) / 1000)
 
     clock.tick_busy_loop(24)
