@@ -333,32 +333,38 @@ def flood_fill(arr,xl,wall_liste,col):
 		if A[x[0]][x[1]-1]==0 and (x[0],x[1]-1) not in P:
 			P.append((x[0],x[1]-1))
 	
+	# for i in h_liste:# here for rotation
+	# 	X1=i[2]+50
+	# 	X2=i[0]+i[1]+X1
+	# 	V=0.5*(i[0]+i[1])
+	# 	if xl[0]<max(X1[0],X2[0]) and xl[1]<max(X1[1],X2[1]) and xl[0]>min(X1[0],X2[0]) and xl[1]>min(X1[1],X2[1]):
+	# 		clef=str(int(X1[0]+V[0]))+','+str(int(X1[1]+V[1]))
+	#
+	# 		if clef not in light_wall.keys():
+	# 			light_wall[clef]=[str(xl[0])+','+str(xl[1])]
+	# 			light_color[clef]=col
+	# 		else:
+	# 			if str(xl[0])+','+str(xl[1]) not in light_wall[clef]:
+	# 				light_wall[clef].append(str(xl[0])+','+str(xl[1]))
+	# 				light_color[clef]=tuple(0.5*np.array(light_color[clef])+0.5*np.array(col))
 	for i in h_liste:# here for rotation
 		X1=i[2]+50
+		X3 = i[0] + X1
 		X2=i[0]+i[1]+X1
+		X4 = i[1] + X1
 		V=0.5*(i[0]+i[1])
-		if xl[0]<max(X1[0],X2[0]) and xl[1]<max(X1[1],X2[1]) and xl[0]>min(X1[0],X2[0]) and xl[1]>min(X1[1],X2[1]):
+		#if xl[0]<max(X1[0],X2[0]) and xl[1]<max(X1[1],X2[1]) and xl[0]>min(X1[0],X2[0]) and xl[1]>min(X1[1],X2[1]):
+
+		if point_in_parallelogram(np.array(xl),X1[:-1],X3[:-1],X4[:-1]):
 			clef=str(int(X1[0]+V[0]))+','+str(int(X1[1]+V[1]))
 
 			if clef not in light_wall.keys():
 				light_wall[clef]=[str(xl[0])+','+str(xl[1])]
 				light_color[clef]=col
-				#print(col,X1,X2)
 			else:
 				if str(xl[0])+','+str(xl[1]) not in light_wall[clef]:
 					light_wall[clef].append(str(xl[0])+','+str(xl[1]))
 					light_color[clef]=tuple(0.5*np.array(light_color[clef])+0.5*np.array(col))
-	
-	#Lst=light_color.copy()
-	# for i in range(len(L_coord)):
-		
-		# if L_coord2[i] in light_color.keys() and L_coord[i] in light_color.keys():
-			# print(light_color[L_coord2[i]],'y')
-			# print(light_color[L_coord[i]],'x')
-			# print('----')
-			#if Lst[L_coord[i]]!=Lst[L_coord2[i]]:
-
-				#light_color[L_coord[i]]=tuple(0.5*np.array(Lst[L_coord2[i]])+0.5*np.array(Lst[L_coord[i]]))
 
 
 sel_light=[]

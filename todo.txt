@@ -17,6 +17,7 @@ mecano lezard blood
 SPEEDUP
 ->bleed is slowing things
 ->check walkthing and calcnorm
+->starting speedup
 
 GAMEPLAY
 
@@ -33,8 +34,6 @@ more destructible obj
 
 BUG
 
-
-bug -> light in platform tilted
 bug ->flame order of drawing
 bug ->rescaling of guns when hitting +
 bug -> shooting through walls ennemies
