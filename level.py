@@ -200,6 +200,7 @@ Trig_liste=[]
 TrigN=0
 lifts=[]
 stairs=[]
+sphere=[]
 face=0
 face_d=['AB','A','B']
 orientation=0.
@@ -226,6 +227,7 @@ if name in os.listdir("level/"):
 	lifts=pickle.load(f)
 	stairs = pickle.load(f)
 	level_w_transp= pickle.load(f)
+	sphere = pickle.load(f)
 	f.close()
 #h_liste=[]
 # Wl=[]
@@ -446,6 +448,7 @@ stair=0
 slope=0
 erase=1
 angle_flat=0
+sphere_on=0
 Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 Amp.fill(255*np.array(Clight),special_flags=BLEND_RGB_MULT)
 while running==1:
@@ -478,6 +481,11 @@ while running==1:
 	else:
 		ammoT=0
 
+
+	if key[K_u]:
+		sphere_on=(sphere_on+1)%2
+		print('sphere_on',sphere_on)
+		pygame.time.wait(300)
 
 	if key[K_i]:
 		angle_flat=(angle_flat+5)%360
@@ -873,6 +881,11 @@ while running==1:
 		CC=col_t[texture]
 	mouse=pygame.mouse.get_pos()#+5*np.array([x,y])
 	if select==0 and plafond==0 and light==0 and Monstre==0 and trigger==0 and lift==0 and stair==0:
+		if seg==1 and sphere_on:
+			X_m = np.array([mouse[0] // 5 + x, mouse[1] // 5 + y])
+			Radius = np.linalg.norm(X_m - X2) * 5
+			pygame.draw.circle(fenetre2, [50, 50, 200],5 * X2 - 5 * np.array([x, y]), Radius)
+
 		if key[K_KP_PLUS]:
 			deco=deco+1
 			pygame.time.wait(300)
@@ -896,21 +909,25 @@ while running==1:
 		
 		
 		if clic[0]==1:
-			level_w[mouse[0]//5+x,mouse[1]//5+y]=1
-			if (levelD[int(name)]['deco'][deco-1] in deco_door):
-				level_w_transp[mouse[0]//5+x,mouse[1]//5+y]=1
-			if door==0:
-				authorized[mouse[0]//5+x,mouse[1]//5+y]=1
-			col[mouse[0]//5+x,mouse[1]//5+y]=[0,255,0]
+			if sphere_on==0:
+				level_w[mouse[0]//5+x,mouse[1]//5+y]=1
+				if (levelD[int(name)]['deco'][deco-1] in deco_door):
+					level_w_transp[mouse[0]//5+x,mouse[1]//5+y]=1
+				if door==0:
+					authorized[mouse[0]//5+x,mouse[1]//5+y]=1
+				col[mouse[0]//5+x,mouse[1]//5+y]=[0,255,0]
+			else:
+				if seg==0:
+					col[mouse[0] // 5 + x, mouse[1] // 5 + y] = [0, 255, 0]
 			pygame.time.wait(200)
-			if seg==1:
+			if seg==1 and sphere_on==0:
 				A=(np.angle(mouse[0]//5-X2[0]+x+(mouse[1]//5-X2[1]+y)*1j))
 				surf.blit(pygame.transform.rotate(F,180-A*180/pi),(5*X2+mouse+[5*x,5*y])//2+[-5,-5])
 			X1=X2
 			X2=np.array([mouse[0]//5+x,mouse[1]//5+y])
+
 			
-			
-			if seg==1:
+			if seg==1 and sphere_on==0:
 				
 				col[mouse[0]//5+x,mouse[1]//5+y]=[0,255,0]
 				b=(X1[0]-X2[0])*X1[1]-X1[0]*(X1[1]-X2[1])
@@ -1433,4 +1450,5 @@ if saving!='n':
 	pickle.dump(lifts,f)
 	pickle.dump(stairs, f)
 	pickle.dump(level_w_transp, f)
+	pickle.dump(sphere, f)
 	f.close()

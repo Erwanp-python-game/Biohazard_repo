@@ -36,3 +36,4 @@ the color
 -b for orientation of objects
 -j to make only slope with no roof
 -press i to rotate flat orientation
+-press u for sphere

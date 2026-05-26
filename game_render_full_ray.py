@@ -2929,6 +2929,8 @@ def load_level(level_name):
     stairs = pickle.load(f)
     level_w_transp= pickle.load(f)
     level_w_transp=level_w_transp.T
+    sphere=pickle.load(f)
+    print('sphere',sphere)
 
     f.close()
     time1 = time.perf_counter() * 1000
