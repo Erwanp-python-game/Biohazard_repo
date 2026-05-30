@@ -7,7 +7,7 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
               all_a, all_b, all_X,
               all_aa, all_bb, all_n, all_ab, all_inv_det, all_opening, all_freq, all_phase, all_tile_z, all_trans_im,
               all_format, all_wall_im, all_light, all_light_w, all_wall_len, all_destruc, all_wall_im2, all_side,
-              TORCHE, torch_on, torch_shine, fire, explo, explo_pt, random_explo, all_liquid,all_sphere):
+              TORCHE, torch_on, torch_shine, fire, explo, explo_pt, random_explo, all_liquid,all_sphere,all_radius):
     X0 = screenP[0, 0]
     liquid = False
     origin_x = 0.5 * (X0[0] + 100.0)
@@ -305,7 +305,7 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                         # ---- SPHERE ----
 
                         C = all_X[obj]  # center
-                        r = 5  # you must add this array
+                        r = all_radius[obj]  # you must add this array
 
                         dx0 = X0[0] - C[0]
                         dy0 = X0[1] - C[1]
@@ -354,7 +354,7 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                         # ---- SPHERE ----
 
                         C = all_X[obj]  # center
-                        r = 5  # you must add this array
+                        r = all_radius[obj]  # you must add this array
 
                         dx0 = X0[0] - C[0]
                         dy0 = X0[1] - C[1]

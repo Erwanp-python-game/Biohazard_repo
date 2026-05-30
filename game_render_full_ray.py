@@ -435,6 +435,7 @@ def explo_zone(R,dist):
 class Wall():
     def __init__(self, u, v, w, text, door, deco, freq, phase,slant):
         self.sphere=0
+        self.radius=0
         self.num=len(wall)
         self.freq=freq
         self.phase_=phase
@@ -2832,7 +2833,7 @@ def check_trigger():
 def load_level(level_name):
     time1=time.perf_counter()*1000
     print((time1-time0)/1000,'load_level')
-    global all_sphere,all_liquid,cell_start, cell_count, cell_objects,cell_array_z,cell_array_N,all_inv_det,all_ab,all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global all_radius,all_sphere,all_liquid,cell_start, cell_count, cell_objects,cell_array_z,cell_array_N,all_inv_det,all_ab,all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     CARTE = [0, 0, 0]
     level = int(level_name)
     if level==5:
@@ -2990,12 +2991,14 @@ def load_level(level_name):
     for i in sphere:# all radius
         xw = list(2 * i[0])
         R_ = 2 * i[1]
-        H = i[6]#-5 is to move down
+        H = i[6]-5 #is to move down
         xw.append(i[4] * 2 - H)
+        print(xw,H)
         im = 'image/wall/wall' + str(levelD[level]['wall'][i[2][0]]) + '.png'
         im2 = 'image/wall/wall' + str(levelD[level]['wall'][i[2][1]]) + '.png'
         wall.append(Wall([0., 0., 5 * 2 + H], np.array([0,1.,0.]), np.array(xw), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], i[10]))
         wall[-1].sphere=1
+        wall[-1].radius=R_
         wall[-1].format=120*np.array([5,R_*4])/10
 
     [i.texture(5, 5) for i in wall]
@@ -3123,6 +3126,7 @@ def load_level(level_name):
     all_walls=wall.copy()
     all_a=np.array([i.a[0,0,:] for i in all_walls])
     all_sphere = np.array([i.sphere for i in all_walls])
+    all_radius = np.array([i.radius for i in all_walls])
     all_b = np.array([i.b[0, 0, :] for i in all_walls])
     all_X = np.array([i.X[0, 0, :] for i in all_walls])
     all_liquid= np.array([i.text[11:-3] in liquid_floor for i in all_walls])
@@ -3745,7 +3749,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius)
     # if key[K_u]:
     #     plt.imshow(Im_ray/255)
     #     plt.show()
