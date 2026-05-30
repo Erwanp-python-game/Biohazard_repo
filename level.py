@@ -1160,7 +1160,7 @@ while running==1:
 													X[:, :, 1] <= max(X1p[xx][1], X2p[xx][1]) + 0) & (
 													X[:, :, 1] >= min(X1p[xx][1], X2p[xx][1]) - 0) & (
 													X[:, :, 0] >= min(X1p[xx][0], X2p[xx][0]) - 0) & (level_w == 0), -1), CC, col)
-					if slope == 0: # cas de base ou l'on ne met pas juste une pente flottante
+					if slope == 0: # cas de base ou l'on ne met pas juste une pente flottante, reset la bonne hauteur de plafond et de z pour les murs
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50
 							y0=i[1]+x0
@@ -1185,7 +1185,7 @@ while running==1:
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
 							if pente==0:# cas platform pas code
 								print('platform')
-					if slope==0:# cas normal ou l'on n'ajoute pas de pente qui n'affecte pas les murs
+					if slope==0:# cas de base ou l'on ne met pas juste une pente flottante, reset la bonne hauteur de plafond et de z pour les murs
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50
 							y0=i[1]+x0
