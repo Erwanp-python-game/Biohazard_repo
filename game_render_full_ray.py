@@ -401,6 +401,24 @@ def cells_covered_by_plane(X, A, B, cell_size=1.0):
 
     return cells
 
+def cells_covered_by_circle(X, R0, cell_size=1.0):
+    X = np.array(X)
+
+    ix = int(X[0] / cell_size)
+    iy = int(X[1] / cell_size)
+    R=int(R0)
+
+
+    cells = []
+
+    for ix_ in range(ix, ix+2*R+2):
+        for iy_ in range(iy, iy +2*R+2):
+            print((ix-ix_+R+1)**2+(iy-iy_+R+1)**2,R0**2)
+            if (ix-ix_+R+1)**2+(iy-iy_+R+1)**2<=R0**2:
+                cells.append((ix_-R-1, iy_-R-1))
+
+    return cells
+
 def explo_zone(R,dist):
     if explo_type!=2:
         white = np.array([[[1, 1, 1]]])
@@ -3013,55 +3031,61 @@ def load_level(level_name):
     print((time1 - time0) / 1000, 'before_loop')
     for cw,i in enumerate(wall):
         if i not in h_wall:
-            cells=cells_crossed_by_segment(0.5*(i.X[0,0,:-1]+100),0.5*i.b[0,0,:-1],cell_size)
-            for u in cells:
-                cell_array_N[int(u[0])][int(u[1])]+=1
-                cell_array[int(u[0])][int(u[1])].append(cw)
+            if i.sphere==0:
+                cells=cells_crossed_by_segment(0.5*(i.X[0,0,:-1]+100),0.5*i.b[0,0,:-1],cell_size)
+                for u in cells:
+                    cell_array_N[int(u[0])][int(u[1])]+=1
+                    cell_array[int(u[0])][int(u[1])].append(cw)
 
-            # ax[0].scatter([i[0] for i in cells],[i[1] for i in cells])
-            count_w=0
-            h_wall_temp=[]
-            for j in h_wall:
-                V1=i.X[0,0,:-1]-j.X[0,0,:-1]
-                V2 = i.X[0, 0, :-1]+i.a[0, 0, :-1]+i.b[0, 0, :-1]-j.X[0,0,:-1]
-                d1x=np.dot(V1,j.a[0,0,:-1])
-                d1y=np.dot(V1,j.b[0,0,:-1])
-                d2x=np.dot(V2,j.a[0,0,:-1])
-                d2y=np.dot(V2,j.b[0,0,:-1])
+                # ax[0].scatter([i[0] for i in cells],[i[1] for i in cells])
+                count_w=0
+                h_wall_temp=[]
+                for j in h_wall:
+                    V1=i.X[0,0,:-1]-j.X[0,0,:-1]
+                    V2 = i.X[0, 0, :-1]+i.a[0, 0, :-1]+i.b[0, 0, :-1]-j.X[0,0,:-1]
+                    d1x=np.dot(V1,j.a[0,0,:-1])
+                    d1y=np.dot(V1,j.b[0,0,:-1])
+                    d2x=np.dot(V2,j.a[0,0,:-1])
+                    d2y=np.dot(V2,j.b[0,0,:-1])
 
 
-                if np.linalg.norm(j.a[0,0,:-1])**2>=d1x>=0 and np.linalg.norm(j.b[0,0,:-1])**2>=d1y>=0 and np.linalg.norm(j.a[0,0,:-1])**2>=d2x>=0 and np.linalg.norm(j.b[0,0,:-1])**2>=d2y>=0:
+                    if np.linalg.norm(j.a[0,0,:-1])**2>=d1x>=0 and np.linalg.norm(j.b[0,0,:-1])**2>=d1y>=0 and np.linalg.norm(j.a[0,0,:-1])**2>=d2x>=0 and np.linalg.norm(j.b[0,0,:-1])**2>=d2y>=0:
 
-                    count_w+=1
-                    i.linked.append(j.ID)
+                        count_w+=1
+                        i.linked.append(j.ID)
 
-                    if j.text.split('/')[-1][:4]=='roof' and j.a[0,0,2]==0 and j.b[0,0,2]==0:
-                        # check when plafond is stairs and choose what to do with door, check if the two roof are one inside the other or not
-                        h_wall_temp.append(j)
-                        if j.X[0,0,2]<i.X[0,0,2]:# if wall smaller than roof then in inside
-                            i.inside=True
-                        i.height_rel.append((j.X[0,0,2],j.text,j.ID,i.X[0,0,2],i.text,i.ID,i.deco))
-            if len(i.height_rel)>1:# if multiple roofs check if they are included one into the other and with a smaller one
-                for k in h_wall_temp:
-                    for j in h_wall_temp:
-                        if j.X[0, 0, 2] < i.X[0, 0, 2]:
-                            if j!=k:# checking k inside j
-                                V1 = k.X[0, 0, :-1] - j.X[0, 0, :-1]
-                                V2 = k.X[0, 0, :-1] + k.a[0, 0, :-1] + k.b[0, 0, :-1] - j.X[0, 0, :-1]
-                                d1x = np.dot(V1, j.a[0, 0, :-1])
-                                d1y = np.dot(V1, j.b[0, 0, :-1])
-                                d2x = np.dot(V2, j.a[0, 0, :-1])
-                                d2y = np.dot(V2, j.b[0, 0, :-1])
+                        if j.text.split('/')[-1][:4]=='roof' and j.a[0,0,2]==0 and j.b[0,0,2]==0:
+                            # check when plafond is stairs and choose what to do with door, check if the two roof are one inside the other or not
+                            h_wall_temp.append(j)
+                            if j.X[0,0,2]<i.X[0,0,2]:# if wall smaller than roof then in inside
+                                i.inside=True
+                            i.height_rel.append((j.X[0,0,2],j.text,j.ID,i.X[0,0,2],i.text,i.ID,i.deco))
+                if len(i.height_rel)>1:# if multiple roofs check if they are included one into the other and with a smaller one
+                    for k in h_wall_temp:
+                        for j in h_wall_temp:
+                            if j.X[0, 0, 2] < i.X[0, 0, 2]:
+                                if j!=k:# checking k inside j
+                                    V1 = k.X[0, 0, :-1] - j.X[0, 0, :-1]
+                                    V2 = k.X[0, 0, :-1] + k.a[0, 0, :-1] + k.b[0, 0, :-1] - j.X[0, 0, :-1]
+                                    d1x = np.dot(V1, j.a[0, 0, :-1])
+                                    d1y = np.dot(V1, j.b[0, 0, :-1])
+                                    d2x = np.dot(V2, j.a[0, 0, :-1])
+                                    d2y = np.dot(V2, j.b[0, 0, :-1])
 
-                                if np.linalg.norm(j.a[0, 0, :-1]) ** 2 >= d1x >= 0 and np.linalg.norm(
-                                        j.b[0, 0, :-1]) ** 2 >= d1y >= 0 and np.linalg.norm(
-                                        j.a[0, 0, :-1]) ** 2 >= d2x >= 0 and np.linalg.norm(
-                                        j.b[0, 0, :-1]) ** 2 >= d2y >= 0 :
+                                    if np.linalg.norm(j.a[0, 0, :-1]) ** 2 >= d1x >= 0 and np.linalg.norm(
+                                            j.b[0, 0, :-1]) ** 2 >= d1y >= 0 and np.linalg.norm(
+                                            j.a[0, 0, :-1]) ** 2 >= d2x >= 0 and np.linalg.norm(
+                                            j.b[0, 0, :-1]) ** 2 >= d2y >= 0 :
 
-                                    i.inside=True
-                                else:
+                                        i.inside=True
+                                    else:
 
-                                    i.inside=False
+                                        i.inside=False
+            else:
+                cells=cells_covered_by_circle(0.5*(i.X[0,0,:-1]+100),0.5*5,cell_size)
+                for u in cells:
+                    cell_array_N[int(u[0])][int(u[1])]+=1
+                    cell_array[int(u[0])][int(u[1])].append(cw)
         else:
             cells=cells_covered_by_plane(0.5*(i.X[0,0,:-1]+100),0.5*i.a[0,0,:-1],0.5*i.b[0,0,:-1],cell_size)
             for u in cells:
