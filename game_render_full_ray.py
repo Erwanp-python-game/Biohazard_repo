@@ -2974,9 +2974,11 @@ def load_level(level_name):
             im2 = 'image/door/' + str(levelD[level]['door'][i[2][1]]) + '.png'
 
         wall.append(Wall([0., 0., 5 * 2 + H], b, xw, [im, im2, i[2][2]], i[3], i[7], i[8], i[9],i[10]))
-        # if i[3]==0:
-        #     wall.append(Wall([0., 0., 5 * 2 + H], b, np.array(xw)+0.5*np.array(b), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], i[10]))
-        #     wall[-1].sphere=2
+        if i[3]==0:
+            wall.append(Wall([0., 0., 5 * 2 + H], b, np.array(xw)+0.5*np.array(b), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], i[10]))
+            wall[-1].sphere=2
+            wall[-1].format=120*np.array([5,5])/10
+
 
         if i[3] != 0:
             doors.append(wall[-1])

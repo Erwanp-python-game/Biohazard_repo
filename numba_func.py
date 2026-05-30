@@ -336,8 +336,8 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                                 elif nz < -1.0:
                                     nz = -1.0
 
-                                u = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
-                                v = 0.5 - np.arcsin(nz) / np.pi
+                                v = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
+                                u = 0.5 - np.arcsin(nz) / np.pi
 
                                 t_int[j] = t_
 
@@ -385,8 +385,8 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                                 elif nz < -1.0:
                                     nz = -1.0
 
-                                u = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
-                                v = 0.5 - np.arcsin(nz) / np.pi
+                                v = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
+                                u = nz-0.5
 
                                 t_int[j] = t_
 
