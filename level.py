@@ -922,7 +922,7 @@ while running==1:
 				if seg==0:
 					col[mouse[0] // 5 + x, mouse[1] // 5 + y] = [0, 255, 0]
 				if seg == 1:
-					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,-2.5,0,0,deco,freq,phase,sphere_type))
+					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,0,0,0,deco,freq,phase,sphere_type))#-2.5 en i[6] pour monter
 
 
 			pygame.time.wait(200)
@@ -1103,7 +1103,6 @@ while running==1:
 		
 		
 		if clic[0]==1:
-			#print(height)
 			pygame.time.wait(200)
 			X1=X2
 			X2=np.array([mouse[0]//5+x,mouse[1]//5+y])
@@ -1114,41 +1113,21 @@ while running==1:
 			C_ = A_ + (B_ - A_) + (D_ - A_)
 			if seg==0:
 				hmap=np.where(point_in_parallelogram(X,A_,B_,D_),H,hmap)
-				#hmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),H,hmap)
-
-				if rot:
+				if rot:# CAS 1 pente selon Y
 					pente=((h2-h1)/(X2[1]-X1[1]))
 					alt=np.expand_dims(pente*(X[:,:,1]-X1[1]),-1)
-					if add_roof:
-						# col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
-						# print(point_in_parallelogram(X,A_,B_,D_).shape)
+					if add_roof:# si add_roof pas vrai alors on ne change que le zmap
 						col=np.where(np.expand_dims((point_in_parallelogram(X,A_,B_,D_))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
-
 					zmap=np.where((point_in_parallelogram(X,A_,B_,D_)),alt[:,:,0]+h1,zmap)
-					# zmap = np.where((X[:, :, 0] >= min(X1[0], X2[0])) & (X[:, :, 0] <= max(X1[0], X2[0])) & (
-					# 			X[:, :, 1] >= min(X1[1], X2[1])) & (X[:, :, 1] <= max(X1[1], X2[1])), alt[:, :, 0] + h1,
-					# 				zmap)
-					if add_roof:
-						if slope==0:
+					if add_roof:# si add_roof pas vrai alors on ne change que le zmap
+						if slope==0:# cas normal
 							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1] , 0]),np.array([D_[0]-A_[0],D_[1]-A_[1] , h2 - h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
-						else:
+						else:# cas sans plafond
 							print('angle_flat',angle_flat)
-							# format is a,b,x0
-							# X1 and X2 not changing but a and b yes --> needs rotation
-							# ax=(X2[0] - X1[0])*cos(angle_flat*2*pi/360)
-							# ay = -(X2[0] - X1[0]) * sin(angle_flat*2*pi/360)
-							# bx = (X2[1] - X1[1]) * sin(angle_flat*2*pi/360)
-							# by=(X2[1] - X1[1])*cos(angle_flat*2*pi/360)
-
-
-
 							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1] , 0]), np.array([D_[0]-A_[0],D_[1]-A_[1] , h2 - h1]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
 
-
-							# h_liste.append((np.array([ax, 0, 0]), np.array([bx,by , h2 - h1]),
-							# 				np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
-							if pente==0:
+							if pente==0:# cas platform
 								print('platform')
 								X1p=[]
 								X2p=[]
@@ -1164,25 +1143,12 @@ while running==1:
 								X1p.append(D_)
 								X2p.append(A_)
 
-								# X1p.append(np.array([X1[0],X1[1]]))
-								# X2p.append(np.array([X2[0],X1[1]]))
-								#
-								# X1p.append(np.array([X2[0],X1[1]]))
-								# X2p.append(np.array([X2[0],X2[1]]))
-								#
-								# X1p.append(np.array([X2[0],X2[1]]))
-								# X2p.append(np.array([X1[0],X2[1]]))
-								#
-								# X1p.append(np.array([X1[0],X2[1]]))
-								# X2p.append(np.array([X1[0],X1[1]]))
 								
 								for xx in range(len(X1p)):
 									b = (X1p[xx][0] - X2p[xx][0]) * X1p[xx][1] - X1p[xx][0] * (X1p[xx][1] - X2p[xx][1])
 									a = (X1p[xx][1] - X2p[xx][1])
 									c = (X1p[xx][0] - X2p[xx][0])
-									# b = (X1p[xx][0] - X2p[xx][0]) * X1p[xx][1] - X1p[xx][0] * (X1p[xx][1] - X2p[xx][1])
-									# a = (X1p[xx][1] - X2p[xx][1])
-									# c = (X1p[xx][0] - X2p[xx][0])
+
 
 									wall_liste.append((
 													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door, h1+2.5, 0, 0,
@@ -1194,59 +1160,48 @@ while running==1:
 													X[:, :, 1] <= max(X1p[xx][1], X2p[xx][1]) + 0) & (
 													X[:, :, 1] >= min(X1p[xx][1], X2p[xx][1]) - 0) & (
 													X[:, :, 0] >= min(X1p[xx][0], X2p[xx][0]) - 0) & (level_w == 0), -1), CC, col)
-					if slope == 0: # below this finish parallelogram stuff
+					if slope == 0: # cas de base ou l'on ne met pas juste une pente flottante
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50
 							y0=i[1]+x0
-							#if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
 							if point_in_parallelogram(x0,A_,B_,D_) and point_in_parallelogram(y0,A_,B_,D_):
-								if -np.sign((i[1])[1]*(X2[1]-X1[1]))>0:# HERE #tuple(list(i[:-4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+i[-1])
+								if -np.sign((i[1])[1]*(X2[1]-X1[1]))>0:
 									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
 								else:
 									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
-				else:
+				else:# CAS 2 pente selon X
 					pente=((h2-h1)/(X2[0]-X1[0]))
 					alt=np.expand_dims(pente*(X[:,:,0]-X1[0]),-1)
-					if add_roof:
+					if add_roof:# cas normal ou ne reset pas juste le zmap
 						col=np.where(np.expand_dims((point_in_parallelogram(X,A_,B_,D_))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
-						#col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
-					zmap=np.where(point_in_parallelogram(X,A_,B_,D_),alt[:,:,0]+h1,zmap)
-					#zmap=np.where((X[:,:,0]>=min(X1[0],X2[0]))&(X[:,:,0]<=max(X1[0],X2[0]))&(X[:,:,1]>=min(X1[1],X2[1]))&(X[:,:,1]<=max(X1[1],X2[1])),alt[:,:,0]+h1,zmap)
 
-					if add_roof:
-						if slope==0:
-							#h_liste.append((np.array([X2[0]-X1[0],0,h2-h1]),np.array([0,X2[1]-X1[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
+					zmap=np.where(point_in_parallelogram(X,A_,B_,D_),alt[:,:,0]+h1,zmap)
+
+					if add_roof:# cas normal ou ne reset pas juste le zmap
+						if slope==0:#cas normal
 							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1],h2-h1]),np.array([D_[0]-A_[0],D_[1]-A_[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
-						else:
-							# h_liste.append((np.array([X2[0] - X1[0], 0, h2 - h1]), np.array([0, X2[1] - X1[1], 0]),
-							# 				np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
+						else:#cas sans plafond
 							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1], h2 - h1]), np.array([D_[0]-A_[0],D_[1]-A_[1], 0]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
-							if pente==0:
+							if pente==0:# cas platform pas code
 								print('platform')
-					if slope==0:
+					if slope==0:# cas normal ou l'on n'ajoute pas de pente qui n'affecte pas les murs
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50
 							y0=i[1]+x0
 							if point_in_parallelogram(x0,A_,B_,D_) and point_in_parallelogram(y0,A_,B_,D_):
-							#if x0[0]<=max(X1[0],X2[0]) and x0[1]<=max(X1[1],X2[1]) and x0[0]>=min(X1[0],X2[0]) and x0[1]>=min(X1[1],X2[1]) and y0[0]<=max(X1[0],X2[0]) and y0[1]<=max(X1[1],X2[1]) and y0[0]>=min(X1[0],X2[0]) and y0[1]>=min(X1[1],X2[1]):
-								#HERE
 								if -np.sign((i[1])[0]*(X2[0]-X1[0]))>0:
 									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
 								else:
 									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
-				if add_roof:
+				if add_roof:# centre du flat avec pixel de couleur
 					col[(X1[0]+X2[0])//2,(X1[1]+X2[1])//2]=col_t[texture]
 			
 		if clic[2]==1:
-			#if seg:
-			#col[(X1[0]+X2[0])//2,(X1[1]+X2[1])//2]=col[1+(X1[0]+X2[0])//2,1+(X1[1]+X2[1])//2]
 			seg=0
 			
 		if seg:
 			if add_roof:
-				# pygame.draw.rect(fenetre,[(50*(height))%255,100,100],(5*X2-5*np.array([x,y]),mouse-5*X2+5*np.array([x,y])))
-
 				A_0, B_0, C_0, D_0 = rectangle_fixed_A_C(X2, np.array([mouse[0]//5+x,mouse[1]//5+y]), angle_flat)
 				C_0 = A_0 + (B_0 - A_0) + (D_0 - A_0)
 				pygame.draw.polygon(fenetre2, [(50 * (height)) % 255, 100, 200],

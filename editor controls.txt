@@ -32,8 +32,8 @@ the color
 -press c to change seconf face
 -press a to place lift
 -press g to place teleport
--h to change hieght of wall only
+-h to change height of wall only
 -b for orientation of objects
--j to make only slope with no roof
+-j to make only slope with no roof (not changing height)
 -press i to rotate flat orientation
 -press u for sphere
