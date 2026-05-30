@@ -710,12 +710,13 @@ class Wall():
     def texture(self, sc1, sc2):
 
         self.borne = [self.wall_im[0].shape[0] - 1, self.wall_im[0].shape[1] - 1]
-        if self.door != 0:
-            self.format = 120 * np.array([1, 1])
-        else:
-            self.format = 120 * np.array([np.linalg.norm(self.a[0][0]) / 10, np.linalg.norm(self.b[0][0]) / 10])
-        if self.text == 'image/wall/wall29.png':
-            self.format = 120 * np.array([1, np.linalg.norm(self.b[0][0]) / 30])
+        if self.sphere==0:
+            if self.door != 0:
+                self.format = 120 * np.array([1, 1])
+            else:
+                self.format = 120 * np.array([np.linalg.norm(self.a[0][0]) / 10, np.linalg.norm(self.b[0][0]) / 10])
+            if self.text == 'image/wall/wall29.png':
+                self.format = 120 * np.array([1, np.linalg.norm(self.b[0][0]) / 30])
     def reset_rend(self):
         self.rendered = False
     def calc_norm(self):# IMPROVE FOR SLANTED
@@ -2973,11 +2974,13 @@ def load_level(level_name):
             im = 'image/door/' + str(levelD[level]['door'][i[2][0]]) + '.png'
             im2 = 'image/door/' + str(levelD[level]['door'][i[2][1]]) + '.png'
 
-        wall.append(Wall([0., 0., 5 * 2 + H], b, xw, [im, im2, i[2][2]], i[3], i[7], i[8], i[9],i[10]))
+        wall.append(Wall([0., 0., 5 * 2 + H], b, xw, [im, im2, i[2][2]], i[3], i[7], i[8], 0,i[10]))
         if i[3]==0:
-            wall.append(Wall([0., 0., 5 * 2 + H], b, np.array(xw)+0.5*np.array(b), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], i[10]))
+            print(np.array(xw)+0.5*np.array(b),H)
+            wall.append(Wall([0., 0., 5 * 2 + H], b, np.array(xw)+0.5*np.array(b)+np.array([0,0,-xw[2]]), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], i[10]))
             wall[-1].sphere=2
-            wall[-1].format=120*np.array([5,5])/10
+            R_=5
+            wall[-1].format=120*np.array([5,R_*4])/10
 
 
         if i[3] != 0:

@@ -380,13 +380,13 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                                 ny = (py - C[1]) / r
                                 nz = (pz - C[2]) / r
 
-                                if nz > 1.0:
-                                    nz = 1.0
-                                elif nz < -1.0:
-                                    nz = -1.0
+                                # if nz > 1.0:
+                                #     nz = 1.0
+                                # elif nz < -1.0:
+                                #     nz = -1.0
 
                                 v = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
-                                u = nz-0.5
+                                u = nz
 
                                 t_int[j] = t_
 
