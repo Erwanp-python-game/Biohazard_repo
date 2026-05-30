@@ -2967,6 +2967,7 @@ def load_level(level_name):
         b = list(2 * i[1])
         H = i[6]
         xw.append(i[4] * 2 - H)
+
         b.append(i[5] * 2)
         im = 'image/wall/wall' + str(levelD[level]['wall'][i[2][0]]) + '.png'
         im2 = 'image/wall/wall' + str(levelD[level]['wall'][i[2][1]]) + '.png'
@@ -2975,16 +2976,28 @@ def load_level(level_name):
             im2 = 'image/door/' + str(levelD[level]['door'][i[2][1]]) + '.png'
 
         wall.append(Wall([0., 0., 5 * 2 + H], b, xw, [im, im2, i[2][2]], i[3], i[7], i[8], 0,i[10]))
-        if i[3]==0:
-            print(np.array(xw)+0.5*np.array(b),H)
-            wall.append(Wall([0., 0., 5 * 2 + H], b, np.array(xw)+0.5*np.array(b)+np.array([0,0,-xw[2]]), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], i[10]))
-            wall[-1].sphere=2
-            R_=5
-            wall[-1].format=120*np.array([5,R_*4])/10
+        # if i[3]==0:
+        #     print(np.array(xw)+0.5*np.array(b),H)
+        #     wall.append(Wall([0., 0., 5 * 2 + H], b, np.array(xw)+0.5*np.array(b)+np.array([0,0,-xw[2]]), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], i[10]))
+        #     wall[-1].sphere=2
+        #     R_=5
+        #     wall[-1].format=120*np.array([5,R_*4])/10
 
 
         if i[3] != 0:
             doors.append(wall[-1])
+
+    for i in sphere:# all radius
+        xw = list(2 * i[0])
+        R_ = 2 * i[1]
+        H = i[6]#-5 is to move down
+        xw.append(i[4] * 2 - H)
+        im = 'image/wall/wall' + str(levelD[level]['wall'][i[2][0]]) + '.png'
+        im2 = 'image/wall/wall' + str(levelD[level]['wall'][i[2][1]]) + '.png'
+        wall.append(Wall([0., 0., 5 * 2 + H], np.array([0,1.,0.]), np.array(xw), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], i[10]))
+        wall[-1].sphere=1
+        wall[-1].format=120*np.array([5,R_*4])/10
+
     [i.texture(5, 5) for i in wall]
 
     lenH = 0

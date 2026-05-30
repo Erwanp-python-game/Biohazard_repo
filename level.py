@@ -229,6 +229,7 @@ if name in os.listdir("level/"):
 	level_w_transp= pickle.load(f)
 	sphere = pickle.load(f)
 	f.close()
+
 #h_liste=[]
 # Wl=[]
 # for i in wall_liste:
@@ -449,6 +450,7 @@ slope=0
 erase=1
 angle_flat=0
 sphere_on=0
+sphere_type=1
 Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 Amp.fill(255*np.array(Clight),special_flags=BLEND_RGB_MULT)
 while running==1:
@@ -919,6 +921,10 @@ while running==1:
 			else:
 				if seg==0:
 					col[mouse[0] // 5 + x, mouse[1] // 5 + y] = [0, 255, 0]
+				if seg == 1:
+					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,-2.5,0,0,deco,freq,phase,sphere_type))
+
+
 			pygame.time.wait(200)
 			if seg==1 and sphere_on==0:
 				A=(np.angle(mouse[0]//5-X2[0]+x+(mouse[1]//5-X2[1]+y)*1j))
