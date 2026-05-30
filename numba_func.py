@@ -7,7 +7,7 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
               all_a, all_b, all_X,
               all_aa, all_bb, all_n, all_ab, all_inv_det, all_opening, all_freq, all_phase, all_tile_z, all_trans_im,
               all_format, all_wall_im, all_light, all_light_w, all_wall_len, all_destruc, all_wall_im2, all_side,
-              TORCHE, torch_on, torch_shine, fire, explo, explo_pt, random_explo, all_liquid):
+              TORCHE, torch_on, torch_shine, fire, explo, explo_pt, random_explo, all_liquid,all_sphere):
     X0 = screenP[0, 0]
     liquid = False
     origin_x = 0.5 * (X0[0] + 100.0)
@@ -220,136 +220,185 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                     inv_det = all_inv_det[obj]
 
                     # ---- INLINE INTERSECTION ----
+                    if all_sphere[obj]==0:
+                        denom = ray[0] * n[0] + ray[1] * n[1] + ray[2] * n[2]
 
-                    denom = ray[0] * n[0] + ray[1] * n[1] + ray[2] * n[2]
+                        if denom > 1e-9 or denom < -1e-9:
 
-                    if denom > 1e-9 or denom < -1e-9:
+                            dx0 = X[0] - X0[0]
+                            dy0 = X[1] - X0[1]
+                            dz0 = X[2] - X0[2]
 
-                        dx0 = X[0] - X0[0]
-                        dy0 = X[1] - X0[1]
-                        dz0 = X[2] - X0[2]
+                            t_ = (dx0 * n[0] + dy0 * n[1] + dz0 * n[2]) / denom
 
-                        t_ = (dx0 * n[0] + dy0 * n[1] + dz0 * n[2]) / denom
+                            if 0.0 < t_ < t_int[j]:
 
-                        if 0.0 < t_ < t_int[j]:
+                                px = X0[0] + t_ * ray[0]
+                                py = X0[1] + t_ * ray[1]
+                                pz = X0[2] + t_ * ray[2]
 
-                            px = X0[0] + t_ * ray[0]
-                            py = X0[1] + t_ * ray[1]
-                            pz = X0[2] + t_ * ray[2]
+                                # if n[0] == 0 and n[1] == 0:
+                                #
+                                #     if pz < cell_array_z[cx][cy][0]  and X[2] > 0:
+                                #         visited[j, obj] = 0
+                                #         continue
+                                #     if pz > cell_array_z[cx][cy][1]  and X[2] < 0:
+                                #         visited[j, obj] = 0
+                                #         continue
 
-                            # if n[0] == 0 and n[1] == 0:
-                            #
-                            #     if pz < cell_array_z[cx][cy][0]  and X[2] > 0:
-                            #         visited[j, obj] = 0
-                            #         continue
-                            #     if pz > cell_array_z[cx][cy][1]  and X[2] < 0:
-                            #         visited[j, obj] = 0
-                            #         continue
+                                ax = px - X[0]
+                                ay = py - X[1]
+                                az = pz - X[2]
 
-                            ax = px - X[0]
-                            ay = py - X[1]
-                            az = pz - X[2]
+                                if ab == 0:
+                                    u = (ax * a[0] + ay * a[1] + az * a[2]) / aa
+                                    v = (ax * b[0] + ay * b[1] + az * b[2]) / bb
+                                else:
+                                    da = ax * a[0] + ay * a[1] + az * a[2]
+                                    db = ax * b[0] + ay * b[1] + az * b[2]
+                                    u = (da * bb - db * ab) * inv_det
+                                    v = (db * aa - da * ab) * inv_det
 
-                            if ab == 0:
-                                u = (ax * a[0] + ay * a[1] + az * a[2]) / aa
-                                v = (ax * b[0] + ay * b[1] + az * b[2]) / bb
-                            else:
-                                da = ax * a[0] + ay * a[1] + az * a[2]
-                                db = ax * b[0] + ay * b[1] + az * b[2]
-                                u = (da * bb - db * ab) * inv_det
-                                v = (db * aa - da * ab) * inv_det
+                                if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
 
-                            if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
+                                    open = True
+                                    if all_opening[obj]:
+                                        f = all_format[obj]
+                                        iu = int((1 - u) * f[0])
+                                        iv = int((1 - v) * f[1])
+                                        tile_z = all_tile_z[obj]
+                                        gu = iu % 120
+                                        gv = iv % 120
+                                        freq = all_freq[obj]
+                                        if ((-iv // 120 + all_phase[obj] - freq + 1) % freq) == 0:
+                                            shift = 120
+                                            if iu // 120 > 0 and not (tile_z):
+                                                shift = 0
 
-                                open = True
-                                if all_opening[obj]:
-                                    f = all_format[obj]
-                                    iu = int((1 - u) * f[0])
-                                    iv = int((1 - v) * f[1])
-                                    tile_z = all_tile_z[obj]
-                                    gu = iu % 120
-                                    gv = iv % 120
-                                    freq = all_freq[obj]
-                                    if ((-iv // 120 + all_phase[obj] - freq + 1) % freq) == 0:
-                                        shift = 120
-                                        if iu // 120 > 0 and not (tile_z):
+                                        else:
                                             shift = 0
+                                        if all_destruc[obj] < 0:
+                                            ind = counter_ // (12 // all_wall_len[obj])
+                                        else:
+                                            ind = all_destruc[obj]
+                                        trans = all_trans_im[obj][ind]
+                                        open = trans[gu, gv + shift]
+                                    if all_liquid[obj]:
+                                        open = False
+                                        S_liquid[i, j, 0] = u
+                                        S_liquid[i, j, 1] = v
+                                        S_liquid[i, j, 2] = t_
 
-                                    else:
-                                        shift = 0
-                                    if all_destruc[obj] < 0:
-                                        ind = counter_ // (12 // all_wall_len[obj])
-                                    else:
-                                        ind = all_destruc[obj]
-                                    trans = all_trans_im[obj][ind]
-                                    open = trans[gu, gv + shift]
-                                if all_liquid[obj]:
-                                    open = False
-                                    S_liquid[i, j, 0] = u
-                                    S_liquid[i, j, 1] = v
-                                    S_liquid[i, j, 2] = t_
+                                        wall_ind_liquid[i, j] = obj
+                                    if open:
+                                        t_int[j] = t_
+                                        S[i, j, 0] = u
+                                        S[i, j, 1] = v
+                                        S[i, j, 2] = t_
 
-                                    wall_ind_liquid[i, j] = obj
-                                if open:
-                                    t_int[j] = t_
-                                    S[i, j, 0] = u
-                                    S[i, j, 1] = v
-                                    S[i, j, 2] = t_
+                                        wall_ind[i, j] = obj
+                                        Xl[i, j, 0] = px
+                                        Xl[i, j, 1] = py
+                                        Xl[i, j, 2] = pz
 
-                                    wall_ind[i, j] = obj
-                                    Xl[i, j, 0] = px
-                                    Xl[i, j, 1] = py
-                                    Xl[i, j, 2] = pz
+                    elif all_sphere[obj]==1:
+                        # ---- SPHERE ----
 
-                    # else:
-                    #     # ---- SPHERE ----
-                    #
-                    #     C = all_X[obj]  # center
-                    #     r = 5  # you must add this array
-                    #
-                    #     dx0 = X0[0] - C[0]
-                    #     dy0 = X0[1] - C[1]
-                    #     dz0 = X0[2] - C[2]
-                    #
-                    #     a = ray[0] * ray[0] + ray[1] * ray[1] + ray[2] * ray[2]
-                    #     b = dx0 * ray[0] + dy0 * ray[1] + dz0 * ray[2]
-                    #     c = dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - r * r
-                    #
-                    #     disc = b * b - a * c
-                    #
-                    #
-                    #     if disc > 0.0:
-                    #         t_ = -b - np.sqrt(disc)
-                    #
-                    #         if 0.0 < t_ < t_int[j]:
-                    #             px = X0[0] + t_ * ray[0]
-                    #             py = X0[1] + t_ * ray[1]
-                    #             pz = X0[2] + t_ * ray[2]
-                    #
-                    #             # simple spherical UV (optional)
-                    #             nx = (px - C[0]) / r
-                    #             ny = (py - C[1]) / r
-                    #             nz = (pz - C[2]) / r
-                    #
-                    #             if nz > 1.0:
-                    #                 nz = 1.0
-                    #             elif nz < -1.0:
-                    #                 nz = -1.0
-                    #
-                    #             u = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
-                    #             v = 0.5 - np.arcsin(nz) / np.pi
-                    #
-                    #             t_int[j] = t_
-                    #
-                    #             S[i, j, 0] = u
-                    #             S[i, j, 1] = v
-                    #             S[i, j, 2] = t_
-                    #
-                    #             wall_ind[i, j] = obj
-                    #
-                    #             Xl[i, j, 0] = px
-                    #             Xl[i, j, 1] = py
-                    #             Xl[i, j, 2] = pz
+                        C = all_X[obj]  # center
+                        r = 5  # you must add this array
+
+                        dx0 = X0[0] - C[0]
+                        dy0 = X0[1] - C[1]
+                        dz0 = X0[2] - C[2]
+
+                        a = ray[0] * ray[0] + ray[1] * ray[1] + ray[2] * ray[2]
+                        b = dx0 * ray[0] + dy0 * ray[1] + dz0 * ray[2]
+                        c = dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - r * r
+
+                        disc = b * b - a * c
+
+
+                        if disc > 0.0:
+                            t_ = (-b - np.sqrt(disc))/a
+
+                            if 0.0 < t_ < t_int[j]:
+                                px = X0[0] + t_ * ray[0]
+                                py = X0[1] + t_ * ray[1]
+                                pz = X0[2] + t_ * ray[2]
+
+                                # simple spherical UV (optional)
+                                nx = (px - C[0]) / r
+                                ny = (py - C[1]) / r
+                                nz = (pz - C[2]) / r
+
+                                if nz > 1.0:
+                                    nz = 1.0
+                                elif nz < -1.0:
+                                    nz = -1.0
+
+                                u = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
+                                v = 0.5 - np.arcsin(nz) / np.pi
+
+                                t_int[j] = t_
+
+                                S[i, j, 0] = u
+                                S[i, j, 1] = v
+                                S[i, j, 2] = t_
+
+                                wall_ind[i, j] = obj
+
+                                Xl[i, j, 0] = px
+                                Xl[i, j, 1] = py
+                                Xl[i, j, 2] = pz
+                    else :
+                        # ---- SPHERE ----
+
+                        C = all_X[obj]  # center
+                        r = 5  # you must add this array
+
+                        dx0 = X0[0] - C[0]
+                        dy0 = X0[1] - C[1]
+                        dz0 = X0[2] - C[2]
+
+                        a = ray[0] * ray[0] + ray[1] * ray[1]
+                        b = dx0 * ray[0] + dy0 * ray[1]
+                        c = dx0 * dx0 + dy0 * dy0 - r * r
+
+                        disc = b * b - a * c
+
+
+                        if disc > 0.0:
+                            t_ = (-b - np.sqrt(disc))/a
+
+                            if 0.0 < t_ < t_int[j]:
+                                px = X0[0] + t_ * ray[0]
+                                py = X0[1] + t_ * ray[1]
+                                pz = X0[2] + t_ * ray[2]
+
+                                # simple spherical UV (optional)
+                                nx = (px - C[0]) / r
+                                ny = (py - C[1]) / r
+                                nz = (pz - C[2]) / r
+
+                                if nz > 1.0:
+                                    nz = 1.0
+                                elif nz < -1.0:
+                                    nz = -1.0
+
+                                u = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
+                                v = 0.5 - np.arcsin(nz) / np.pi
+
+                                t_int[j] = t_
+
+                                S[i, j, 0] = u
+                                S[i, j, 1] = v
+                                S[i, j, 2] = t_
+
+                                wall_ind[i, j] = obj
+
+                                Xl[i, j, 0] = px
+                                Xl[i, j, 1] = py
+                                Xl[i, j, 2] = pz
             # Early exit check
             done = True
             for jj in range(h):
