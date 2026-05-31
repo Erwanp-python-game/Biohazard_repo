@@ -1149,9 +1149,11 @@ while running==1:
 									a = (X1p[xx][1] - X2p[xx][1])
 									c = (X1p[xx][0] - X2p[xx][0])
 
+									zw=h1+2.5
+
 
 									wall_liste.append((
-													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door, h1+2.5, 0, 0,
+													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door,zw , 0, 0,
 													  deco, freq, phase, slant))
 
 									col = np.where(np.expand_dims(

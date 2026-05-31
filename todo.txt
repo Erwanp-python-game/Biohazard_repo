@@ -22,7 +22,13 @@ SPEEDUP
 GAMEPLAY
 
 flames_damage
-sphere and cylinders
+editor top and bottom platform
+editor sloped platform
+editor ot zmap update
+editor rotation for stairs (universal)
+game sphere light
+editor sphere height
+editor cylinder height as platform top/bottom
 reload gun
 moving platform and mechanism
 armor
