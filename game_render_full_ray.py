@@ -2992,7 +2992,7 @@ def load_level(level_name):
         xw = list(2 * i[0])
         R_ = 2 * i[1]
         H = i[6] #is to move down
-        xw.append(0*i[4] * 2 - H)
+        xw.append(i[4] * 2 - H)
         print(xw,H)
         im = 'image/wall/wall' + str(levelD[level]['wall'][i[2][0]]) + '.png'
         im2 = 'image/wall/wall' + str(levelD[level]['wall'][i[2][1]]) + '.png'
@@ -3047,7 +3047,7 @@ def load_level(level_name):
     cell_array_z[:,:,0]=50
     cell_array_z[:, :, 1] = -50
     cell_array = create_cell_array(cell_size)
-    # fig,ax=plt.subplots(1,4)
+    fig,ax=plt.subplots(1,4)
     time1 = time.perf_counter() * 1000
     print((time1 - time0) / 1000, 'before_loop')
     for cw,i in enumerate(wall):
@@ -3103,7 +3103,7 @@ def load_level(level_name):
 
                                         i.inside=False
             else:
-                cells=cells_covered_by_circle(0.5*(i.X[0,0,:-1]+100),0.5*5,cell_size)
+                cells=cells_covered_by_circle(0.5*(i.X[0,0,:-1]+100),0.5*i.radius,cell_size)
                 for u in cells:
                     cell_array_N[int(u[0])][int(u[1])]+=1
                     cell_array[int(u[0])][int(u[1])].append(cw)
@@ -3118,10 +3118,10 @@ def load_level(level_name):
                     cell_array_z[int(u[0]),int(u[1]),1]=i.X[0,0,-1]
     time1 = time.perf_counter() * 1000
     print((time1 - time0) / 1000, 'after_loop')
-    # ax[1].imshow(cell_array_N)
-    # ax[2].imshow(cell_array_z[:,:,0])
-    # ax[3].imshow(cell_array_z[:, :, 1])
-    # plt.show()
+    ax[1].imshow(cell_array_N)
+    ax[2].imshow(cell_array_z[:,:,0])
+    ax[3].imshow(cell_array_z[:, :, 1])
+    plt.show()
     cell_start, cell_count, cell_objects = build_cell_csr(cell_array)
     all_walls=wall.copy()
     all_a=np.array([i.a[0,0,:] for i in all_walls])

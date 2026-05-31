@@ -229,7 +229,7 @@ if name in os.listdir("level/"):
 	level_w_transp= pickle.load(f)
 	sphere = pickle.load(f)
 	f.close()
-
+#sphere=[]
 #h_liste=[]
 # Wl=[]
 # for i in wall_liste:
