@@ -1114,20 +1114,29 @@ while running==1:
 			if seg==0:
 				hmap=np.where(point_in_parallelogram(X,A_,B_,D_),H,hmap)
 				if rot:# CAS 1 pente selon Y
-					pente=((h2-h1)/(X2[1]-X1[1]))
-					alt=np.expand_dims(pente*(X[:,:,1]-X1[1]),-1)
+					#pente=((h2-h1)/(X2[1]-X1[1]))
+					if (B_[1] - A_[1])!=0:# incorrect change this with z(x,y)=ax+ny+c with two known solutions
+						pente_y = (h2 - h1) / ((B_[1] - A_[1]))#*cos(2*pi*angle_flat/360)+(C_[1] - A_[1])*sin(2*pi*angle_flat/360))
+					else:
+						pente_y=0
+					if (B_[0] - A_[0]) != 0:
+						pente_x = (h2 - h1) / ((B_[0] - A_[0]))#*sin(2*pi*angle_flat/360)+(C_[1] - A_[1])*cos(2*pi*angle_flat/360))
+					else:
+						pente_x=0
+					alt=np.expand_dims(pente_y*(X[:,:,0]-X1[0])+pente_x*(X[:,:,1]-X1[1]),-1)
+
 					if add_roof:# si add_roof pas vrai alors on ne change que le zmap
 						col=np.where(np.expand_dims((point_in_parallelogram(X,A_,B_,D_))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
 					zmap=np.where((point_in_parallelogram(X,A_,B_,D_)),alt[:,:,0]+h1,zmap)
 					if add_roof:# si add_roof pas vrai alors on ne change que le zmap
 						if slope==0:# cas normal
-							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1] , 0]),np.array([D_[0]-A_[0],D_[1]-A_[1] , h2 - h1]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
+							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1] , h2 - h1]),np.array([D_[0]-A_[0],D_[1]-A_[1] , 0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
 						else:# cas sans plafond
 							print('angle_flat',angle_flat)
-							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1] , 0]), np.array([D_[0]-A_[0],D_[1]-A_[1] , h2 - h1]),
+							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1] , h2 - h1]), np.array([D_[0]-A_[0],D_[1]-A_[1] , 0]),
 											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
 
-							if pente==0:# cas platform
+							if True:# cas platform
 								print('platform')
 								X1p=[]
 								X2p=[]
@@ -1148,12 +1157,19 @@ while running==1:
 									b = (X1p[xx][0] - X2p[xx][0]) * X1p[xx][1] - X1p[xx][0] * (X1p[xx][1] - X2p[xx][1])
 									a = (X1p[xx][1] - X2p[xx][1])
 									c = (X1p[xx][0] - X2p[xx][0])
+									if xx in [0,3]:
+										zw=h1+2.5
+									else:
+										zw = h2 + 2.5
 
-									zw=h1+2.5
+									if xx%2==1:
+										pente_w=0
+									else:
+										pente_w=(h2-h1)*(-1)**(xx//2)
 
 
 									wall_liste.append((
-													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door,zw , 0, 0,
+													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door,zw , pente_w, 0,
 													  deco, freq, phase, slant))
 
 									col = np.where(np.expand_dims(
@@ -1167,35 +1183,39 @@ while running==1:
 							x0=i[0]+50
 							y0=i[1]+x0
 							if point_in_parallelogram(x0,A_,B_,D_) and point_in_parallelogram(y0,A_,B_,D_):
-								if -np.sign((i[1])[1]*(X2[1]-X1[1]))>0:
-									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
-								else:
-									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
-				else:# CAS 2 pente selon X
-					pente=((h2-h1)/(X2[0]-X1[0]))
-					alt=np.expand_dims(pente*(X[:,:,0]-X1[0]),-1)
-					if add_roof:# cas normal ou ne reset pas juste le zmap
-						col=np.where(np.expand_dims((point_in_parallelogram(X,A_,B_,D_))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
-
-					zmap=np.where(point_in_parallelogram(X,A_,B_,D_),alt[:,:,0]+h1,zmap)
-
-					if add_roof:# cas normal ou ne reset pas juste le zmap
-						if slope==0:#cas normal
-							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1],h2-h1]),np.array([D_[0]-A_[0],D_[1]-A_[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
-						else:#cas sans plafond
-							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1], h2 - h1]), np.array([D_[0]-A_[0],D_[1]-A_[1], 0]),
-											np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
-							if pente==0:# cas platform pas code
-								print('platform')
-					if slope==0:# cas de base ou l'on ne met pas juste une pente flottante, reset la bonne hauteur de plafond et de z pour les murs
-						for j,i in enumerate(wall_liste[:]):
-							x0=i[0]+50
-							y0=i[1]+x0
-							if point_in_parallelogram(x0,A_,B_,D_) and point_in_parallelogram(y0,A_,B_,D_):
-								if -np.sign((i[1])[0]*(X2[0]-X1[0]))>0:
-									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
-								else:
-									wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
+								delta_h0 = pente_x * (x0[0] - A_[0]) + pente_y * (x0[1] - A_[1])
+								delta_h=pente_x*(y0[0]-x0[0])+pente_y*(y0[1]-x0[1])#(alt[:,:,0])[y0[0],y0[1]]-(alt[:,:,0])[x0[0],x0[1]]
+								wall_liste[j] = tuple(list(i[:4]) + [delta_h0 - 2.5 + h1] + [delta_h] + [H] + list(
+									i[7:]))
+								# if -np.sign((i[1])[1]*(X2[1]-X1[1]))>0:
+								# 	wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
+								# else:
+								# 	wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[1]*(X2[1]-X1[1]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
+				# else:# CAS 2 pente selon X
+				# 	pente=((h2-h1)/(X2[0]-X1[0]))
+				# 	alt=np.expand_dims(pente*(X[:,:,0]-X1[0]),-1)
+				# 	if add_roof:# cas normal ou ne reset pas juste le zmap
+				# 		col=np.where(np.expand_dims((point_in_parallelogram(X,A_,B_,D_))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
+				#
+				# 	zmap=np.where(point_in_parallelogram(X,A_,B_,D_),alt[:,:,0]+h1,zmap)
+				#
+				# 	if add_roof:# cas normal ou ne reset pas juste le zmap
+				# 		if slope==0:#cas normal
+				# 			h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1],h2-h1]),np.array([D_[0]-A_[0],D_[1]-A_[1],0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))
+				# 		else:#cas sans plafond
+				# 			h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1], h2 - h1]), np.array([D_[0]-A_[0],D_[1]-A_[1], 0]),
+				# 							np.array([X1[0] - 50, X1[1] - 50, -2.5 + h1]), H, texture,1))
+				# 			if pente==0:# cas platform pas code
+				# 				print('platform')
+				# 	if slope==0:# cas de base ou l'on ne met pas juste une pente flottante, reset la bonne hauteur de plafond et de z pour les murs
+				# 		for j,i in enumerate(wall_liste[:]):
+				# 			x0=i[0]+50
+				# 			y0=i[1]+x0
+				# 			if point_in_parallelogram(x0,A_,B_,D_) and point_in_parallelogram(y0,A_,B_,D_):
+				# 				if -np.sign((i[1])[0]*(X2[0]-X1[0]))>0:
+				# 					wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[x0[0],x0[1]])]+[H]+list(i[7:]))
+				# 				else:
+				# 					wall_liste[j]=tuple(list(i[:4])+[(alt[:,:,0])[x0[0],x0[1]]-2.5+h1]+[-np.sign(-(i[1])[0]*(X2[0]-X1[0]))*((alt[:,:,0])[y0[0],y0[1]])]+[H]+list(i[7:]))
 				if add_roof:# centre du flat avec pixel de couleur
 					col[(X1[0]+X2[0])//2,(X1[1]+X2[1])//2]=col_t[texture]
 			
@@ -1365,11 +1385,12 @@ for i in stairs[1::2]:
 	authorized_map=flood_fill_authorized(authorized_map,i)
 
 
-fig,ax=plt.subplots(1,3)
+fig,ax=plt.subplots(1,4)
 authorized_map=authorized_map.T
 ax[0].imshow(authorized_map)
 ax[1].imshow(level_w.T)
 ax[2].imshow(level_w_transp.T)
+ax[3].imshow(zmap.T)
 plt.show()
 print(np.sum(authorized_map))
 

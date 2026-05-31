@@ -23,7 +23,6 @@ GAMEPLAY
 
 flames_damage
 editor top and bottom platform
-editor sloped platform
 editor ot zmap update
 editor rotation for stairs (universal)
 game sphere light
