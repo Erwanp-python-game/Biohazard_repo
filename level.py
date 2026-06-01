@@ -1115,15 +1115,25 @@ while running==1:
 				hmap=np.where(point_in_parallelogram(X,A_,B_,D_),H,hmap)
 				if rot:# CAS 1 pente selon Y
 					#pente=((h2-h1)/(X2[1]-X1[1]))
-					if (B_[1] - A_[1])!=0:# incorrect change this with z(x,y)=ax+ny+c with two known solutions
-						pente_y = (h2 - h1) / ((B_[1] - A_[1]))#*cos(2*pi*angle_flat/360)+(C_[1] - A_[1])*sin(2*pi*angle_flat/360))
-					else:
-						pente_y=0
-					if (B_[0] - A_[0]) != 0:
-						pente_x = (h2 - h1) / ((B_[0] - A_[0]))#*sin(2*pi*angle_flat/360)+(C_[1] - A_[1])*cos(2*pi*angle_flat/360))
-					else:
-						pente_x=0
-					alt=np.expand_dims(pente_y*(X[:,:,0]-X1[0])+pente_x*(X[:,:,1]-X1[1]),-1)
+					M=np.array([[A_[0],A_[1],1],
+								[B_[0],B_[1],1],
+								[D_[0],D_[1],1]])
+					M_inv=np.linalg.inv(M)
+					h_=np.array([h1,h2,h1])
+
+
+					pente_x=(M_inv@h_)[0]
+					pente_y = (M_inv @ h_)[1]
+
+					# if (B_[1] - A_[1])!=0:# incorrect change this with z(x,y)=ax+ny+c with two known solutions
+					# 	pente_y = (h2 - h1) / ((B_[1] - A_[1]))#*cos(2*pi*angle_flat/360)+(C_[1] - A_[1])*sin(2*pi*angle_flat/360))
+					# else:
+					# 	pente_y=0
+					# if (B_[0] - A_[0]) != 0:
+					# 	pente_x = (h2 - h1) / ((B_[0] - A_[0]))#*sin(2*pi*angle_flat/360)+(C_[1] - A_[1])*cos(2*pi*angle_flat/360))
+					# else:
+					# 	pente_x=0
+					alt=np.expand_dims(pente_x*(X[:,:,0]-X1[0])+pente_y*(X[:,:,1]-X1[1]),-1)
 
 					if add_roof:# si add_roof pas vrai alors on ne change que le zmap
 						col=np.where(np.expand_dims((point_in_parallelogram(X,A_,B_,D_))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
