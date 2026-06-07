@@ -2990,7 +2990,7 @@ def load_level(level_name):
     for i in sphere:# all radius
         xw = list(2 * i[0])
         R_ = 2 * i[1]
-        H = i[6] #is to move down
+        H = i[6]-2.5 #is to move down
         xw.append(i[4] * 2 - H)
         im = 'image/wall/wall' + str(levelD[level]['wall'][i[2][0]]) + '.png'
         im2 = 'image/wall/wall' + str(levelD[level]['wall'][i[2][1]]) + '.png'

@@ -229,7 +229,7 @@ if name in os.listdir("level/"):
 	level_w_transp= pickle.load(f)
 	sphere = pickle.load(f)
 	f.close()
-#sphere=[]
+# sphere=[]
 #h_liste=[]
 # Wl=[]
 # for i in wall_liste:
@@ -410,7 +410,7 @@ def write_options():
 	textRect.topleft = (5, step)
 	fenetre.blit(text,textRect)
 	step+=15
-	text = font.render('roof height '+str(H)+' value key p/o roof height at mouse '+str(Hcurr), True, (100+155*(plafond),100+155*(plafond),100+155*(plafond)))
+	text = font.render('roof height '+str(H)+' value key p/o roof height at mouse '+str(Hcurr), True, (100+155*(plafond+sphere_on),100+155*(plafond+sphere_on),100+155*(plafond+sphere_on)))
 	textRect = text.get_rect()
 	textRect.topleft = (5, step)
 	fenetre.blit(text,textRect)
@@ -939,8 +939,14 @@ while running==1:
 		if key[K_7]:
 			phase=max(phase-1,0)
 			pygame.time.wait(300)
-		
-		
+
+		if sphere_on:
+			if key[K_p]:
+				H = H + 1
+				pygame.time.wait(300)
+			if key[K_o]:
+				H = H - 1
+
 		if clic[0]==1:
 			if sphere_on==0:
 				level_w[mouse[0]//5+x,mouse[1]//5+y]=1
@@ -950,10 +956,16 @@ while running==1:
 					authorized[mouse[0]//5+x,mouse[1]//5+y]=1
 				col[mouse[0]//5+x,mouse[1]//5+y]=[0,255,0]
 			else:
+				if key[K_p]:
+					H = H + 1
+					pygame.time.wait(300)
+				if key[K_o]:
+					H = H - 1
+					pygame.time.wait(300)
 				if seg==0:
 					col[mouse[0] // 5 + x, mouse[1] // 5 + y] = [0, 255, 0]
 				if seg == 1:
-					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,0,0,0,deco,freq,phase,sphere_type))#-2.5 en i[6] pour monter
+					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,0,0,H,deco,freq,phase,sphere_type))#-2.5 en i[6] pour monter
 
 
 			pygame.time.wait(200)
