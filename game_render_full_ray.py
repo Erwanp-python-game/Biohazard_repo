@@ -2991,11 +2991,12 @@ def load_level(level_name):
         xw = list(2 * i[0])
         R_ = 2 * i[1]
         H = i[6]-2.5 #is to move down
-        xw.append(i[4] * 2 - H)
+        xw.append(i[4] * 2 - 2*H)
         im = 'image/wall/wall' + str(levelD[level]['wall'][i[2][0]]) + '.png'
         im2 = 'image/wall/wall' + str(levelD[level]['wall'][i[2][1]]) + '.png'
-        wall.append(Wall([0., 0., 5 * 2 + H], np.array([0,1.,0.]), np.array(xw), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], i[10]))
-        wall[-1].sphere=3
+        wall.append(Wall([0., 0., 5 * 2 + H], np.array([0,1.,0.]), np.array(xw), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], 0))
+
+        wall[-1].sphere=2
         wall[-1].radius=R_
         if wall[-1].sphere>=2:
             wall[-1].format=120*np.array([10,int(R_*2*pi)])/10
@@ -3007,6 +3008,7 @@ def load_level(level_name):
         if wall[-1].ID in light_color.keys():
             wall[-1].colorL = np.round(np.maximum(np.array(light_color[wall[-1].ID]), 0.1), 2)
 
+    print(wall[-1].X[0, 0, :], wall[-1].radius)
     [i.texture(5, 5) for i in wall]
 
     lenH = 0
@@ -3038,7 +3040,7 @@ def load_level(level_name):
             im = 'image/flat/floor' + str(levelD[level]['flat'][i[4]]) + '.png'
             app += 1
             wall.append(Wall(list(-a), list(b), list(a + x2), [im, im, i[2][2]], 0, 0, 1, 0,0))
-
+    print(wall[-1].X[0,0,:],wall[-1].a[0,0,:],wall[-1].b[0,0,:])
     h_wall = []
     [i.texture(2 + int(np.linalg.norm(i.a) / 500), 2 + int(np.linalg.norm(i.b) / 500)) for i in
      wall[-app:]]

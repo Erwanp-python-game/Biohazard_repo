@@ -946,6 +946,7 @@ while running==1:
 				pygame.time.wait(300)
 			if key[K_o]:
 				H = H - 1
+				pygame.time.wait(300)
 
 		if clic[0]==1:
 			if sphere_on==0:
@@ -960,7 +961,12 @@ while running==1:
 					col[mouse[0] // 5 + x, mouse[1] // 5 + y] = [0, 255, 0]
 				if seg == 1:
 					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,0,0,H,deco,freq,phase,sphere_type))#-2.5 en i[6] pour monter
-
+					if sphere_on!=3:
+						print('a',H,len(h_liste))
+						h_liste.append(
+							(np.array([2*Radius/5, 0, 0]), np.array([ 0,2*Radius/5, 0]),
+							 np.array([X2[0] - 50-Radius/5, X2[1] - 50-Radius/5, -2.5-H]), 0, texture, 1))
+						print(len(h_liste),h_liste)
 
 			pygame.time.wait(200)
 			if seg==1 and sphere_on==0:
