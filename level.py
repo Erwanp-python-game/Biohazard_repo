@@ -977,7 +977,7 @@ while running==1:
 				level_w=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(X1[0],X2[0])+0)&(X[:,:,1]<=max(X1[1],X2[1])+0)&(X[:,:,1]>=min(X1[1],X2[1])-0)&(X[:,:,0]>=min(X1[0],X2[0])-0)&(level_w==0) ,1,level_w)
 				if (levelD[int(name)]['deco'][deco - 1] in deco_door):
 					level_w_transp=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(X1[0],X2[0])+0)&(X[:,:,1]<=max(X1[1],X2[1])+0)&(X[:,:,1]>=min(X1[1],X2[1])-0)&(X[:,:,0]>=min(X1[0],X2[0])-0)&(level_w_transp==0) ,1,level_w_transp)
-				print(levelD[int(name)]['deco'][deco-1],deco_destruc,deco)
+				# print(levelD[int(name)]['deco'][deco-1],deco_destruc,deco)
 				if door==0 and (levelD[int(name)]['deco'][deco-1] not in deco_destruc or deco==0) and (levelD[int(name)]['deco'][deco-1] not in deco_door or deco==0):
 					authorized=np.where((np.absolute(c*X[:,:,1]-a*X[:,:,0]-b)<0.5*(abs(a)+abs(c)))&(X[:,:,0]<=max(X1[0],X2[0])+0)&(X[:,:,1]<=max(X1[1],X2[1])+0)&(X[:,:,1]>=min(X1[1],X2[1])-0)&(X[:,:,0]>=min(X1[0],X2[0])-0)&(authorized==0) ,1,authorized)
 			seg=1

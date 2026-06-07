@@ -413,7 +413,6 @@ def cells_covered_by_circle(X, R0, cell_size=1.0):
 
     for ix_ in range(ix, ix+2*R+2):
         for iy_ in range(iy, iy +2*R+2):
-            print((ix-ix_+R+1)**2+(iy-iy_+R+1)**2,R0**2)
             if (ix-ix_+R+1)**2+(iy-iy_+R+1)**2<=R0**2:
                 cells.append((ix_-R-1, iy_-R-1))
 
@@ -3003,7 +3002,6 @@ def load_level(level_name):
             int((xw[1]) // 2 + 50))
 
         if wall[-1].ID in light_color.keys():
-            print('YES')
             wall[-1].colorL = np.round(np.maximum(np.array(light_color[wall[-1].ID]), 0.1), 2)
 
     [i.texture(5, 5) for i in wall]
@@ -3052,7 +3050,7 @@ def load_level(level_name):
     cell_array_z[:,:,0]=50
     cell_array_z[:, :, 1] = -50
     cell_array = create_cell_array(cell_size)
-    fig,ax=plt.subplots(1,4)
+    # fig,ax=plt.subplots(1,4)
     time1 = time.perf_counter() * 1000
     print((time1 - time0) / 1000, 'before_loop')
     for cw,i in enumerate(wall):
@@ -3123,10 +3121,10 @@ def load_level(level_name):
                     cell_array_z[int(u[0]),int(u[1]),1]=i.X[0,0,-1]
     time1 = time.perf_counter() * 1000
     print((time1 - time0) / 1000, 'after_loop')
-    ax[1].imshow(cell_array_N)
-    ax[2].imshow(cell_array_z[:,:,0])
-    ax[3].imshow(cell_array_z[:, :, 1])
-    plt.show()
+    # ax[1].imshow(cell_array_N)
+    # ax[2].imshow(cell_array_z[:,:,0])
+    # ax[3].imshow(cell_array_z[:, :, 1])
+    # plt.show()
     cell_start, cell_count, cell_objects = build_cell_csr(cell_array)
     all_walls=wall.copy()
     all_a=np.array([i.a[0,0,:] for i in all_walls])
