@@ -956,12 +956,6 @@ while running==1:
 					authorized[mouse[0]//5+x,mouse[1]//5+y]=1
 				col[mouse[0]//5+x,mouse[1]//5+y]=[0,255,0]
 			else:
-				if key[K_p]:
-					H = H + 1
-					pygame.time.wait(300)
-				if key[K_o]:
-					H = H - 1
-					pygame.time.wait(300)
 				if seg==0:
 					col[mouse[0] // 5 + x, mouse[1] // 5 + y] = [0, 255, 0]
 				if seg == 1:

@@ -351,7 +351,7 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                                 Xl[i, j, 1] = py
                                 Xl[i, j, 2] = pz
                     else :
-                        # ---- SPHERE ----
+                        # ---- Cylinder ----
 
                         C = all_X[obj]  # center
                         r = all_radius[obj]  # you must add this array
@@ -378,7 +378,7 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                                 # simple spherical UV (optional)
                                 nx = (px - C[0]) / r
                                 ny = (py - C[1]) / r
-                                nz = (pz - C[2]) / r
+                                nz = (pz - C[2]) / 10.
 
                                 # if nz > 1.0:
                                 #     nz = 1.0
@@ -387,18 +387,18 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
 
                                 v = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
                                 u = nz
+                                if (u<=1. and u>0) or all_sphere[obj]==3:
+                                    t_int[j] = t_
 
-                                t_int[j] = t_
+                                    S[i, j, 0] = u
+                                    S[i, j, 1] = v
+                                    S[i, j, 2] = t_
 
-                                S[i, j, 0] = u
-                                S[i, j, 1] = v
-                                S[i, j, 2] = t_
+                                    wall_ind[i, j] = obj
 
-                                wall_ind[i, j] = obj
-
-                                Xl[i, j, 0] = px
-                                Xl[i, j, 1] = py
-                                Xl[i, j, 2] = pz
+                                    Xl[i, j, 0] = px
+                                    Xl[i, j, 1] = py
+                                    Xl[i, j, 2] = pz
             # Early exit check
             done = True
             for jj in range(h):

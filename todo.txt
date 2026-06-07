@@ -23,8 +23,8 @@ GAMEPLAY
 
 flames_damage
 editor remove sphere/cylinder
-editor sphere height
 editor cylinder height as platform top/bottom
+sphere and cylinder normals
 reload gun
 moving platform and mechanism
 armor
