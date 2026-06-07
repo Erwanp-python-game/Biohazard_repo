@@ -451,6 +451,7 @@ erase=1
 angle_flat=0
 sphere_on=0
 sphere_type=1
+platform_down=1
 Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 Amp.fill(255*np.array(Clight),special_flags=BLEND_RGB_MULT)
 while running==1:
@@ -483,6 +484,10 @@ while running==1:
 	else:
 		ammoT=0
 
+	if key[K_f]:
+		platform_down=(platform_down+1)%2
+		print('down/up platform',platform_down)
+		pygame.time.wait(300)
 
 	if key[K_u]:
 		sphere_on=(sphere_on+1)%2
@@ -498,6 +503,7 @@ while running==1:
 		add_roof=(add_roof+1)%2
 		print('adding roof',add_roof)
 		pygame.time.wait(300)
+
 	if key[K_j]:
 		slope=(slope+1)%2
 		print('slope',slope)
@@ -1137,7 +1143,10 @@ while running==1:
 
 					if add_roof:# si add_roof pas vrai alors on ne change que le zmap
 						col=np.where(np.expand_dims((point_in_parallelogram(X,A_,B_,D_))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
-					zmap=np.where((point_in_parallelogram(X,A_,B_,D_)),alt[:,:,0]+h1,zmap)
+
+					if platform_down:
+						zmap=np.where((point_in_parallelogram(X,A_,B_,D_)),alt[:,:,0]+h1,zmap)
+
 					if add_roof:# si add_roof pas vrai alors on ne change que le zmap
 						if slope==0:# cas normal
 							h_liste.append((np.array([B_[0]-A_[0],B_[1]-A_[1] , h2 - h1]),np.array([D_[0]-A_[0],D_[1]-A_[1] , 0]),np.array([X1[0]-50,X1[1]-50,-2.5+h1]),H,texture))#0 était -2.5+h1
@@ -1168,9 +1177,9 @@ while running==1:
 									a = (X1p[xx][1] - X2p[xx][1])
 									c = (X1p[xx][0] - X2p[xx][0])
 									if xx in [0,3]:
-										zw=h1+2.5
+										zw=h1+2.5-5*(1-platform_down)
 									else:
-										zw = h2 + 2.5
+										zw = h2 + 2.5-5*(1-platform_down)
 
 									if xx%2==1:
 										pente_w=0
