@@ -515,7 +515,7 @@ while running==1:
 		pygame.time.wait(300)
 
 	if key[K_u]:
-		sphere_on=(sphere_on+1)%2
+		sphere_on=(sphere_on+1)%3
 		print('sphere_on',sphere_on)
 		pygame.time.wait(300)
 
