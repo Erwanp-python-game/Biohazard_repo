@@ -305,6 +305,14 @@ def flood_fill(arr,xl,wall_liste,col):
 		yp=i[1]
 		L_coord.append(str(int(xp[0]+0.5*yp[0]))+','+str(int(xp[1]+0.5*yp[1])))
 		L_coord2.append(str(yp[0])+','+str(yp[1]))
+
+	for i in sphere:
+		xp=i[0]+50
+		L_coord.append(str(int(xp[0]))+','+str(int(xp[1])))
+
+
+
+
 	A=arr.copy()
 	P=[xl]
 	v=0
@@ -368,6 +376,8 @@ def flood_fill(arr,xl,wall_liste,col):
 				if str(xl[0])+','+str(xl[1]) not in light_wall[clef]:
 					light_wall[clef].append(str(xl[0])+','+str(xl[1]))
 					light_color[clef]=tuple(0.5*np.array(light_color[clef])+0.5*np.array(col))
+
+
 
 
 sel_light=[]
@@ -452,6 +462,11 @@ angle_flat=0
 sphere_on=0
 sphere_type=1
 platform_down=1
+platform_sides=0
+zmap_update=1
+
+platform_sides_config=[[1,1,1,1],[1,0,1,0],[0,1,0,1],[1,0,0,0],[0,0,1,0]]
+
 Mo.fill(col_t[type_M+ammoT],special_flags=BLEND_RGB_MULT)
 Amp.fill(255*np.array(Clight),special_flags=BLEND_RGB_MULT)
 while running==1:
@@ -484,6 +499,16 @@ while running==1:
 	else:
 		ammoT=0
 
+	if key[K_y]:
+		zmap_update=(zmap_update+1)%2
+		print('zmap_update',zmap_update)
+		pygame.time.wait(300)
+
+	if key[K_m]:
+		platform_sides=(platform_sides+1)%len(platform_sides_config)
+		print('sides platform',platform_sides_config[platform_sides])
+		pygame.time.wait(300)
+
 	if key[K_f]:
 		platform_down=(platform_down+1)%2
 		print('down/up platform',platform_down)
@@ -506,7 +531,7 @@ while running==1:
 
 	if key[K_j]:
 		slope=(slope+1)%2
-		print('slope',slope)
+		print('plaftorm',slope)
 		pygame.time.wait(300)
 
 	if key[K_c]:
@@ -1145,7 +1170,8 @@ while running==1:
 						col=np.where(np.expand_dims((point_in_parallelogram(X,A_,B_,D_))&(level_w==0),-1)&(col!=[200,200,200]),[0,100,100]+50*(alt+h1)*[1,0,0],col)
 
 					if platform_down:
-						zmap=np.where((point_in_parallelogram(X,A_,B_,D_)),alt[:,:,0]+h1,zmap)
+						if zmap_update:
+							zmap=np.where((point_in_parallelogram(X,A_,B_,D_)),alt[:,:,0]+h1,zmap)
 
 					if add_roof:# si add_roof pas vrai alors on ne change que le zmap
 						if slope==0:# cas normal
@@ -1186,17 +1212,17 @@ while running==1:
 									else:
 										pente_w=(h2-h1)*(-1)**(xx//2)
 
+									if platform_sides_config[platform_sides][xx]:
+										wall_liste.append((
+														  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door,zw , pente_w, 0,
+														  deco, freq, phase, slant))
 
-									wall_liste.append((
-													  X1p[xx] - 50, X2p[xx] - X1p[xx], [texture, texture2, face_d[face]], door,zw , pente_w, 0,
-													  deco, freq, phase, slant))
-
-									col = np.where(np.expand_dims(
-										(np.absolute(c * X[:, :, 1] - a * X[:, :, 0] - b) < 0.5 * (abs(a) + abs(c))) & (
-													X[:, :, 0] <= max(X1p[xx][0], X2p[xx][0]) + 0) & (
-													X[:, :, 1] <= max(X1p[xx][1], X2p[xx][1]) + 0) & (
-													X[:, :, 1] >= min(X1p[xx][1], X2p[xx][1]) - 0) & (
-													X[:, :, 0] >= min(X1p[xx][0], X2p[xx][0]) - 0) & (level_w == 0), -1), CC, col)
+										col = np.where(np.expand_dims(
+											(np.absolute(c * X[:, :, 1] - a * X[:, :, 0] - b) < 0.5 * (abs(a) + abs(c))) & (
+														X[:, :, 0] <= max(X1p[xx][0], X2p[xx][0]) + 0) & (
+														X[:, :, 1] <= max(X1p[xx][1], X2p[xx][1]) + 0) & (
+														X[:, :, 1] >= min(X1p[xx][1], X2p[xx][1]) - 0) & (
+														X[:, :, 0] >= min(X1p[xx][0], X2p[xx][0]) - 0) & (level_w == 0), -1), CC, col)
 					if slope == 0: # cas de base ou l'on ne met pas juste une pente flottante, reset la bonne hauteur de plafond et de z pour les murs
 						for j,i in enumerate(wall_liste[:]):
 							x0=i[0]+50

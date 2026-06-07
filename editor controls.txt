@@ -37,3 +37,5 @@ the color
 -j to make only slope with no roof (not changing height)
 -press i to rotate flat orientation
 -press u for sphere
+-f for top/bottom platforms
+-m for platform sides

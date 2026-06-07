@@ -22,9 +22,7 @@ SPEEDUP
 GAMEPLAY
 
 flames_damage
-editor top and bottom platform
-editor ot zmap update
-game sphere light
+editor remove sphere/cylinder
 editor sphere height
 editor cylinder height as platform top/bottom
 reload gun
