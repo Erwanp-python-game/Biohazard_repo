@@ -410,7 +410,7 @@ def write_options():
 	textRect.topleft = (5, step)
 	fenetre.blit(text,textRect)
 	step+=15
-	text = font.render('roof height '+str(H)+' value key p/o roof height at mouse '+str(Hcurr), True, (100+155*(plafond+sphere_on),100+155*(plafond+sphere_on),100+155*(plafond+sphere_on)))
+	text = font.render('roof height '+str(H)+' value key p/o roof height at mouse '+str(Hcurr), True, (100+155*(plafond+sphere_on/3),100+155*(plafond+sphere_on/3),100+155*(plafond+sphere_on/3)))
 	textRect = text.get_rect()
 	textRect.topleft = (5, step)
 	fenetre.blit(text,textRect)
@@ -965,7 +965,7 @@ while running==1:
 						print('a',H,len(h_liste))
 						h_liste.append(
 							(np.array([2*Radius/5, 0, 0]), np.array([ 0,2*Radius/5, 0]),
-							 np.array([X2[0] - 50-Radius/5, X2[1] - 50-Radius/5, -2.5-H]), 0, texture, 1))
+							 np.array([X2[0] - 50-Radius/5, X2[1] - 50-Radius/5, -2.5-H]), 0, texture, -Radius/5))
 						print(len(h_liste),h_liste)
 
 			pygame.time.wait(200)

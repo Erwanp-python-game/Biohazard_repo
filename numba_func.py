@@ -258,8 +258,10 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                                     db = ax * b[0] + ay * b[1] + az * b[2]
                                     u = (da * bb - db * ab) * inv_det
                                     v = (db * aa - da * ab) * inv_det
-
-                                if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
+                                in_radius=True
+                                if all_radius[obj]<0:
+                                    in_radius=(ax-a[0]*0.5-b[0]*0.5)**2+(ay-a[1]*0.5-b[1]*0.5)**2<-all_radius[obj]
+                                if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0 and in_radius:
 
                                     open = True
                                     if all_opening[obj]:

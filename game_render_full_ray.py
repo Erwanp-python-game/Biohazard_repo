@@ -3040,6 +3040,10 @@ def load_level(level_name):
             im = 'image/flat/floor' + str(levelD[level]['flat'][i[4]]) + '.png'
             app += 1
             wall.append(Wall(list(-a), list(b), list(a + x2), [im, im, i[2][2]], 0, 0, 1, 0,0))
+
+        if len(i)==6 and i[-1]<0.:
+            wall[-1].radius=-(2*i[-1])**2
+            print( wall[-1].radius)
     print(wall[-1].X[0,0,:],wall[-1].a[0,0,:],wall[-1].b[0,0,:])
     h_wall = []
     [i.texture(2 + int(np.linalg.norm(i.a) / 500), 2 + int(np.linalg.norm(i.b) / 500)) for i in
