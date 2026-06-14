@@ -962,11 +962,12 @@ while running==1:
 				if seg == 1:
 					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,0,0,H,deco,freq,phase,sphere_type))#-2.5 en i[6] pour monter
 					if sphere_on!=3:
-						print('a',H,len(h_liste))
+
 						h_liste.append(
 							(np.array([2*Radius/5, 0, 0]), np.array([ 0,2*Radius/5, 0]),
 							 np.array([X2[0] - 50-Radius/5, X2[1] - 50-Radius/5, -2.5-H]), 0, texture, -Radius/5))
-						print(len(h_liste),h_liste)
+						if zmap_update:
+							zmap = np.where((np.linalg.norm(X-X2,axis=-1)<Radius/5), -H, zmap)
 
 			pygame.time.wait(200)
 			if seg==1 and sphere_on==0:
