@@ -108,8 +108,40 @@ def create_cell_array(cell_size):
         cell_array.append(row)
 
     return cell_array
-from numba import njit, prange
-import numpy as np
+
+def intersect_circle(center,radius,X0,ray):
+    C = center  # center
+    r = radius  # you must add this array
+
+    dx0 = X0[0] - C[0]
+    dy0 = X0[1] - C[1]
+
+
+    a = ray[0] * ray[0] + ray[1] * ray[1]
+    b = dx0 * ray[0] + dy0 * ray[1]
+    c = dx0 * dx0 + dy0 * dy0 - r * r
+
+    disc = b * b - a * c
+
+    if disc > 0.0:
+        t_ = (-b - np.sqrt(disc)) / a
+
+        if 0.0 < t_:
+            px = X0[0] + t_ * ray[0]
+            py = X0[1] + t_ * ray[1]
+
+            # simple spherical UV (optional)
+            nx = (px - C[0]) / r
+            ny = (py - C[1]) / r
+
+
+            v = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
+            return v
+        else:
+            return False
+    else:
+        return False
+
 
 def distance_point_segment(X, A, Y):
     t = np.dot(Y - X, A) / np.dot(A, A)
@@ -740,6 +772,10 @@ class Wall():
 
 
         self.inter=V
+
+        if self.radius>0:
+            print(intersect_circle(self.X[0,0,:-1], self.radius, R_c[:-1], screenV[screenV.shape[0]//2,screenV.shape[1]//2,:-1]))
+
         self.reset_rend()
         if (shoot == 1 or explo!=0) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco != 0:
             self.breakable()
