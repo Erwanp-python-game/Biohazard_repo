@@ -136,11 +136,11 @@ def intersect_circle(center,radius,X0,ray):
 
 
             v = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
-            return v
+            return (v,px-C[0],py-C[1])
         else:
-            return False
+            return (False,0,0)
     else:
-        return False
+        return (False,0,0)
 
 
 def distance_point_segment(X, A, Y):
@@ -773,9 +773,12 @@ class Wall():
 
         self.inter=V
 
-        if self.radius>0:
-            print(intersect_circle(self.X[0,0,:-1], self.radius, R_c[:-1], screenV[screenV.shape[0]//2,screenV.shape[1]//2,:-1]))
-
+        if self.sphere!=0:
+            i_c=intersect_circle(self.X[0,0,:-1], self.radius, R_c[:-1], screenV[screenV.shape[0]//2,screenV.shape[1]//2,:-1])
+            if i_c[0]:
+                self.inter=[i_c[0],i_c[0]]
+                self.rayon=np.array([i_c[1],i_c[2]])
+                print(self.rayon)
         self.reset_rend()
         if (shoot == 1 or explo!=0) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco != 0:
             self.breakable()
@@ -801,24 +804,31 @@ class Wall():
         self.normf = np.linalg.norm(self.X_middle[0][0][:-1] + 0.5 * self.a_middle[0][0][:-1] + 0.5 * self.b_middle[0][0][:-1] - R_c[:-1])
 
     def normal(self):
+        print(self.sphere)
+        if self.sphere==0:
+            No = self.n[:-1]
+            No = No / np.linalg.norm(No)
+
+            x_ = self.X_middle[0][0][0]
+            y_ = self.X_middle[0][0][1]
+            a_ = self.b_old[0][0][0]
+            b_ = self.b_old[0][0][1]
 
 
-        No = self.n[:-1]
-        No = No / np.linalg.norm(No)
 
-        x_ = self.X_middle[0][0][0]
-        y_ = self.X_middle[0][0][1]
-        a_ = self.b_old[0][0][0]
-        b_ = self.b_old[0][0][1]
+            self.side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
+            if self.side < 0:
+                print(No, 'wall')
+                return No
 
-
-
-        self.side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
-        if self.side < 0:
-            return No
+            else:
+                print(No, 'wall')
+                return -No
         else:
-            return -No
-
+            No = self.rayon
+            No = No / np.linalg.norm(No)
+            print(No,'sphere')
+            return No
 
     def test_behind(self):
         global all_side
@@ -3663,7 +3673,9 @@ while running == 1:
         No = np.array([0., 0.])
         for i in wall[0:20]:
             if i not in h_wall:
-
+                if i.sphere!=0:
+                    print(i.norm3,i.sphere,i.inter)
+                    print(i.rayon)
                 if i.norm3 < 3:
 
                     if (i.door and i.closed) or not i.door:
