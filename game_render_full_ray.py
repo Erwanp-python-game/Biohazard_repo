@@ -467,6 +467,7 @@ class Wall():
     def __init__(self, u, v, w, text, door, deco, freq, phase,slant):
         self.sphere=0
         self.radius=0
+        self.rayon=[1.,1.]
         self.num=len(wall)
         self.freq=freq
         self.phase_=phase
@@ -769,16 +770,20 @@ class Wall():
             self.norm3 = np.linalg.norm(
                 (self.X_middle[0][0] + V[0] * self.a_old[0][0] + V[1] * self.b_old[0][0])[:-1] - (
                             R_c[:-1] ))
+        if self.sphere!=0:
+
+            self.norm3=np.linalg.norm(self.X[0,0,:]- (R_c))-self.radius
 
 
         self.inter=V
 
         if self.sphere!=0:
+            print('trans need to be rotated if neeeded')
             i_c=intersect_circle(self.X[0,0,:-1], self.radius, R_c[:-1], screenV[screenV.shape[0]//2,screenV.shape[1]//2,:-1])
             if i_c[0]:
                 self.inter=[i_c[0],i_c[0]]
                 self.rayon=np.array([i_c[1],i_c[2]])
-                print(self.rayon)
+                #print(self.rayon)
         self.reset_rend()
         if (shoot == 1 or explo!=0) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco != 0:
             self.breakable()
