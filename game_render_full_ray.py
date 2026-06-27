@@ -779,7 +779,16 @@ class Wall():
 
         if self.sphere!=0:
             print('trans need to be rotated if neeeded')
-            i_c=intersect_circle(self.X[0,0,:-1], self.radius, R_c[:-1], screenV[screenV.shape[0]//2,screenV.shape[1]//2,:-1])
+            if direction=='up':
+                direction_v=np.array([cos(ang[0]),-sin(ang[0])])
+            if direction=='down':
+                direction_v = np.array([cos(ang[0]+pi), -sin(ang[0]+pi)])
+            if direction=='right':
+                direction_v = np.array([cos(ang[0]-pi/2), -sin(ang[0]-pi/2)])
+            if direction=='left':
+                direction_v = np.array([cos(ang[0]+pi/2), -sin(ang[0]+pi/2)])
+            i_c=intersect_circle(self.X[0,0,:-1], self.radius, R_c[:-1], direction_v)
+            print(i_c,direction_v,direction)
             if i_c[0]:
                 self.inter=[i_c[0],i_c[0]]
                 self.rayon=np.array([i_c[1],i_c[2]])
@@ -3422,6 +3431,7 @@ sensitivity=500#500
 movement=0
 render_w_old=0
 fc=-1000
+direction='up'
 
 BLOOD0=[]
 for i in range(20):
@@ -3601,12 +3611,16 @@ while running == 1:
     if mouse_c == 0:
         if key[K_UP] or key[K_z]:
             shiftM = shiftM + [-1, 0.]
+            direction='up'
         if key[K_DOWN] or key[K_s]:
             shiftM = shiftM + [1, 0.]
+            direction = 'down'
         if key[K_RIGHT] or key[K_d]:
             shiftM = shiftM + [0., -1.]
+            direction = 'right'
         if key[K_LEFT] or key[K_q]:
             shiftM = shiftM + [0, 1.]
+            direction = 'left'
 
         if doc_on == 0:
             update_map(level_map, x)
@@ -3657,18 +3671,22 @@ while running == 1:
         moving_cam = True
         yg = (yg + 1) % 100
         trans = trans + np.array([-v, 0.])
+        direction = 'up'
     if key[K_DOWN] or key[K_s]:
         moving_cam = True
         yg = (yg + 1) % 100
         trans = trans + [v, 0.]
+        direction = 'down'
     if key[K_RIGHT] or key[K_d]:
         moving_cam = True
         xg = (xg + 1) % 100
         trans = trans + [0., -v]
+        direction = 'right'
     if key[K_LEFT] or key[K_q]:
         moving_cam = True
         xg = (xg + 1) % 100
         trans = trans + [0., v]
+        direction = 'left'
     trans = trans + [recoil, 0.]
     recoil = 0.
     No=np.array([0.,0.])
