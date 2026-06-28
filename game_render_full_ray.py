@@ -89,6 +89,108 @@ level_start[99] = 4
 
 z_tileable_deco = [26, 28, 31]
 Im = np.full((2 * scrnL[0], 2 * scrnL[1], 3), 0)
+
+def normalize(a):
+    return a*1/np.linalg.norm(a)
+def sweep_sphere_plane(C0, d, plane_point, normal, radius):
+
+    n = normalize(normal)
+
+    d0 = np.dot(C0 - plane_point, n)
+    dn = np.dot(d, n)
+
+    # moving away or parallel
+    if dn >= 0:
+        return None
+
+    # already penetrating
+    if d0 <= radius:
+        return 0.0
+
+    t = (radius - d0) / dn
+
+    if 0 <= t <= 1:
+        return t
+
+    return None
+def sweep_sphere_cylinder(C0, d, A0, axis, R):
+
+    a = normalize(axis)
+
+    w = C0 - A0
+
+    w_perp = w - np.dot(w, a) * a
+    v_perp = d - np.dot(d, a) * a
+
+    A = np.dot(v_perp, v_perp)
+    B = 2 * np.dot(w_perp, v_perp)
+    C = np.dot(w_perp, w_perp) - R*R
+
+    if A < 1e-8:
+        return None  # no radial movement
+
+    D = B*B - 4*A*C
+
+    if D < 0:
+        return None  # no hit
+
+    sqrtD = np.sqrt(D)
+
+    t1 = (-B - sqrtD) / (2*A)
+    t2 = (-B + sqrtD) / (2*A)
+
+    # we want first valid hit
+    t = min(t for t in [t1, t2] if 0 <= t <= 1)
+
+    return t if 0 <= t <= 1 else None
+
+
+# If I summarize I need to check which wall is encountered,
+# find the point along my direction that is at the minimal
+# authorized distance, project the remaining vector on the tangent,
+# then do the same thing with next walls starting from the new found
+# point and with the new direction and iterate that 5 times
+
+def slide_move(position, move, walls, radius=3):
+
+    pos = position.copy()
+    remaining = move.copy()
+
+    for _ in range(5):
+
+        hit = None
+        nearest_t = 1.0
+
+        # Chercher la première collision sur le trajet
+        for wall in walls:
+
+            t = wall.find_remaining_intersect_t(pos, remaining, radius)
+
+            if t is not None and t < nearest_t:
+                nearest_t = t
+                hit = wall
+
+        # Aucun obstacle
+        if hit is None:
+            pos += remaining
+            break
+
+        # Avancer jusqu'au contact
+        pos += remaining * nearest_t
+
+        # Déplacement restant
+        remaining *= (1.0 - nearest_t)
+
+        # Projection sur le plan tangent
+        n = hit.normal
+
+        into_wall = np.dot(remaining, n)
+
+        if into_wall < 0:
+            remaining -= into_wall * n
+
+    return pos
+
 def chirp(t,f1,f2,tau):
     return (1+np.exp(-t/tau))*np.sin(2*pi*f1*t*np.exp(-t/tau)+2*pi*f2*t*(1-np.exp(-t/tau)))
 def chirp_decay(t,tau):
@@ -776,9 +878,10 @@ class Wall():
 
 
         self.inter=V
+        self.interX=self.X[0,0,:]+self.inter[0]*self.a[0,0,:]+self.inter[1]*self.b[0,0,:]
 
         if self.sphere!=0:
-            print('trans need to be rotated if neeeded')
+            # print('trans need to be rotated if neeeded')
             if direction=='up':
                 direction_v=np.array([cos(ang[0]),-sin(ang[0])])
             if direction=='down':
@@ -788,7 +891,7 @@ class Wall():
             if direction=='left':
                 direction_v = np.array([cos(ang[0]+pi/2), -sin(ang[0]+pi/2)])
             i_c=intersect_circle(self.X[0,0,:-1], self.radius, R_c[:-1], direction_v)
-            print(i_c,direction_v,direction)
+            # print(i_c,direction_v,direction)
             if i_c[0]:
                 self.inter=[i_c[0],i_c[0]]
                 self.rayon=np.array([i_c[1],i_c[2]])
@@ -818,7 +921,7 @@ class Wall():
         self.normf = np.linalg.norm(self.X_middle[0][0][:-1] + 0.5 * self.a_middle[0][0][:-1] + 0.5 * self.b_middle[0][0][:-1] - R_c[:-1])
 
     def normal(self):
-        print(self.sphere)
+        # print(self.sphere)
         if self.sphere==0:
             No = self.n[:-1]
             No = No / np.linalg.norm(No)
@@ -3691,27 +3794,38 @@ while running == 1:
     recoil = 0.
     No=np.array([0.,0.])
     previous=0.5
-
+    d_collision=3.
     if trans.any() != np.array([0.0, 0.0]).any():
         No = np.array([0., 0.])
         for i in wall[0:20]:
             if i not in h_wall:
-                if i.sphere!=0:
-                    print(i.norm3,i.sphere,i.inter)
-                    print(i.rayon)
+
+                print(i.norm3,i.inter)
                 if i.norm3 < 3:
 
                     if (i.door and i.closed) or not i.door:
                         if i.inter[1]<1 and i.inter[1]>0 or (previous in [0,1.] and i.inter[1]in [0,1.]):
                             if not(i.door_deco) or (i.door_deco and i.cross_wall(trans)):
                                 No+=i.normal()
+                                d_collision=min(i.norm3,d_collision)
                         previous=i.inter[1]
-
-
-
         trans=trans-(abs(np.dot(trans@ Rp, No)) * No)@ rot_plan(-ang[0])
 
+        #should us the fucntion slide_move
+
+
+
+
+
+
         x = x - trans @ Rp
+        # if d_collision==3.:
+        #     x = x - trans @ Rp
+        # else:
+        #     print(trans,(3-d_collision)*No,No)
+        #     trans=-((3-d_collision)*No)@ rot_plan(-ang[0])
+        #     x = x +(3.01-d_collision)*No
+
 
         # if authorized_map[int(x[1] + 100) // 2][int(x[0] + 100) // 2]==1:
         #     last_ok_pos = x
