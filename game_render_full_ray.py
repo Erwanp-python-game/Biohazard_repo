@@ -312,7 +312,13 @@ def intersect_plane(obj,ray,X0,counter_):
                         ind = all_destruc[obj]
                     trans = all_trans_im[obj][ind]
                     open = trans[gu, gv + shift]
-
+                return open
+            else:
+                return False
+        else:
+            return False
+    else:
+        return False
 
 
 
@@ -3871,7 +3877,11 @@ while running == 1:
         for i in wall[0:20]:
             if i not in h_wall:
 
-                print(i.norm3,i.inter)
+                print('norm',i.norm3,'inters',i.inter)
+                if i.sphere==0:
+                    print(intersect_plane(i.num,trans@ Rp,R_c))
+                else:
+                    print(intersect_circle(i.X[0,0,:],i.radius,R_c,trans@ Rp))
                 if i.norm3 < 3:
 
                     if (i.door and i.closed) or not i.door:
