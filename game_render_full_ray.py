@@ -244,6 +244,77 @@ def intersect_circle(center,radius,X0,ray):
     else:
         return (False,0,0)
 
+def intersect_plane(obj,ray,X0,counter_):
+
+
+    a = all_a[obj]
+    b = all_b[obj]
+    n = all_n[obj]
+    X = all_X[obj]
+
+    aa = all_aa[obj]
+    bb = all_bb[obj]
+    ab = all_ab[obj]
+    inv_det = all_inv_det[obj]
+
+    # ---- INLINE INTERSECTION ----
+
+    denom = ray[0] * n[0] + ray[1] * n[1] + ray[2] * n[2]
+
+    if denom > 1e-9 or denom < -1e-9:
+
+        dx0 = X[0] - X0[0]
+        dy0 = X[1] - X0[1]
+        dz0 = X[2] - X0[2]
+
+        t_ = (dx0 * n[0] + dy0 * n[1] + dz0 * n[2]) / denom
+
+        if 0.0 < t_:
+
+            px = X0[0] + t_ * ray[0]
+            py = X0[1] + t_ * ray[1]
+            pz = X0[2] + t_ * ray[2]
+
+            ax = px - X[0]
+            ay = py - X[1]
+            az = pz - X[2]
+
+            if ab == 0:
+                u = (ax * a[0] + ay * a[1] + az * a[2]) / aa
+                v = (ax * b[0] + ay * b[1] + az * b[2]) / bb
+            else:
+                da = ax * a[0] + ay * a[1] + az * a[2]
+                db = ax * b[0] + ay * b[1] + az * b[2]
+                u = (da * bb - db * ab) * inv_det
+                v = (db * aa - da * ab) * inv_det
+
+            if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
+
+                open = True
+                if all_opening[obj]:
+                    f = all_format[obj]
+                    iu = int((1 - u) * f[0])
+                    iv = int((1 - v) * f[1])
+                    tile_z = all_tile_z[obj]
+                    gu = iu % 120
+                    gv = iv % 120
+                    freq = all_freq[obj]
+                    if ((-iv // 120 + all_phase[obj] - freq + 1) % freq) == 0:
+                        shift = 120
+                        if iu // 120 > 0 and not (tile_z):
+                            shift = 0
+
+                    else:
+                        shift = 0
+                    if all_destruc[obj] < 0:
+                        ind = counter_ // (12 // all_wall_len[obj])
+                    else:
+                        ind = all_destruc[obj]
+                    trans = all_trans_im[obj][ind]
+                    open = trans[gu, gv + shift]
+
+
+
 
 def distance_point_segment(X, A, Y):
     t = np.dot(Y - X, A) / np.dot(A, A)
