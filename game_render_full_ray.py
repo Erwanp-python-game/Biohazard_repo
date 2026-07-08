@@ -166,9 +166,9 @@ def slide_move(position, move, walls):
     remaining = move.copy()
 
     MAX_ITER = 5
-    CONTACT_EPS = 1e-4
-    SKIN = 1e-5
-    STOP_EPS = 1e-6
+    CONTACT_EPS = 1e-3
+    SKIN = 1e-1
+    STOP_EPS = 1e-3
 
     for iteration in range(MAX_ITER):
 
@@ -218,6 +218,7 @@ def slide_move(position, move, walls):
 
                 nearest_t = t
                 hit_normals = [n]
+                print(n, t, remaining)
 
 
             #
@@ -242,6 +243,7 @@ def slide_move(position, move, walls):
         #
         # Move to contact
         #
+        print(remaining*nearest_t)
         pos += remaining * nearest_t
 
 
@@ -353,11 +355,16 @@ def intersect_circle(center,radius,X0,ray):
 def intersect_plane(obj,ray,X0,counter_,side):
 
 
+
     a = all_a[obj]
     b = all_b[obj]
+
+    # side = -(b[1] * X0[0] - a[0] * X0[1] + a[0] * all_X[obj][1] - b[1] * all_X[obj][1])
+
     n = all_n[obj]*side
     n*=1/np.linalg.norm(n)
     X = all_X[obj]-3*n
+    Xref =all_X[obj]
 
     aa = all_aa[obj]
     bb = all_bb[obj]
@@ -378,14 +385,28 @@ def intersect_plane(obj,ray,X0,counter_,side):
     # ---- INLINE INTERSECTION ----
 
     denom = ray[0] * n[0] + ray[1] * n[1] + ray[2] * n[2]
-
     if denom > 1e-9 or denom < -1e-9:
+
+
 
         dx0 = X[0] - X0[0]
         dy0 = X[1] - X0[1]
         dz0 = X[2] - X0[2]
 
-        t_ = (dx0 * n[0] + dy0 * n[1] + dz0 * n[2]) / denom
+        distance = dx0 * n[0] + dy0 * n[1] + dz0 * n[2]
+
+        t_ = (distance) / denom
+
+        dx0r = Xref[0] - X0[0]
+        dy0r = Xref[1] - X0[1]
+        dz0r = Xref[2] - X0[2]
+
+        distancer = dx0r * n[0] + dy0r * n[1] + dz0r * n[2]
+
+        t_r = (distancer) / denom
+        if t_<0 and t_r>0:
+            print(t_,t_r)
+
 
         if -1e-6 < t_:
 
@@ -408,9 +429,31 @@ def intersect_plane(obj,ray,X0,counter_,side):
 
             if u_min <= u <= u_max and v_min <= v <= v_max:
 
+                # Clamp to the real wall rectangle
+                uc = min(1.0, max(0.0, u))
+                vc = min(1.0, max(0.0, v))
 
+                # Closest point on the original wall
+                closest_x = all_X[obj][0] + uc * a[0] + vc * b[0]
+                closest_y = all_X[obj][1] + uc * a[1] + vc * b[1]
+                closest_z = all_X[obj][2] + uc * a[2] + vc * b[2]
 
+                # Vector from wall surface to player center at impact
+                nx = px - closest_x
+                ny = py - closest_y
+                nz = pz - closest_z
 
+                norm = np.sqrt(nx * nx + ny * ny + nz * nz)
+
+                if uc==1 or vc==1 or uc==0 or vc==0:
+                    nx /= norm
+                    ny /= norm
+                    nz /= norm
+                else:
+                    # fallback for exact face hit
+                    nx = -n[0]
+                    ny = -n[1]
+                    nz = -n[2]
 
                 open = True
                 if all_opening[obj]:
@@ -434,7 +477,7 @@ def intersect_plane(obj,ray,X0,counter_,side):
                         ind = all_destruc[obj]
                     trans = all_trans_im[obj][ind]
                     open = trans[gu, gv + shift]
-                return (open,t_,-n[0],-n[1])
+                return (open,t_,nx,ny)
             else:
                 return (False,0,0,0)
         else:
