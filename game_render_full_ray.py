@@ -150,44 +150,149 @@ def sweep_sphere_cylinder(C0, d, A0, axis, R):
 # authorized distance, project the remaining vector on the tangent,
 # then do the same thing with next walls starting from the new found
 # point and with the new direction and iterate that 5 times
+import numpy as np
 
-def slide_move(position, move, walls, radius=3):
+
+def normalize2(v):
+    n = np.linalg.norm(v)
+    if n < 1e-12:
+        return v
+    return v / n
+
+
+def slide_move(position, move, walls):
 
     pos = position.copy()
     remaining = move.copy()
 
-    for _ in range(5):
+    MAX_ITER = 5
+    CONTACT_EPS = 1e-4
+    SKIN = 1e-5
+    STOP_EPS = 1e-6
 
-        hit = None
+    for iteration in range(MAX_ITER):
+
+        if np.linalg.norm(remaining) < STOP_EPS:
+            break
+
         nearest_t = 1.0
+        hit_normals = []
 
-        # Chercher la première collision sur le trajet
+        #
+        # Find closest collision
+        #
         for wall in walls:
 
-            t = wall.find_remaining_intersect_t(pos, remaining, radius)
+            if wall.radius > 0:
 
-            if t is not None and t < nearest_t:
+                state, t, nx, ny = intersect_circle(
+                    wall.X[0,0,:],
+                    wall.radius + 3,
+                    pos,
+                    remaining
+                )
+
+            else:
+
+                state, t, nx, ny = intersect_plane(
+                    wall.num,
+                    remaining,
+                    pos,
+                    c,
+                    wall.side
+                )
+
+
+            if not state or t is None:
+                continue
+
+
+            n = np.array([nx, ny, 0.0])
+            n = normalize2(n)
+
+
+            #
+            # First/closest hit
+            #
+            if t < nearest_t - CONTACT_EPS:
+
                 nearest_t = t
-                hit = wall
+                hit_normals = [n]
 
-        # Aucun obstacle
-        if hit is None:
+
+            #
+            # Another wall at the same distance
+            #
+            elif abs(t - nearest_t) < CONTACT_EPS:
+
+                hit_normals.append(n)
+
+
+
+        #
+        # No collision
+        #
+        if len(hit_normals) == 0:
+
             pos += remaining
             break
 
-        # Avancer jusqu'au contact
+
+
+        #
+        # Move to contact
+        #
         pos += remaining * nearest_t
 
-        # Déplacement restant
+
+        #
+        # Push slightly away from surfaces
+        #
+        for n in hit_normals:
+            pos += n * SKIN
+
+
+
+        #
+        # Keep only remaining movement
+        #
         remaining *= (1.0 - nearest_t)
 
-        # Projection sur le plan tangent
-        n = hit.normal
 
-        into_wall = np.dot(remaining, n)
 
-        if into_wall < 0:
-            remaining -= into_wall * n
+        #
+        # Slide projection
+        # Repeat because projecting on one wall
+        # can violate another wall
+        #
+        for _ in range(5):
+
+            changed = False
+
+            for n in hit_normals:
+
+                into_wall = np.dot(remaining, n)
+
+
+                if into_wall < 0:
+
+                    remaining -= into_wall * n
+                    changed = True
+
+
+            if not changed:
+                break
+
+
+
+        #
+        # Avoid numerical noise
+        #
+        if np.linalg.norm(remaining) < STOP_EPS:
+            remaining[:] = 0
+            break
+
+
 
     return pos
 
@@ -238,24 +343,37 @@ def intersect_circle(center,radius,X0,ray):
 
 
             v = 0.5 + np.arctan2(ny, nx) / (2 * np.pi)
-            return (v,px-C[0],py-C[1])
+            return (True,t_,px-C[0],py-C[1])
         else:
-            return (False,0,0)
+            return (False,0,0,0)
     else:
-        return (False,0,0)
+        return (False,0,0,0)
 
-def intersect_plane(obj,ray,X0,counter_):
+
+def intersect_plane(obj,ray,X0,counter_,side):
 
 
     a = all_a[obj]
     b = all_b[obj]
-    n = all_n[obj]
-    X = all_X[obj]
+    n = all_n[obj]*side
+    n*=1/np.linalg.norm(n)
+    X = all_X[obj]-3*n
 
     aa = all_aa[obj]
     bb = all_bb[obj]
     ab = all_ab[obj]
     inv_det = all_inv_det[obj]
+
+    margin = 3.0
+
+    length_a=np.linalg.norm(a)
+    length_b = np.linalg.norm(b)
+
+    u_min = -margin / length_a
+    u_max = 1 + margin / length_a
+
+    v_min = -margin / length_b
+    v_max = 1 + margin / length_b
 
     # ---- INLINE INTERSECTION ----
 
@@ -269,7 +387,7 @@ def intersect_plane(obj,ray,X0,counter_):
 
         t_ = (dx0 * n[0] + dy0 * n[1] + dz0 * n[2]) / denom
 
-        if 0.0 < t_:
+        if -1e-6 < t_:
 
             px = X0[0] + t_ * ray[0]
             py = X0[1] + t_ * ray[1]
@@ -288,7 +406,11 @@ def intersect_plane(obj,ray,X0,counter_):
                 u = (da * bb - db * ab) * inv_det
                 v = (db * aa - da * ab) * inv_det
 
-            if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
+            if u_min <= u <= u_max and v_min <= v <= v_max:
+
+
+
+
 
                 open = True
                 if all_opening[obj]:
@@ -312,13 +434,13 @@ def intersect_plane(obj,ray,X0,counter_):
                         ind = all_destruc[obj]
                     trans = all_trans_im[obj][ind]
                     open = trans[gu, gv + shift]
-                return open,u,v
+                return (open,t_,-n[0],-n[1])
             else:
-                return False
+                return (False,0,0,0)
         else:
-            return False
+            return (False,0,0,0)
     else:
-        return False
+        return (False,0,0,0)
 
 
 
@@ -3869,51 +3991,50 @@ while running == 1:
         direction = 'left'
     trans = trans + [recoil, 0.]
     recoil = 0.
-    No=np.array([0.,0.])
-    previous=0.5
-    d_collision=3.
+    # No=np.array([0.,0.])
+    # previous=0.5
+    # d_collision=3.
     if trans.any() != np.array([0.0, 0.0]).any():
-        No = np.array([0., 0.])
-        for i in wall[0:20]:
-            if i not in h_wall:
+        # No = np.array([0., 0.])
+        # for i in wall[0:20]:
+        #     if i not in h_wall:
+        #         if i.norm3<6:
+        #             print('norm', i.norm3, 'inters', i.inter, 'cross',
+        #                   not (i.door_deco) or (i.door_deco and i.cross_wall(trans)))
+        #
+        #         if i.norm3 < 3:
+        #
+        #             # if i.sphere == 0:
+        #             #     print(intersect_plane(i.num, -np.concatenate((trans @ Rp, [0.])), R_c, c))
+        #             # else:
+        #             #     print(intersect_circle(i.X[0, 0, :], i.radius, R_c, -np.concatenate((trans @ Rp, [0.]))))
+        #
+        #             if (i.door and i.closed) or not i.door:
+        #                 if i.inter[1]<1 and i.inter[1]>0 or (previous in [0,1.] and i.inter[1]in [0,1.]):
+        #                     if not(i.door_deco) or (i.door_deco and i.cross_wall(trans)):
+        #                         No+=i.normal()
+        #                         d_collision=min(i.norm3,d_collision)
+        #                 previous=i.inter[1]
 
 
-                if i.norm3 < 3:
-                    print('norm', i.norm3, 'inters', i.inter, 'cross', not(i.door_deco) or (i.door_deco and i.cross_wall(trans)))
-                    if i.sphere == 0:
-                        print(intersect_plane(i.num, -np.concatenate((trans @ Rp, [0.])), R_c, c))
-                    else:
-                        print(intersect_circle(i.X[0, 0, :], i.radius, R_c, -np.concatenate((trans @ Rp, [0.]))))
-
-                    if (i.door and i.closed) or not i.door:
-                        if i.inter[1]<1 and i.inter[1]>0 or (previous in [0,1.] and i.inter[1]in [0,1.]):
-                            if not(i.door_deco) or (i.door_deco and i.cross_wall(trans)):
-                                No+=i.normal()
-                                d_collision=min(i.norm3,d_collision)
-                        previous=i.inter[1]
-        trans=trans-(abs(np.dot(trans@ Rp, No)) * No)@ rot_plan(-ang[0])
 
         #should us the fucntion slide_move
+        new_pos=slide_move(R_c,-np.concatenate((trans @ Rp, [0.])),wall[0:20])[:-1]
+        trans0_=(x-new_pos)@ rot_plan(-ang[0])
+        x0_=new_pos
+
+        # trans=trans-(abs(np.dot(trans@ Rp, No)) * No)@ rot_plan(-ang[0])
+        # x = x - trans @ Rp
+
+        # print(x,x0_,trans,trans0_)
+        x = x0_
+        R_c[:-1]=x0_
+        trans=trans0_
 
 
 
 
 
-
-        x = x - trans @ Rp
-        # if d_collision==3.:
-        #     x = x - trans @ Rp
-        # else:
-        #     print(trans,(3-d_collision)*No,No)
-        #     trans=-((3-d_collision)*No)@ rot_plan(-ang[0])
-        #     x = x +(3.01-d_collision)*No
-
-
-        # if authorized_map[int(x[1] + 100) // 2][int(x[0] + 100) // 2]==1:
-        #     last_ok_pos = x
-        # else:
-        #     x=last_ok_pos
-        #     trans=trans*0.
 
         z = zmap[int(x[1] + 100) // 2][int(x[0] + 100) // 2]
         screen[:, :, :3] = screen[:, :, :3] - np.hstack((trans @ Rp, [0.]))
