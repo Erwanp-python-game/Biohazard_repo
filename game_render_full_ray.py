@@ -182,25 +182,25 @@ def slide_move(position, move, walls):
         # Find closest collision
         #
         for wall in walls:
+            if (wall.door and wall.closed) or not wall.door:
+                if wall.radius > 0 :
 
-            if wall.radius > 0:
+                    state, t, nx, ny = intersect_circle(
+                        wall.X[0,0,:],
+                        wall.radius + 3,
+                        pos,
+                        remaining
+                    )
 
-                state, t, nx, ny = intersect_circle(
-                    wall.X[0,0,:],
-                    wall.radius + 3,
-                    pos,
-                    remaining
-                )
+                else:
 
-            else:
-
-                state, t, nx, ny = intersect_plane(
-                    wall.num,
-                    remaining,
-                    pos,
-                    c,
-                    wall.side
-                )
+                    state, t, nx, ny = intersect_plane(
+                        wall.num,
+                        remaining,
+                        pos,
+                        c,
+                        wall.side
+                    )
 
 
             if not state or t is None:
@@ -376,11 +376,17 @@ def intersect_plane(obj,ray,X0,counter_,side):
     length_a=np.linalg.norm(a)
     length_b = np.linalg.norm(b)
 
-    u_min = -margin / length_a
-    u_max = 1 + margin / length_a
+    u_min = 0
+    u_max = 1
 
-    v_min = -margin / length_b
-    v_max = 1 + margin / length_b
+    v_min = 0
+    v_max = 1
+
+    # u_min = -margin / length_a
+    # u_max = 1 + margin / length_a
+    #
+    # v_min = -margin / length_b
+    # v_max = 1 + margin / length_b
 
     # ---- INLINE INTERSECTION ----
 
@@ -401,14 +407,14 @@ def intersect_plane(obj,ray,X0,counter_,side):
         dy0r = Xref[1] - X0[1]
         dz0r = Xref[2] - X0[2]
 
-        distancer = dx0r * n[0] + dy0r * n[1] + dz0r * n[2]
+        distancer = dx0r * dx0r + dy0r * dy0r + dz0r * dz0r
 
         t_r = (distancer) / denom
         if t_<0 and t_r>0:
             print(t_,t_r)
 
 
-        if -1e-6 < t_:
+        if -1e-6 < t_: #or (-1e-6 > t_ and t_r>1e-6):
 
             px = X0[0] + t_ * ray[0]
             py = X0[1] + t_ * ray[1]
@@ -427,7 +433,7 @@ def intersect_plane(obj,ray,X0,counter_,side):
                 u = (da * bb - db * ab) * inv_det
                 v = (db * aa - da * ab) * inv_det
 
-            if u_min <= u <= u_max and v_min <= v <= v_max:
+            if u_min <= u <= u_max and v_min <= v <= v_max or -1e-6 > t_:
 
                 # Clamp to the real wall rectangle
                 uc = min(1.0, max(0.0, u))
@@ -445,7 +451,7 @@ def intersect_plane(obj,ray,X0,counter_,side):
 
                 norm = np.sqrt(nx * nx + ny * ny + nz * nz)
 
-                if uc==1 or vc==1 or uc==0 or vc==0:
+                if -1e-6 > t_:
                     nx /= norm
                     ny /= norm
                     nz /= norm
