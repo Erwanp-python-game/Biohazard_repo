@@ -159,10 +159,10 @@ def normalize2(v):
         return v
     return v / n
 
-vecx_l,vecy_l,posx_l,posy_l,t_l=[],[],[],[],[]
+vecx_l,vecy_l,posx_l,posy_l,t_l,posx_l2,posy_l2=[],[],[],[],[],[],[]
 
 def slide_move(position, move, walls):
-    global vecx_l,vecy_l,posx_l,posy_l
+    global vecx_l,vecy_l,posx_l,posy_l,t_l,posx_l2,posy_l2
     pos = position.copy()
     remaining = move.copy()
 
@@ -188,7 +188,7 @@ def slide_move(position, move, walls):
 
                     state, t, nx, ny = intersect_circle(
                         wall.X[0,0,:],
-                        wall.radius + 3,
+                        wall.radius + 2.,
                         pos,
                         remaining
                     )
@@ -273,6 +273,8 @@ def slide_move(position, move, walls):
         # Repeat because projecting on one wall
         # can violate another wall
         #
+        posx_l2.append(pos[0])
+        posy_l2.append(pos[1])
         for _ in range(5):
 
             changed = False
@@ -360,8 +362,7 @@ def intersect_circle(center,radius,X0,ray):
 
 def intersect_plane(obj,ray,X0,counter_,side):
 
-
-
+    margin = 2.0
     a = all_a[obj]
     b = all_b[obj]
 
@@ -369,7 +370,7 @@ def intersect_plane(obj,ray,X0,counter_,side):
 
     n = all_n[obj]*side
     n*=1/np.linalg.norm(n)
-    X = all_X[obj]-3*n
+    X = all_X[obj]-margin*n
 
     edge1 =all_X[obj]
     edge2 =all_X[obj]+b
@@ -382,7 +383,7 @@ def intersect_plane(obj,ray,X0,counter_,side):
     ab = all_ab[obj]
     inv_det = all_inv_det[obj]
 
-    margin = 3.0
+
 
     length_a=np.linalg.norm(a)
     length_b = np.linalg.norm(b)
@@ -426,23 +427,24 @@ def intersect_plane(obj,ray,X0,counter_,side):
         px = X0[0] + t_ * ray[0]
         py = X0[1] + t_ * ray[1]
         pz = X0[2] + t_ * ray[2]
+        ax = px - X[0]
+        ay = py - X[1]
+        az = pz - X[2]
+
+        if ab == 0:
+            u = (ax * a[0] + ay * a[1] + az * a[2]) / aa
+            v = (ax * b[0] + ay * b[1] + az * b[2]) / bb
+        else:
+            da = ax * a[0] + ay * a[1] + az * a[2]
+            db = ax * b[0] + ay * b[1] + az * b[2]
+            u = (da * bb - db * ab) * inv_det
+            v = (db * aa - da * ab) * inv_det
 
         if -1e-6 < t_: #or (-1e-6 > t_ and t_r>1e-6):
 
 
 
-            ax = px - X[0]
-            ay = py - X[1]
-            az = pz - X[2]
 
-            if ab == 0:
-                u = (ax * a[0] + ay * a[1] + az * a[2]) / aa
-                v = (ax * b[0] + ay * b[1] + az * b[2]) / bb
-            else:
-                da = ax * a[0] + ay * a[1] + az * a[2]
-                db = ax * b[0] + ay * b[1] + az * b[2]
-                u = (da * bb - db * ab) * inv_det
-                v = (db * aa - da * ab) * inv_det
 
             if u_min <= u <= u_max and v_min <= v <= v_max:
 
@@ -496,14 +498,14 @@ def intersect_plane(obj,ray,X0,counter_,side):
                 return (open,t_,nx,ny)
 
 
-        if d1/np.linalg.norm(ray)<margin+1e-6:
+        if d1/np.linalg.norm(ray)<margin+1e-6 and u_min <= u <= u_max:
 
             nx = X0[0] - edge1[0]
             ny = X0[1] - edge1[1]
             nz = X0[2] - edge1[2]
 
             return (True, d1-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
-        elif d2/np.linalg.norm(ray)<margin+1e-6:
+        elif d2/np.linalg.norm(ray)<margin+1e-6 and u_min <= u <= u_max:
 
             nx = X0[0] - edge2[0]
             ny = X0[1] - edge2[1]
@@ -4223,9 +4225,10 @@ while running == 1:
 
     S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius)
     if key[K_u]:
-        fig,ax=plt.subplots(1,2)
+        fig,ax=plt.subplots(1,3)
         ax[0].quiver(posx_l,posy_l,vecx_l,vecy_l)
         ax[1].scatter(posx_l,posy_l,t_l)
+        ax[2].plot(posx_l2, posy_l2, t_l)
         plt.show()
     #     plt.imshow(Im_ray/255)
     #     plt.show()
