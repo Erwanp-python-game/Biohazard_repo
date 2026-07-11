@@ -158,44 +158,135 @@ def normalize2(v):
     if n < 1e-12:
         return v
     return v / n
+def solve_velocity(v, normals):
 
+    if len(normals) == 0:
+        return v
+
+    if len(normals) == 1:
+
+        n = normals[0]
+
+        d = np.dot(v, n)
+
+        if d < 0:
+            v = v - d*n
+
+        return v
+
+
+    #
+    # Two or more constraints
+    #
+
+    for i in range(len(normals)):
+
+        n1 = normals[i]
+
+        # Project on first plane
+        v1 = v.copy()
+
+        d = np.dot(v1, n1)
+
+        if d < 0:
+            v1 -= d*n1
+
+        valid = True
+
+        for n2 in normals:
+
+            if np.dot(v1, n2) < -1e-6:
+                valid = False
+                break
+
+        if valid:
+            return v1
+
+
+    #
+    # Try every pair
+    #
+
+    for i in range(len(normals)):
+        for j in range(i+1, len(normals)):
+
+            n1 = normals[i]
+            n2 = normals[j]
+
+            #
+            # Tangent to first wall
+            #
+
+            t = np.array([-n1[1], n1[0], 0.0])
+
+            if np.dot(t, v) < 0:
+                t = -t
+
+            #
+            # Check if tangent satisfies all walls
+            #
+
+            ok = True
+
+            for n in normals:
+
+                if np.dot(t, n) < -1e-6:
+                    ok = False
+                    break
+
+            if ok:
+
+                return t * np.dot(v, t)
+
+    #
+    # No feasible direction
+    #
+
+    return np.zeros(3)
 vecx_l,vecy_l,posx_l,posy_l,t_l,posx_l2,posy_l2,vecx_l2,vecy_l2=[],[],[],[],[],[],[],[],[]
 
+
 def slide_move(position, move, walls):
-    global vecx_l,vecy_l,posx_l,posy_l,t_l,posx_l2,posy_l2,vecx_l2,vecy_l2
+
     pos = position.copy()
     remaining = move.copy()
 
-    MAX_ITER = 5
-    CONTACT_EPS = 1e-3
-    SKIN = 1e-1
-    STOP_EPS = 1e-3
+    MAX_ITER = 8
+    CONTACT_EPS = 1e-4
+    STOP_EPS = 1e-4
+    BACKOFF = 1e-4
+
 
     for iteration in range(MAX_ITER):
 
         if np.linalg.norm(remaining) < STOP_EPS:
             break
 
+
         nearest_t = 1.0
         hit_normals = []
 
+
         #
-        # Find closest collision
+        # Find first collision
         #
         for wall in walls:
-            if (wall.door and wall.closed) or not wall.door:
-                if wall.radius > 0 :
 
-                    state, t, nx, ny = intersect_circle(
+            if (wall.door and wall.closed) or not wall.door:
+
+
+                if wall.radius > 0:
+
+                    state,t,nx,ny = intersect_circle(
                         wall.X[0,0,:],
-                        wall.radius + 2.,
+                        wall.radius+2.,
                         pos,
                         remaining
                     )
 
                 else:
 
-                    state, t, nx, ny = intersect_plane(
+                    state,t,nx,ny = intersect_plane(
                         wall.num,
                         remaining,
                         pos,
@@ -204,42 +295,44 @@ def slide_move(position, move, walls):
                     )
 
 
-            if not state or t is None:
-                continue
+                if not state or t is None:
+                    continue
 
 
-            n = np.array([nx, ny, 0.0])
-            n = normalize2(n)
-
-
-            #
-            # First/closest hit
-            #
-            if t < nearest_t - CONTACT_EPS:
-
-                nearest_t = t
-                hit_normals = [n]
-                posx_l.append(pos[0])
-                posy_l.append(pos[1])
-                vecx_l.append(n[0])
-                vecy_l.append(n[1])
-                t_l.append(t)
+                n=np.array([nx,ny,0.0])
+                n=normalize2(n)
 
 
 
-            #
-            # Another wall at the same distance
-            #
-            elif abs(t - nearest_t) < CONTACT_EPS:
+                # Ignore contact if moving away
+                if t < CONTACT_EPS:
 
-                hit_normals.append(n)
+                    if np.dot(remaining,n) >= 0:
+                        continue
+
+
+
+                if t < nearest_t-CONTACT_EPS:
+
+                    nearest_t=t
+                    hit_normals=[n]
+                    posx_l.append(pos[0])
+                    posy_l.append(pos[1])
+                    vecx_l.append(n[0])
+                    vecy_l.append(n[1])
+                    t_l.append(t)
+                    print(n,t)
+
+                elif abs(t-nearest_t)<CONTACT_EPS:
+
+                    hit_normals.append(n)
 
 
 
         #
-        # No collision
+        # no collision
         #
-        if len(hit_normals) == 0:
+        if len(hit_normals)==0:
 
             pos += remaining
             break
@@ -247,68 +340,185 @@ def slide_move(position, move, walls):
 
 
         #
-        # Move to contact
+        # move slightly before contact
         #
-        print(remaining*nearest_t)
-        pos += remaining * nearest_t
+        travel=max(0.0,nearest_t-BACKOFF)
 
-
-        #
-        # Push slightly away from surfaces
-        #
-        for n in hit_normals:
-            pos += n * SKIN
+        pos += remaining*travel
 
 
 
         #
-        # Keep only remaining movement
+        # keep remaining displacement
         #
-        remaining *= (1.0 - nearest_t)
-
-
-
-        #
-        # Slide projection
-        # Repeat because projecting on one wall
-        # can violate another wall
-        #
-
-        for _ in range(5):
-
-            changed = False
-
-            for n in hit_normals:
-
-                into_wall = np.dot(remaining, n)
-
-
-                if into_wall < 0:
-
-                    remaining -= into_wall * n
-                    changed = True
-
-
-            if not changed:
-                break
+        remaining *= (1.0-travel)
 
 
 
         #
-        # Avoid numerical noise
+        # solve all wall constraints simultaneously
         #
-        if np.linalg.norm(remaining) < STOP_EPS:
-            remaining[:] = 0
+        remaining = solve_velocity(
+            remaining,
+            hit_normals
+        )
+
+
+
+        if np.linalg.norm(remaining)<STOP_EPS:
             break
 
 
-    posx_l2.append(pos[0])
-    posy_l2.append(pos[1])
-    if len(posx_l2) > 1:
-        vecx_l2.append(posx_l2[-1]-posx_l2[-2])
-        vecy_l2.append(posy_l2[-1]-posy_l2[-2])
 
     return pos
+# def slide_move(position, move, walls):
+#     global vecx_l,vecy_l,posx_l,posy_l,t_l,posx_l2,posy_l2,vecx_l2,vecy_l2
+#     pos = position.copy()
+#     remaining = move.copy()
+#
+#     MAX_ITER = 5
+#     CONTACT_EPS = 1e-3
+#     SKIN = 1e-1
+#     STOP_EPS = 1e-3
+#
+#     for iteration in range(MAX_ITER):
+#
+#         if np.linalg.norm(remaining) < STOP_EPS:
+#             break
+#
+#         nearest_t = 1.0
+#         hit_normals = []
+#
+#         #
+#         # Find closest collision
+#         #
+#         for wall in walls:
+#             if (wall.door and wall.closed) or not wall.door:
+#                 if wall.radius > 0 :
+#
+#                     state, t, nx, ny = intersect_circle(
+#                         wall.X[0,0,:],
+#                         wall.radius + 2.,
+#                         pos,
+#                         remaining
+#                     )
+#
+#                 else:
+#
+#                     state, t, nx, ny = intersect_plane(
+#                         wall.num,
+#                         remaining,
+#                         pos,
+#                         c,
+#                         wall.side
+#                     )
+#
+#
+#             if not state or t is None:
+#                 continue
+#
+#
+#             n = np.array([nx, ny, 0.0])
+#             n = normalize2(n)
+#
+#
+#             #
+#             # First/closest hit
+#             #
+#             if t < nearest_t - CONTACT_EPS:
+#
+#                 nearest_t = t
+#                 hit_normals = [n]
+#                 posx_l.append(pos[0])
+#                 posy_l.append(pos[1])
+#                 vecx_l.append(n[0])
+#                 vecy_l.append(n[1])
+#                 t_l.append(t)
+#
+#
+#
+#             #
+#             # Another wall at the same distance
+#             #
+#             elif abs(t - nearest_t) < CONTACT_EPS:
+#
+#                 hit_normals.append(n)
+#
+#
+#
+#         #
+#         # No collision
+#         #
+#         if len(hit_normals) == 0:
+#
+#             pos += remaining
+#             break
+#
+#
+#
+#         #
+#         # Move to contact
+#         #
+#         print(remaining*nearest_t)
+#         pos += remaining * nearest_t
+#
+#
+#         #
+#         # Push slightly away from surfaces
+#         #
+#         for n in hit_normals:
+#             pos += n * SKIN
+#
+#
+#
+#         #
+#         # Keep only remaining movement
+#         #
+#         remaining *= (1.0 - nearest_t)
+#
+#
+#
+#         #
+#         # Slide projection
+#         # Repeat because projecting on one wall
+#         # can violate another wall
+#         #
+#
+#         for _ in range(5):
+#
+#             changed = False
+#
+#             for n in hit_normals:
+#
+#                 into_wall = np.dot(remaining, n)
+#
+#
+#                 if into_wall < 0:
+#
+#                     remaining -= into_wall * n
+#                     changed = True
+#
+#
+#             if not changed:
+#                 break
+#
+#
+#
+#         #
+#         # Avoid numerical noise
+#         #
+#         if np.linalg.norm(remaining) < STOP_EPS:
+#             remaining[:] = 0
+#             break
+#
+#
+#     posx_l2.append(pos[0])
+#     posy_l2.append(pos[1])
+#     if len(posx_l2) > 1:
+#         vecx_l2.append(posx_l2[-1]-posx_l2[-2])
+#         vecy_l2.append(posy_l2[-1]-posy_l2[-2])
+#
+#     return pos
 
 def chirp(t,f1,f2,tau):
     return (1+np.exp(-t/tau))*np.sin(2*pi*f1*t*np.exp(-t/tau)+2*pi*f2*t*(1-np.exp(-t/tau)))
