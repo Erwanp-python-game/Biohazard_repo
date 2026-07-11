@@ -247,7 +247,7 @@ vecx_l,vecy_l,posx_l,posy_l,t_l,posx_l2,posy_l2,vecx_l2,vecy_l2=[],[],[],[],[],[
 
 
 def slide_move(position, move, walls):
-
+    global vecx_l, vecy_l, posx_l, posy_l, t_l, posx_l2, posy_l2, vecx_l2, vecy_l2
     pos = position.copy()
     remaining = move.copy()
 
@@ -368,7 +368,11 @@ def slide_move(position, move, walls):
         if np.linalg.norm(remaining)<STOP_EPS:
             break
 
-
+        posx_l2.append(pos[0])
+        posy_l2.append(pos[1])
+        if len(posx_l2) > 1:
+            vecx_l2.append(posx_l2[-1]-posx_l2[-2])
+            vecy_l2.append(posy_l2[-1]-posy_l2[-2])
 
     return pos
 # def slide_move(position, move, walls):
@@ -4439,11 +4443,50 @@ while running == 1:
 
     S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius)
     if key[K_u]:
-        fig,ax=plt.subplots(1,4)
-        ax[0].quiver(posx_l,posy_l,vecx_l,vecy_l)
-        ax[1].scatter(posx_l,posy_l,t_l)
-        ax[2].plot(posx_l2, posy_l2, t_l)
-        ax[3].quiver(posx_l2[1:], posy_l2[1:], vecx_l2, vecy_l2)
+
+
+        fig, ax = plt.subplots(1, 4, figsize=(16, 4))
+
+        # Color indices
+        c1 = np.arange(len(posx_l))
+        c2_ = np.arange(len(posx_l2))
+
+        # 1 - quiver
+        q1 = ax[0].quiver(
+            posx_l, posy_l,
+            vecx_l, vecy_l,
+            c1,
+            cmap='viridis'
+        )
+
+        # 2 - scatter
+        s = ax[1].scatter(
+            posx_l,
+            posy_l,
+            c=t_l,
+            cmap='viridis'
+        )
+
+        # 3 - colored trajectory
+        p = ax[2].scatter(
+            posx_l2,
+            posy_l2,
+            c=c2_,
+            cmap='viridis'
+        )
+        ax[2].plot(posx_l2, posy_l2, color='gray', alpha=0.5)
+
+        # 4 - quiver (remove first position, so remove first color too)
+        q2 = ax[3].quiver(
+            posx_l2[1:],
+            posy_l2[1:],
+            vecx_l2,
+            vecy_l2,
+            c2_[1:],
+            cmap='viridis'
+        )
+
+        plt.tight_layout()
         plt.show()
     #     plt.imshow(Im_ray/255)
     #     plt.show()
