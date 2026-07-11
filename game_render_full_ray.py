@@ -159,9 +159,10 @@ def normalize2(v):
         return v
     return v / n
 
+vecx_l,vecy_l,posx_l,posy_l,t_l=[],[],[],[],[]
 
 def slide_move(position, move, walls):
-
+    global vecx_l,vecy_l,posx_l,posy_l
     pos = position.copy()
     remaining = move.copy()
 
@@ -218,7 +219,12 @@ def slide_move(position, move, walls):
 
                 nearest_t = t
                 hit_normals = [n]
-                print(n, t, remaining)
+                posx_l.append(pos[0])
+                posy_l.append(pos[1])
+                vecx_l.append(n[0])
+                vecy_l.append(n[1])
+                t_l.append(t)
+
 
 
             #
@@ -364,7 +370,12 @@ def intersect_plane(obj,ray,X0,counter_,side):
     n = all_n[obj]*side
     n*=1/np.linalg.norm(n)
     X = all_X[obj]-3*n
-    Xref =all_X[obj]
+
+    edge1 =all_X[obj]
+    edge2 =all_X[obj]+b
+
+    d1=np.linalg.norm(X0[:-1]-edge1[:-1])
+    d2=np.linalg.norm(X0[:-1]-edge2[:-1])
 
     aa = all_aa[obj]
     bb = all_bb[obj]
@@ -403,22 +414,22 @@ def intersect_plane(obj,ray,X0,counter_,side):
 
         t_ = (distance) / denom
 
-        dx0r = Xref[0] - X0[0]
-        dy0r = Xref[1] - X0[1]
-        dz0r = Xref[2] - X0[2]
-
-        distancer = dx0r * dx0r + dy0r * dy0r + dz0r * dz0r
-
-        t_r = (distancer) / denom
-        if t_<0 and t_r>0:
-            print(t_,t_r)
-
+        # dx0r = Xref[0] - X0[0]
+        # dy0r = Xref[1] - X0[1]
+        # dz0r = Xref[2] - X0[2]
+        #
+        # distancer = dx0r * dx0r + dy0r * dy0r + dz0r * dz0r
+        #
+        # t_r = (distancer) / denom
+        # if t_<0 and t_r>0:
+        #     print(t_,t_r)
+        px = X0[0] + t_ * ray[0]
+        py = X0[1] + t_ * ray[1]
+        pz = X0[2] + t_ * ray[2]
 
         if -1e-6 < t_: #or (-1e-6 > t_ and t_r>1e-6):
 
-            px = X0[0] + t_ * ray[0]
-            py = X0[1] + t_ * ray[1]
-            pz = X0[2] + t_ * ray[2]
+
 
             ax = px - X[0]
             ay = py - X[1]
@@ -433,33 +444,32 @@ def intersect_plane(obj,ray,X0,counter_,side):
                 u = (da * bb - db * ab) * inv_det
                 v = (db * aa - da * ab) * inv_det
 
-            if u_min <= u <= u_max and v_min <= v <= v_max or -1e-6 > t_:
+            if u_min <= u <= u_max and v_min <= v <= v_max:
 
                 # Clamp to the real wall rectangle
                 uc = min(1.0, max(0.0, u))
                 vc = min(1.0, max(0.0, v))
 
-                # Closest point on the original wall
-                closest_x = all_X[obj][0] + uc * a[0] + vc * b[0]
-                closest_y = all_X[obj][1] + uc * a[1] + vc * b[1]
-                closest_z = all_X[obj][2] + uc * a[2] + vc * b[2]
+                # # Closest point on the original wall
+                # closest_x = all_X[obj][0] + uc * a[0] + vc * b[0]
+                # closest_y = all_X[obj][1] + uc * a[1] + vc * b[1]
+                # closest_z = all_X[obj][2] + uc * a[2] + vc * b[2]
+                #
+                # # Vector from wall surface to player center at impact
+                # nx = px - closest_x
+                # ny = py - closest_y
+                # nz = pz - closest_z
+                #
+                # norm = np.sqrt(nx * nx + ny * ny + nz * nz)
 
-                # Vector from wall surface to player center at impact
-                nx = px - closest_x
-                ny = py - closest_y
-                nz = pz - closest_z
+                # if -1e-6 > t_:
+                #     nx /= norm
+                #     ny /= norm
+                #     nz /= norm
 
-                norm = np.sqrt(nx * nx + ny * ny + nz * nz)
-
-                if -1e-6 > t_:
-                    nx /= norm
-                    ny /= norm
-                    nz /= norm
-                else:
-                    # fallback for exact face hit
-                    nx = -n[0]
-                    ny = -n[1]
-                    nz = -n[2]
+                nx = -n[0]
+                ny = -n[1]
+                nz = -n[2]
 
                 open = True
                 if all_opening[obj]:
@@ -484,8 +494,21 @@ def intersect_plane(obj,ray,X0,counter_,side):
                     trans = all_trans_im[obj][ind]
                     open = trans[gu, gv + shift]
                 return (open,t_,nx,ny)
-            else:
-                return (False,0,0,0)
+
+
+        if d1/np.linalg.norm(ray)<margin+1e-6:
+
+            nx = X0[0] - edge1[0]
+            ny = X0[1] - edge1[1]
+            nz = X0[2] - edge1[2]
+
+            return (True, d1-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
+        elif d2/np.linalg.norm(ray)<margin+1e-6:
+
+            nx = X0[0] - edge2[0]
+            ny = X0[1] - edge2[1]
+            nz = X0[2] - edge2[2]
+            return (True, d2-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
         else:
             return (False,0,0,0)
     else:
@@ -4199,7 +4222,11 @@ while running == 1:
     label_deltat.append('walls')
 
     S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius)
-    # if key[K_u]:
+    if key[K_u]:
+        fig,ax=plt.subplots(1,2)
+        ax[0].quiver(posx_l,posy_l,vecx_l,vecy_l)
+        ax[1].scatter(posx_l,posy_l,t_l)
+        plt.show()
     #     plt.imshow(Im_ray/255)
     #     plt.show()
     #
