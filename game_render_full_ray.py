@@ -291,7 +291,7 @@ def slide_move(position, move, walls):
                         remaining,
                         pos,
                         c,
-                        wall.side
+                        wall.side,wall
                     )
 
                 print(wall.slanted,wall.num,state,t,nx,ny)
@@ -578,7 +578,7 @@ def intersect_circle(center,radius,X0,ray):
         return (False,0,0,0)
 
 
-def intersect_plane(obj,ray,X0,counter_,side):
+def intersect_plane(obj,ray,X0,counter_,side,wall):
 
     margin = 2.0
     a = all_a[obj]
@@ -588,23 +588,28 @@ def intersect_plane(obj,ray,X0,counter_,side):
 
     n = all_n[obj]*side
     n*=1/np.linalg.norm(n)
-    X = all_X[obj]-margin*n
+    if wall.slanted:
+        X = wall.X_middle[0,0,:] - margin * n
+        a = wall.a_middle[0,0,:]
+        b = wall.b[0,0,:]
+        aa=np.dot(a,a)
+        bb=np.dot(b,b)
+        ab = np.dot(a, b)
+        inv_det=1.0 / (aa * bb - ab ** 2)
+        edge1 = wall.X_middle[0,0,:]
+        edge2 = wall.X_middle[0,0,:] + b
+    else:
+        X = all_X[obj]-margin*n
 
-    edge1 =all_X[obj]
-    edge2 =all_X[obj]+b
-
-    d1=np.linalg.norm(X0[:-1]-edge1[:-1])
-    d2=np.linalg.norm(X0[:-1]-edge2[:-1])
-
-    aa = all_aa[obj]
-    bb = all_bb[obj]
-    ab = all_ab[obj]
-    inv_det = all_inv_det[obj]
+        aa = all_aa[obj]
+        bb = all_bb[obj]
+        ab = all_ab[obj]
+        inv_det = all_inv_det[obj]
+        edge1 = all_X[obj]
+        edge2 = all_X[obj] + b
 
 
 
-    length_a=np.linalg.norm(a)
-    length_b = np.linalg.norm(b)
 
     u_min = 0
     u_max = 1
@@ -713,7 +718,8 @@ def intersect_plane(obj,ray,X0,counter_,side):
                         ind = all_destruc[obj]
                     trans = all_trans_im[obj][ind]
                     open = trans[gu, gv + shift]
-                return (open,t_,nx,ny)
+                if open:
+                    return (open,t_,nx,ny)
 
 
         # if d1/np.linalg.norm(ray)<margin+1e-6 and u_min <= u <= u_max:
