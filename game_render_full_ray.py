@@ -294,7 +294,7 @@ def slide_move(position, move, walls):
                         wall.side
                     )
 
-
+                print(wall.slanted,wall.num,state,t,nx,ny)
                 if not state or t is None:
                     continue
 
