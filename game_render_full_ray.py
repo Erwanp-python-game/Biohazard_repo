@@ -731,9 +731,9 @@ def intersect_plane(obj,ray,X0,counter_,side):
         #     return (True, d2/np.linalg.norm(ray)-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
         circle1=intersect_circle(edge1, margin, X0, ray)
         circle2 = intersect_circle(edge2, margin, X0, ray)
-        if circle1[0]:
+        if circle1[0] and u_min <= u <= u_max:
             return circle1
-        elif circle2[0]:
+        elif circle2[0] and u_min <= u <= u_max:
             return circle2
         else:
             return (False,0,0,0)

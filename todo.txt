@@ -21,11 +21,11 @@ SPEEDUP
 
 GAMEPLAY
 
-normals correct height of platform issue
+normals correct height of platform for cylinder
+normals slanted walls
 flames_damage
 editor remove sphere/cylinder
 editor cylinder platform top + correct height +zmap taking current height
-sphere and cylinder normals
 reload gun
 moving platform and mechanism
 armor
