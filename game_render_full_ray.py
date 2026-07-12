@@ -4465,8 +4465,8 @@ while running == 1:
 
         # 1 - quiver
         q1 = ax[0].quiver(
-            posx_l, posy_l,
-            vecx_l, vecy_l,
+            posy_l, posx_l,
+            vecy_l, vecx_l,
             c1,
             cmap='viridis'
         )
@@ -4490,10 +4490,10 @@ while running == 1:
 
         # 4 - quiver (remove first position, so remove first color too)
         q2 = ax[3].quiver(
-            posx_l2[1:],
             posy_l2[1:],
-            vecx_l2,
+            posx_l2[1:],
             vecy_l2,
+            vecx_l2,
             c2_[1:],
             cmap='viridis'
         )
