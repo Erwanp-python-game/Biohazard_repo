@@ -716,19 +716,25 @@ def intersect_plane(obj,ray,X0,counter_,side):
                 return (open,t_,nx,ny)
 
 
-        if d1/np.linalg.norm(ray)<margin+1e-6 and u_min <= u <= u_max:
-
-            nx = X0[0] - edge1[0]
-            ny = X0[1] - edge1[1]
-            nz = X0[2] - edge1[2]
-
-            return (True, d1-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
-        elif d2/np.linalg.norm(ray)<margin+1e-6 and u_min <= u <= u_max:
-
-            nx = X0[0] - edge2[0]
-            ny = X0[1] - edge2[1]
-            nz = X0[2] - edge2[2]
-            return (True, d2-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
+        # if d1/np.linalg.norm(ray)<margin+1e-6 and u_min <= u <= u_max:
+        #
+        #     nx = X0[0] - edge1[0]
+        #     ny = X0[1] - edge1[1]
+        #     nz = X0[2] - edge1[2]
+        #
+        #     return (True, d1/np.linalg.norm(ray)-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
+        # elif d2/np.linalg.norm(ray)<margin+1e-6 and u_min <= u <= u_max:
+        #
+        #     nx = X0[0] - edge2[0]
+        #     ny = X0[1] - edge2[1]
+        #     nz = X0[2] - edge2[2]
+        #     return (True, d2/np.linalg.norm(ray)-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
+        circle1=intersect_circle(edge1, margin, X0, ray)
+        circle2 = intersect_circle(edge2, margin, X0, ray)
+        if circle1[0]:
+            return circle1
+        elif circle2[0]:
+            return circle2
         else:
             return (False,0,0,0)
     else:
