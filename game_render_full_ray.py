@@ -577,20 +577,22 @@ def intersect_circle(center,radius,X0,ray):
     else:
         return (False,0,0,0)
 
-
+edgex_l,edgey_l=[],[]
 def intersect_plane(obj,ray,X0,counter_,side,wall):
-
+    global edgex_l,edgey_l
     margin = 2.0
     a = all_a[obj]
     b = all_b[obj]
 
     # side = -(b[1] * X0[0] - a[0] * X0[1] + a[0] * all_X[obj][1] - b[1] * all_X[obj][1])
-
+    open=True
     n = all_n[obj]*side
     n*=1/np.linalg.norm(n)
     if wall.slanted:
+        n = np.cross(wall.a_middle[0, 0, :], wall.b[0, 0, :])*side
+        n *= 1 / np.linalg.norm(n)
         X = wall.X_middle[0,0,:] - margin * n
-        a = wall.a_middle[0,0,:]
+        a = wall.a_middle[0,0,:]#*np.array([0.,0.,1.])
         b = wall.b[0,0,:]
         aa=np.dot(a,a)
         bb=np.dot(b,b)
@@ -607,8 +609,6 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
         inv_det = all_inv_det[obj]
         edge1 = all_X[obj]
         edge2 = all_X[obj] + b
-
-
 
 
     u_min = 0
@@ -719,6 +719,10 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
                     trans = all_trans_im[obj][ind]
                     open = trans[gu, gv + shift]
                 if open:
+                    edgex_l.append(edge1[0])
+                    edgex_l.append(edge2[0])
+                    edgey_l.append(edge1[1])
+                    edgey_l.append(edge2[1])
                     return (open,t_,nx,ny)
 
 
@@ -737,9 +741,17 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
         #     return (True, d2/np.linalg.norm(ray)-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
         circle1=intersect_circle(edge1, margin, X0, ray)
         circle2 = intersect_circle(edge2, margin, X0, ray)
-        if circle1[0] and u_min <= u <= u_max:
+        if circle1[0] and u_min <= u <= u_max and open:# this is not perfect I should check transparency of the intersected point
+            edgex_l.append(edge1[0])
+            edgex_l.append(edge2[0])
+            edgey_l.append(edge1[1])
+            edgey_l.append(edge2[1])
             return circle1
-        elif circle2[0] and u_min <= u <= u_max:
+        elif circle2[0] and u_min <= u <= u_max and open:
+            edgex_l.append(edge1[0])
+            edgex_l.append(edge2[0])
+            edgey_l.append(edge1[1])
+            edgey_l.append(edge2[1])
             return circle2
         else:
             return (False,0,0,0)
@@ -1280,10 +1292,10 @@ class Wall():
 
             if self.angle0>0:
 
-                self.a_middle[:,:,0]=self.a_old[:,:,0]+np.sin(self.angle0)*np.sin(angle1)*(2.5)
-                self.a_middle[:, :, 1] = self.a_old[:, :, 1] + np.sin(self.angle0) * np.cos(angle1) * (2.5)
-                self.X_middle[:,:,0]=self.X[:,:,0]-np.sin(self.angle0)*np.sin(angle1)*(2.5)
-                self.X_middle[:, :, 1] = self.X[:, :, 1] - np.sin(self.angle0) * np.cos(angle1) * (2.5)
+                self.a_middle[:,:,0]=self.a_old[:,:,0]#+np.sin(self.angle0)*np.sin(angle1)*(2.5)
+                self.a_middle[:, :, 1] = self.a_old[:, :, 1]# + np.sin(self.angle0) * np.cos(angle1) * (2.5)
+                self.X_middle[:,:,0]=self.X[:,:,0]-np.sin(self.angle0)*np.sin(angle1)*(-5.)
+                self.X_middle[:, :, 1] = self.X[:, :, 1] - np.sin(self.angle0) * np.cos(angle1) * (-5)
 
         self.linked=[]
         self.overlap=1.01
@@ -1417,6 +1429,11 @@ class Wall():
         y_ = self.X[0][0][1]
         a_ = self.b[0][0][0]
         b_ = self.b[0][0][1]
+        if self.slanted:
+            x_ = self.X_middle[0][0][0]
+            y_ = self.X_middle[0][0][1]
+            a_ = self.b_old[0][0][0]
+            b_ = self.b_old[0][0][1]
         self.side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
         all_side[self.num]=self.side
 
@@ -4472,11 +4489,11 @@ while running == 1:
         )
 
         # 2 - scatter
-        s = ax[1].scatter(
-            posx_l,
-            posy_l,
-            c=t_l,
-            cmap='viridis'
+        s = ax[0].scatter(
+            edgey_l,
+            edgex_l,
+            c=[int(i//2) for i in range(len(edgey_l))],
+            cmap = 'Set1'
         )
 
         # 3 - colored trajectory
