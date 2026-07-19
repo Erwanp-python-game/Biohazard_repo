@@ -617,11 +617,7 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
     v_min = 0
     v_max = 1
 
-    # u_min = -margin / length_a
-    # u_max = 1 + margin / length_a
-    #
-    # v_min = -margin / length_b
-    # v_max = 1 + margin / length_b
+
 
     # ---- INLINE INTERSECTION ----
 
@@ -638,15 +634,7 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
 
         t_ = (distance) / denom
 
-        # dx0r = Xref[0] - X0[0]
-        # dy0r = Xref[1] - X0[1]
-        # dz0r = Xref[2] - X0[2]
-        #
-        # distancer = dx0r * dx0r + dy0r * dy0r + dz0r * dz0r
-        #
-        # t_r = (distancer) / denom
-        # if t_<0 and t_r>0:
-        #     print(t_,t_r)
+
         px = X0[0] + t_ * ray[0]
         py = X0[1] + t_ * ray[1]
         pz = X0[2] + t_ * ray[2]
@@ -672,25 +660,8 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
             if u_min <= u <= u_max and v_min <= v <= v_max:
 
                 # Clamp to the real wall rectangle
-                uc = min(1.0, max(0.0, u))
-                vc = min(1.0, max(0.0, v))
 
-                # # Closest point on the original wall
-                # closest_x = all_X[obj][0] + uc * a[0] + vc * b[0]
-                # closest_y = all_X[obj][1] + uc * a[1] + vc * b[1]
-                # closest_z = all_X[obj][2] + uc * a[2] + vc * b[2]
-                #
-                # # Vector from wall surface to player center at impact
-                # nx = px - closest_x
-                # ny = py - closest_y
-                # nz = pz - closest_z
-                #
-                # norm = np.sqrt(nx * nx + ny * ny + nz * nz)
 
-                # if -1e-6 > t_:
-                #     nx /= norm
-                #     ny /= norm
-                #     nz /= norm
 
                 nx = -n[0]
                 ny = -n[1]
@@ -726,33 +697,73 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
                     return (open,t_,nx,ny)
 
 
-        # if d1/np.linalg.norm(ray)<margin+1e-6 and u_min <= u <= u_max:
-        #
-        #     nx = X0[0] - edge1[0]
-        #     ny = X0[1] - edge1[1]
-        #     nz = X0[2] - edge1[2]
-        #
-        #     return (True, d1/np.linalg.norm(ray)-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
-        # elif d2/np.linalg.norm(ray)<margin+1e-6 and u_min <= u <= u_max:
-        #
-        #     nx = X0[0] - edge2[0]
-        #     ny = X0[1] - edge2[1]
-        #     nz = X0[2] - edge2[2]
-        #     return (True, d2/np.linalg.norm(ray)-margin, nx/(nx**2+ny**2)**0.5, ny/(nx**2+ny**2)**0.5)
         circle1=intersect_circle(edge1, margin, X0, ray)
         circle2 = intersect_circle(edge2, margin, X0, ray)
-        if circle1[0] and u_min <= u <= u_max and open:# this is not perfect I should check transparency of the intersected point
-            edgex_l.append(edge1[0])
-            edgex_l.append(edge2[0])
-            edgey_l.append(edge1[1])
-            edgey_l.append(edge2[1])
-            return circle1
-        elif circle2[0] and u_min <= u <= u_max and open:
-            edgex_l.append(edge1[0])
-            edgex_l.append(edge2[0])
-            edgey_l.append(edge1[1])
-            edgey_l.append(edge2[1])
-            return circle2
+
+        if circle1[0] and u_min <= u <= u_max:# this is not perfect I should check transparency of the intersected point
+            open = True
+            if all_opening[obj]:
+                v=0
+                f = all_format[obj]
+                iu = int((1 - 0.5) * f[0])
+                iv = int((1 - v) * f[1])
+                tile_z = all_tile_z[obj]
+                gu = iu % 120
+                gv = iv % 120
+                freq = all_freq[obj]
+                if ((-iv // 120 + all_phase[obj] - freq + 1) % freq) == 0:
+                    shift = 120
+                    if iu // 120 > 0 and not (tile_z):
+                        shift = 0
+
+                else:
+                    shift = 0
+                if all_destruc[obj] < 0:
+                    ind = counter_ // (12 // all_wall_len[obj])
+                else:
+                    ind = all_destruc[obj]
+                trans = all_trans_im[obj][ind]
+                open = trans[gu, gv + shift]
+            if open:
+                edgex_l.append(edge1[0])
+                edgex_l.append(edge2[0])
+                edgey_l.append(edge1[1])
+                edgey_l.append(edge2[1])
+                return circle1
+            else:
+                return (False, 0, 0, 0)
+        elif circle2[0] and u_min <= u <= u_max :
+            open = True
+            if all_opening[obj]:
+                v=1
+                f = all_format[obj]
+                iu = int((1 - 0.5) * f[0])
+                iv = int((1 - v) * f[1])
+                tile_z = all_tile_z[obj]
+                gu = iu % 120
+                gv = iv % 120
+                freq = all_freq[obj]
+                if ((-iv // 120 + all_phase[obj] - freq + 1) % freq) == 0:
+                    shift = 120
+                    if iu // 120 > 0 and not (tile_z):
+                        shift = 0
+
+                else:
+                    shift = 0
+                if all_destruc[obj] < 0:
+                    ind = counter_ // (12 // all_wall_len[obj])
+                else:
+                    ind = all_destruc[obj]
+                trans = all_trans_im[obj][ind]
+                open = trans[gu, gv + shift]
+            if open:
+                edgex_l.append(edge1[0])
+                edgex_l.append(edge2[0])
+                edgey_l.append(edge1[1])
+                edgey_l.append(edge2[1])
+                return circle2
+            else:
+                return (False, 0, 0, 0)
         else:
             return (False,0,0,0)
     else:

@@ -22,7 +22,6 @@ SPEEDUP
 GAMEPLAY
 
 normals correct height of platform for cylinder
-normals slanted walls
 flames_damage
 editor remove sphere/cylinder
 editor cylinder platform top + correct height +zmap taking current height
@@ -40,9 +39,8 @@ bug ->flame order of drawing
 bug ->rescaling of guns when hitting +
 bug -> shooting through walls ennemies
 bug ->grenade not always visible
-bug -> issue with normal in walls with a cut
 
--stairs cannot be rotated
+
 -be aware that blue roof are cutting some walls as distance is not ignored for the moment (best would be to redesign roofs higher)
 
 
