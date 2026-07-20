@@ -185,8 +185,9 @@ editor_controls=pygame.Surface((window[0]+350+500,window[1]))
 
 with open("editor controls.txt") as f:
 	font = pygame.font.Font('freesansbold.ttf', 10)
+
 	for c,x in enumerate(f):
-		text = font.render(x, True, (255, 255, 255))
+		text = font.render(x.rstrip("\n"), True, (255, 255, 255))
 		textRect = text.get_rect()
 		editor_controls.blit(text, (window[0] + 350, c*10))
 	font = pygame.font.Font('freesansbold.ttf', 13)
