@@ -461,7 +461,6 @@ slope=0
 erase=1
 angle_flat=0
 sphere_on=0
-sphere_type=1
 platform_down=1
 platform_sides=0
 zmap_update=1
@@ -516,7 +515,7 @@ while running==1:
 		pygame.time.wait(300)
 
 	if key[K_u]:
-		sphere_on=(sphere_on+1)%3
+		sphere_on=(sphere_on+1)%4
 		print('sphere_on',sphere_on)
 		pygame.time.wait(300)
 
@@ -961,7 +960,7 @@ while running==1:
 				if seg==0:
 					col[mouse[0] // 5 + x, mouse[1] // 5 + y] = [0, 255, 0]
 				if seg == 1:
-					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,0,0,H,deco,freq,phase,sphere_type))#-2.5 en i[6] pour monter
+					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,0,0,H,deco,freq,phase,sphere_on))#-2.5 en i[6] pour monter
 					if sphere_on!=3:
 
 						h_liste.append(
