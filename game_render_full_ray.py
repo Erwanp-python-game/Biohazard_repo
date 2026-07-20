@@ -281,7 +281,9 @@ def slide_move(position, move, walls):
                         wall.X[0,0,:],
                         wall.radius+2.,
                         pos,
-                        remaining
+                        remaining,
+                        all_sphere[wall.num]==3,
+                        all_sphere[wall.num]
                     )
 
                 else:
@@ -294,7 +296,7 @@ def slide_move(position, move, walls):
                         wall.side,wall
                     )
 
-                print(wall.slanted,wall.num,state,t,nx,ny)
+
                 if not state or t is None:
                     continue
 
@@ -321,7 +323,7 @@ def slide_move(position, move, walls):
                     vecx_l.append(n[0])
                     vecy_l.append(n[1])
                     t_l.append(t)
-                    print(n,t)
+
 
                 elif abs(t-nearest_t)<CONTACT_EPS:
 
@@ -544,13 +546,13 @@ def create_cell_array(cell_size):
 
     return cell_array
 
-def intersect_circle(center,radius,X0,ray):
+def intersect_circle(center,radius,X0,ray,infinite,sphere_type):
     C = center  # center
     r = radius  # you must add this array
 
     dx0 = X0[0] - C[0]
     dy0 = X0[1] - C[1]
-
+    dz0 = X0[2] - C[2]
 
     a = ray[0] * ray[0] + ray[1] * ray[1]
     b = dx0 * ray[0] + dy0 * ray[1]
@@ -558,12 +560,20 @@ def intersect_circle(center,radius,X0,ray):
 
     disc = b * b - a * c
 
-    if disc > 0.0:
+    if disc > 0.0 :
         t_ = (-b - np.sqrt(disc)) / a
 
         if 0.0 < t_:
             px = X0[0] + t_ * ray[0]
             py = X0[1] + t_ * ray[1]
+            pz = X0[2] + t_ * ray[2]
+            nz = (pz - C[2]) / 10.
+            if sphere_type == 1:
+                u = 0.5 - np.arcsin(nz) / np.pi
+            if sphere_type > 1:
+                u = nz
+            if not ((u <= 1. and u > 0) or infinite) :
+                return (False, 0, 0, 0)
 
             # simple spherical UV (optional)
             nx = (px - C[0]) / r
@@ -697,8 +707,8 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
                     return (open,t_,nx,ny)
 
 
-        circle1=intersect_circle(edge1, margin, X0, ray)
-        circle2 = intersect_circle(edge2, margin, X0, ray)
+        circle1=intersect_circle(edge1, margin, X0, ray,True,3)
+        circle2 = intersect_circle(edge2, margin, X0, ray,True,3)
 
         if circle1[0] and u_min <= u <= u_max:# this is not perfect I should check transparency of the intersected point
             open = True
@@ -1406,21 +1416,21 @@ class Wall():
         self.inter=V
         self.interX=self.X[0,0,:]+self.inter[0]*self.a[0,0,:]+self.inter[1]*self.b[0,0,:]
 
-        if self.sphere!=0:
-            # print('trans need to be rotated if neeeded')
-            if direction=='up':
-                direction_v=np.array([cos(ang[0]),-sin(ang[0])])
-            if direction=='down':
-                direction_v = np.array([cos(ang[0]+pi), -sin(ang[0]+pi)])
-            if direction=='right':
-                direction_v = np.array([cos(ang[0]-pi/2), -sin(ang[0]-pi/2)])
-            if direction=='left':
-                direction_v = np.array([cos(ang[0]+pi/2), -sin(ang[0]+pi/2)])
-            i_c=intersect_circle(self.X[0,0,:-1], self.radius, R_c[:-1], direction_v)
-            # print(i_c,direction_v,direction)
-            if i_c[0]:
-                self.inter=[i_c[0],i_c[0]]
-                self.rayon=np.array([i_c[1],i_c[2]])
+        # if self.sphere!=0:
+        #     # print('trans need to be rotated if neeeded')
+        #     if direction=='up':
+        #         direction_v=np.array([cos(ang[0]),-sin(ang[0])])
+        #     if direction=='down':
+        #         direction_v = np.array([cos(ang[0]+pi), -sin(ang[0]+pi)])
+        #     if direction=='right':
+        #         direction_v = np.array([cos(ang[0]-pi/2), -sin(ang[0]-pi/2)])
+        #     if direction=='left':
+        #         direction_v = np.array([cos(ang[0]+pi/2), -sin(ang[0]+pi/2)])
+        #     i_c=intersect_circle(self.X[0,0,:-1], self.radius, R_c[:-1], direction_v)
+        #     # print(i_c,direction_v,direction)
+        #     if i_c[0]:
+        #         self.inter=[i_c[0],i_c[0]]
+        #         self.rayon=np.array([i_c[1],i_c[2]])
                 #print(self.rayon)
         self.reset_rend()
         if (shoot == 1 or explo!=0) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco != 0:
@@ -1466,16 +1476,16 @@ class Wall():
 
             self.side = b_ * R_c[0] - a_ * R_c[1] + a_ * y_ - b_ * x_
             if self.side < 0:
-                print(No, 'wall')
+
                 return No
 
             else:
-                print(No, 'wall')
+
                 return -No
         else:
             No = self.rayon
             No = No / np.linalg.norm(No)
-            print(No,'sphere')
+
             return No
 
     def test_behind(self):
