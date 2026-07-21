@@ -568,12 +568,27 @@ def intersect_circle(center,radius,X0,ray,infinite,sphere_type):
             py = X0[1] + t_ * ray[1]
             pz = X0[2] + t_ * ray[2]
             nz = (pz - C[2]) / 10.
+
             if sphere_type == 1:
-                u = 0.5 - np.arcsin(nz) / np.pi
+                r2=r-2
+                a2 = ray[0] * ray[0] + ray[1] * ray[1]
+                b2 = dx0 * ray[0] + dy0 * ray[1]
+                c2 = dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - r2 * r2
+                disc2 = b2 * b2 - a2 * c2
+                if disc2 > 0.0:
+                    t_2 = (-b2 - np.sqrt(disc2)) / a2
+                    pz2 = X0[2] + t_2 * ray[2]
+                    nz2 = (pz2 - C[2]) / r2
+                    u2 = 0.5 - np.arcsin(nz2) / np.pi
+                    print(u2,nz2,dz0,radius,C[2],X0[2])
+                    if not ((u2>=1 or u2 <=0.5) or infinite):
+                        return (False, 0, 0, 0)
+                else:
+                    return (False, 0, 0, 0)
             if sphere_type > 1:
                 u = nz
-            if not ((u <= 1. and u > 0) or infinite) :
-                return (False, 0, 0, 0)
+                if not ((u <= 1. and u > 0) or infinite) :
+                    return (False, 0, 0, 0)
 
             # simple spherical UV (optional)
             nx = (px - C[0]) / r
@@ -3700,7 +3715,7 @@ def load_level(level_name):
         im2 = 'image/wall/wall' + str(levelD[level]['wall'][i[2][1]]) + '.png'
         wall.append(Wall([0., 0., 5 * 2 + H], np.array([0,1.,0.]), np.array(xw), [im, im2, i[2][2]], i[3], i[7], i[8], i[9], 0))
 
-        wall[-1].sphere=2
+        wall[-1].sphere=i[-1]
         wall[-1].radius=R_
         if wall[-1].sphere>=2:
             wall[-1].format=120*np.array([10,int(R_*2*pi)])/10

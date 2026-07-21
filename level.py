@@ -985,13 +985,19 @@ while running==1:
 							(np.array([2*Radius/5, 0, 0]), np.array([ 0,2*Radius/5, 0]),
 							 np.array([X2[0] - 50-Radius/5, X2[1] - 50-Radius/5, -2.5-H]), 0, texture, -Radius/5))
 						if zmap_update:
-							zmap = np.where((np.linalg.norm(X-X2,axis=-1)<Radius/5), -H, zmap)
-							print((np.linalg.norm(X-X2,axis=-1)<Radius/5).shape,(level_w == 0).shape,(
-											col != [200, 200, 200]).shape)
-							col = np.where(
-								np.expand_dims(((np.linalg.norm(X-X2,axis=-1)<Radius/5)) & (level_w == 0), -1) & (
-											col != [200, 200, 200]), np.array([0, 100, 100]) + 50 * (-H) * np.array([1, 0, 0]), col)
-
+							if sphere_on!=1:
+								zmap = np.where((np.linalg.norm(X-X2,axis=-1)<Radius/5), -H, zmap)
+								col = np.where(
+									np.expand_dims(((np.linalg.norm(X-X2,axis=-1)<Radius/5)) & (level_w == 0), -1) & (
+												col != [200, 200, 200]), np.array([0, 100, 100]) + 50 * (-H) * np.array([1, 0, 0]), col)
+							else:
+								alt=H+np.expand_dims(np.sqrt((Radius/5)**2-(X[:, :, 0] - X2[0])**2 - (X[:, :, 1] - X2[1])**2), -1)
+								print(H,Radius/5)
+								if (H-Radius/5)<=0:
+									zmap = np.where((np.linalg.norm(X-X2,axis=-1)<Radius/5), -alt[:,:,0], zmap)
+								col = np.where(
+									np.expand_dims(((np.linalg.norm(X-X2,axis=-1)<Radius/5)) & (level_w == 0), -1) & (
+												col != [200, 200, 200]), np.array([0, 100, 100]) + 50 * (-alt) * np.array([1, 0, 0]), col)
 			pygame.time.wait(200)
 			if seg==1 and sphere_on==0:
 				A=(np.angle(mouse[0]//5-X2[0]+x+(mouse[1]//5-X2[1]+y)*1j))
