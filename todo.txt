@@ -23,7 +23,6 @@ GAMEPLAY
 
 
 flames_damage
-editor remove sphere/cylinder
 editor cylinder platform top + correct height +zmap taking current height
 reload gun
 moving platform and mechanism
