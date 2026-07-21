@@ -21,9 +21,8 @@ SPEEDUP
 
 GAMEPLAY
 
-
+cylinder&sphere shift from current zmap
 flames_damage
-editor cylinder platform top + correct height +zmap taking current height
 reload gun
 moving platform and mechanism
 armor

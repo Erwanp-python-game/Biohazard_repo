@@ -571,20 +571,23 @@ def intersect_circle(center,radius,X0,ray,infinite,sphere_type):
 
             if sphere_type == 1:
                 r2=r-2
-                a2 = ray[0] * ray[0] + ray[1] * ray[1]
-                b2 = dx0 * ray[0] + dy0 * ray[1]
-                c2 = dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - r2 * r2
-                disc2 = b2 * b2 - a2 * c2
-                if disc2 > 0.0:
-                    t_2 = (-b2 - np.sqrt(disc2)) / a2
-                    pz2 = X0[2] + t_2 * ray[2]
-                    nz2 = (pz2 - C[2]) / r2
-                    u2 = 0.5 - np.arcsin(nz2) / np.pi
-                    print(u2,nz2,dz0,radius,C[2],X0[2])
-                    if not ((u2>=1 or u2 <=0.5) or infinite):
-                        return (False, 0, 0, 0)
-                else:
+                # a2 = ray[0] * ray[0] + ray[1] * ray[1]
+                # b2 = dx0 * ray[0] + dy0 * ray[1]
+                # c2 = dx0 * dx0 + dy0 * dy0 + dz0 * dz0 - r2 * r2
+                # disc2 = b2 * b2 - a2 * c2
+                # if disc2 > 0.0:
+                #     t_2 = (-b2 - np.sqrt(disc2)) / a2
+                #     pz2 = X0[2] + t_2 * ray[2]
+                #     nz2 = (pz2 - C[2]) / r2
+                #     u2 = 0.5 - np.arcsin(nz2) / np.pi
+                #     print(u2,nz2,dz0,radius,C[2],X0[2])
+                #     if not ((u2>=1 or u2 <=0.5) or infinite):
+                #         return (False, 0, 0, 0)
+                print(dz0,r2,r2-dz0,(-dz0+r2)*np.sign(dz0)>0)
+                if (-dz0+r2)*np.sign(dz0)<0:
                     return (False, 0, 0, 0)
+                # else:
+                #     return (False, 0, 0, 0)
             if sphere_type > 1:
                 u = nz
                 if not ((u <= 1. and u > 0) or infinite) :

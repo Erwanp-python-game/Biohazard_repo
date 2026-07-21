@@ -992,7 +992,7 @@ while running==1:
 												col != [200, 200, 200]), np.array([0, 100, 100]) + 50 * (-H) * np.array([1, 0, 0]), col)
 							else:
 								alt=H+np.expand_dims(np.sqrt((Radius/5)**2-(X[:, :, 0] - X2[0])**2 - (X[:, :, 1] - X2[1])**2), -1)
-								print(H,Radius/5)
+
 								if (H-Radius/5)<=0:
 									zmap = np.where((np.linalg.norm(X-X2,axis=-1)<Radius/5), -alt[:,:,0], zmap)
 								col = np.where(
