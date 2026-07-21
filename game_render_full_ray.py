@@ -4363,6 +4363,7 @@ while running == 1:
         #should us the fucntion slide_move
         new_pos=slide_move(R_c,-np.concatenate((trans @ Rp, [0.])),wall[0:20])[:-1]
         trans0_=(x-new_pos)@ rot_plan(-ang[0])
+
         x0_=new_pos
 
         # trans=trans-(abs(np.dot(trans@ Rp, No)) * No)@ rot_plan(-ang[0])

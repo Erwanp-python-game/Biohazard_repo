@@ -257,6 +257,7 @@ door=0
 select=0
 selected=0
 sel_wall=[]
+sel_sphere=[]
 plafond=0
 height=0
 Monstre=0
@@ -907,6 +908,22 @@ while running==1:
 				col=np.where(np.expand_dims((X[:,:,0]>min(X1[0],X2[0]))&(X[:,:,0]<max(X1[0],X2[0]))&(X[:,:,1]>min(X1[1],X2[1]))&(X[:,:,1]<max(X1[1],X2[1]))&(level_w==0),-1)&(col!=[200,200,200]),[0,0,0],col)
 		h_liste=L_temp
 		sel_plaf=[]
+
+
+		L_temp=[]
+		L_mid=[]
+		for j in sel_sphere:
+			L_mid.append(j[1])
+		for i in range(len(sphere)):
+			if i not in L_mid:
+				L_temp.append(sphere[i])
+			else:
+				U=sphere[i]
+				x0=U[0]
+				col[x0[0], x0[1]] = [0, 255, 0]
+
+		sphere=L_temp
+		sel_sphere=[]
 			
 
 	if door:
@@ -969,6 +986,11 @@ while running==1:
 							 np.array([X2[0] - 50-Radius/5, X2[1] - 50-Radius/5, -2.5-H]), 0, texture, -Radius/5))
 						if zmap_update:
 							zmap = np.where((np.linalg.norm(X-X2,axis=-1)<Radius/5), -H, zmap)
+							print((np.linalg.norm(X-X2,axis=-1)<Radius/5).shape,(level_w == 0).shape,(
+											col != [200, 200, 200]).shape)
+							col = np.where(
+								np.expand_dims(((np.linalg.norm(X-X2,axis=-1)<Radius/5)) & (level_w == 0), -1) & (
+											col != [200, 200, 200]), np.array([0, 100, 100]) + 50 * (-H) * np.array([1, 0, 0]), col)
 
 			pygame.time.wait(200)
 			if seg==1 and sphere_on==0:
@@ -1055,7 +1077,12 @@ while running==1:
 					if x0[0]<max(X1[0],X2[0]) and x0[1]<max(X1[1],X2[1]) and x0[0]>min(X1[0],X2[0]) and x0[1]>min(X1[1],X2[1]):
 						col[int(x0[0]),int(x0[1])]=[255,255,0]
 						sel_plaf.append((x0,j,i))
-				
+
+				for j,i in enumerate(sphere):
+					x0=i[0]+50
+					if x0[0]<max(X1[0],X2[0]) and x0[1]<max(X1[1],X2[1]) and x0[0]>min(X1[0],X2[0]) and x0[1]>min(X1[1],X2[1]):
+						col[int(x0[0]),int(x0[1])]=[255,255,0]
+						sel_sphere.append((x0,j,i))
 
 				for j,i in enumerate(M_liste):
 					x0=i[0]
@@ -1121,7 +1148,10 @@ while running==1:
 				text = font2.render(str(j[-1][-1]), True, (255,255,255))
 				surf.blit(B,(5*x0[0]-5,5*x0[1]-5))
 				surf.blit(text,(5*x0[0]-5,5*x0[1]-5))
-				
+
+			for j in sel_sphere:
+				x0=j[0]
+				col[x0[0], x0[1]] = [0, 255, 0]
 
 			
 			sel_light=[]
@@ -1129,6 +1159,7 @@ while running==1:
 			sel_plaf=[]
 			sel_Mo=[]
 			sel_Trig=[]
+			sel_sphere=[]
 	
 	if select==0 and plafond and light==0 and Monstre==0 and trigger==0 and lift==0 and stair==0:
 		if key[K_KP_PLUS]:
@@ -1444,7 +1475,7 @@ for i in stairs[1::2]:
 	authorized_map=flood_fill_authorized(authorized_map,i)
 
 
-fig,ax=plt.subplots(1,4)
+fig,ax=plt.subplots(1,4,figsize=(16,6))
 authorized_map=authorized_map.T
 ax[0].imshow(authorized_map)
 ax[1].imshow(level_w.T)
