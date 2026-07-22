@@ -978,7 +978,8 @@ while running==1:
 				if seg==0:
 					col[mouse[0] // 5 + x, mouse[1] // 5 + y] = [0, 255, 0]
 				if seg == 1:
-					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,0,0,H,deco,freq,phase,sphere_on))#-2.5 en i[6] pour monter
+					zz=zmap[X2[0],X2[1]]
+					sphere.append((X2-50,Radius/5,[texture,texture2,face_d[face]],door,0,0,H-zz,deco,freq,phase,sphere_on))#-2.5 en i[6] pour monter
 					if sphere_on!=3:
 
 						h_liste.append(
@@ -986,12 +987,12 @@ while running==1:
 							 np.array([X2[0] - 50-Radius/5, X2[1] - 50-Radius/5, -2.5-H]), 0, texture, -Radius/5))
 						if zmap_update:
 							if sphere_on!=1:
-								zmap = np.where((np.linalg.norm(X-X2,axis=-1)<Radius/5), -H, zmap)
+								zmap = np.where((np.linalg.norm(X-X2,axis=-1)<Radius/5), -H+zmap, zmap)
 								col = np.where(
 									np.expand_dims(((np.linalg.norm(X-X2,axis=-1)<Radius/5)) & (level_w == 0), -1) & (
-												col != [200, 200, 200]), np.array([0, 100, 100]) + 50 * (-H) * np.array([1, 0, 0]), col)
+												col != [200, 200, 200]), np.array([0, 100, 100]) + 50 * (-H+zz) * np.array([1, 0, 0]), col)
 							else:
-								alt=H+np.expand_dims(np.sqrt((Radius/5)**2-(X[:, :, 0] - X2[0])**2 - (X[:, :, 1] - X2[1])**2), -1)
+								alt=-zz+H+np.expand_dims(np.sqrt((Radius/5)**2-(X[:, :, 0] - X2[0])**2 - (X[:, :, 1] - X2[1])**2), -1)
 
 								if (H-Radius/5)<=0:
 									zmap = np.where((np.linalg.norm(X-X2,axis=-1)<Radius/5), -alt[:,:,0], zmap)
