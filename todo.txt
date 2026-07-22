@@ -15,13 +15,14 @@ mecano lezard blood
 
 ----------------------------------
 SPEEDUP
+->flames slowing things
 ->bleed is slowing things
 ->check walkthing and calcnorm
 ->starting speedup
 
 GAMEPLAY
 
-cylinder&sphere shift from current zmap
+
 flames_damage
 reload gun
 moving platform and mechanism
