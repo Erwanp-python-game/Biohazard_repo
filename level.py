@@ -746,6 +746,32 @@ while running==1:
 		Amp=pygame.image.load('image/icons/bulb.png').convert()
 		Amp.fill(255*np.array(Clight),special_flags=BLEND_RGB_MULT)
 
+	if key[K_EQUALS]:
+		clef_L=[]
+		if len(sel_wall)>=1:
+			for i in sel_wall:
+				j=wall_liste[i]
+				xp = j[0] + 50
+				yp = j[1]
+				clef=str(int(xp[0] + 0.5 * yp[0])) + ',' + str(int(xp[1] + 0.5 * yp[1]))
+				clef_L.append(clef)
+				print(clef,'wall')
+		if len(sel_sphere)>=1:
+			for i in sel_sphere:
+				xp = i[0][0] + 50
+				yp = i[0][1] + 50
+				clef=str(xp) + ',' + str(yp)
+				clef_L.append(clef)
+				print(clef,'sphere')
+		if len(sel_plaf)>=1:
+			for i in sel_plaf:
+				j=i[-1]
+				X1 = j[2] + 50
+				V = 0.5 * (j[0] + j[1])
+				clef = str(int(X1[0] + V[0])) + ',' + str(int(X1[1] + V[1]))
+				clef_L.append(clef)
+				print(clef, 'plaf')
+		print(clef_L)
 
 	if key[K_LCTRL] and len(sel_wall)==1 and wall_liste[sel_wall[0]][3]!=0:
 		select=0

@@ -4430,6 +4430,11 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('calc_norm')
 
+    for i in wall:
+        if i.ID in ['274,315', '282,319', '274,323', '267,319', '318,368', '274,319', '268,318']:
+            i.X-=np.array([0,0,0.3*sin(c3/30)])
+            all_X[i.num]=i.X[0,0,:]
+
     CLOSED = 0
     code_show = 0
     for i in doors[0:5]:
