@@ -9,7 +9,6 @@ import pickle
 import cv2
 pygame.init()
 import os
-
 from random import random, randint
 from PATH import astar, Node
 import ast
@@ -89,7 +88,51 @@ level_start[99] = 4
 
 z_tileable_deco = [26, 28, 31]
 Im = np.full((2 * scrnL[0], 2 * scrnL[1], 3), 0)
+def point_in_parallelogram(P, A, B, D, eps=1e-9):
+    """
+    Vectorized check for points inside a parallelogram.
 
+    Parameters
+    ----------
+    P : array (..., 2)
+        Array of points, e.g. shape (l1, l2, 2)
+    A, B, D : array-like shape (2,)
+        Parallelogram vertices.
+        A is the origin corner,
+        AB and AD are the edge vectors.
+    eps : float
+        Numerical tolerance.
+
+    Returns
+    -------
+    mask : ndarray (...)
+        Boolean array with same leading shape as P.
+    """
+    P = np.asarray(P, dtype=float)
+    A = np.asarray(A, dtype=float)
+    B = np.asarray(B, dtype=float)
+    D = np.asarray(D, dtype=float)
+
+    AB = B - A
+    AD = D - A
+
+    # Matrix whose columns are the parallelogram edges
+    M = np.stack([AB, AD], axis=1)   # shape (2,2)
+    M_inv = np.linalg.inv(M)
+
+    # Coordinates relative to A
+    AP = P - A                       # shape (...,2)
+
+    # Solve AP = u*AB + v*AD
+    uv = AP @ M_inv.T                # shape (...,2)
+
+    u = uv[..., 0]
+    v = uv[..., 1]
+
+    return (
+        (-eps <= u) & (u <= 1 + eps) &
+        (-eps <= v) & (v <= 1 + eps)
+    )
 def normalize(a):
     return a*1/np.linalg.norm(a)
 def sweep_sphere_plane(C0, d, plane_point, normal, radius):
@@ -4357,15 +4400,21 @@ while running == 1:
     # d_collision=3.
 
     zmap=zmap0.copy()
-    for i in wall:
+    for i in wall:# speedup that
         if i.ID in ['274,315', '282,319', '274,323', '267,319', '318,368', '274,319', '268,318']:
-            i.X-=np.array([0,0,0.03*sin(c3/30)])
+            dz_mech=np.array([0,0,min(max(0,10*sin(c3/30)),2)])
+            i.X=i.X_old+dz_mech
             all_X[i.num]=i.X[0,0,:]
             if i in h_wall:
                 if i.radius<0:
                     center_p=i.X[0,0,:-1]/2+50
                     Rzmap=0.5*sqrt(-i.radius)
-                    zmap = np.where((np.linalg.norm(X_zmap - np.array([center_p[1]+Rzmap,center_p[0]-Rzmap]), axis=-1) < Rzmap), cos(c3/30)+zmap, zmap)
+                    zmap = np.where((np.linalg.norm(X_zmap - np.array([center_p[1]+Rzmap,center_p[0]-Rzmap]), axis=-1) < Rzmap), dz_mech[-1]*0.5+zmap, zmap)
+                else:
+                    A_=np.flip(i.X[0,0,:-1]*0.5+50)
+                    B_ =np.flip( i.X[0, 0, :-1] * 0.5 + 50 + i.a[0, 0, :-1] * 0.5)
+                    D_ =np.flip( i.X[0, 0, :-1] * 0.5 + 50 + i.b[0, 0, :-1] * 0.5)
+                    zmap = np.where((point_in_parallelogram(X_zmap, A_, B_, D_)), dz_mech[-1]*0.5+zmap, zmap)
     if key[K_u]:
         plt.imshow(zmap)
         plt.show()

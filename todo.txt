@@ -22,7 +22,7 @@ SPEEDUP
 
 GAMEPLAY
 
-
+mark impacts
 flames_damage
 reload gun
 moving platform and mechanism
