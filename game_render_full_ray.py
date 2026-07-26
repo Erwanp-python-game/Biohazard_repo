@@ -88,6 +88,7 @@ level_start[99] = 4
 
 z_tileable_deco = [26, 28, 31]
 Im = np.full((2 * scrnL[0], 2 * scrnL[1], 3), 0)
+
 def point_in_parallelogram(P, A, B, D, eps=1e-9):
     """
     Vectorized check for points inside a parallelogram.
@@ -133,6 +134,15 @@ def point_in_parallelogram(P, A, B, D, eps=1e-9):
         (-eps <= u) & (u <= 1 + eps) &
         (-eps <= v) & (v <= 1 + eps)
     )
+
+# @njit(parallel=True, fastmath=True, cache=True)
+# def update_z_s(zmap,center_p):
+#     for i in range(500):
+#         for j in range(500):
+#             dx=X_zmap[i,j,0] - np.array([center_p[1] + Rzmap, center_p[0] - Rzmap]
+#             if
+#     # zmap = np.where((np.linalg.norm(X_zmap - np.array([center_p[1] + Rzmap, center_p[0] - Rzmap]), axis=-1) < Rzmap),
+#     #                 dz_mech[-1] * 0.5 + zmap, zmap)
 def normalize(a):
     return a*1/np.linalg.norm(a)
 def sweep_sphere_plane(C0, d, plane_point, normal, radius):
