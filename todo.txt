@@ -15,6 +15,7 @@ mecano lezard blood
 
 ----------------------------------
 SPEEDUP
+->improve zmap update
 ->flames slowing things
 ->bleed is slowing things
 ->check walkthing and calcnorm
@@ -22,10 +23,11 @@ SPEEDUP
 
 GAMEPLAY
 
+antialiasing
 mark impacts
 flames_damage
 reload gun
-moving platform and mechanism
+polish mechanism in level editor
 armor
 fire thrower
 biolance as final weapon
