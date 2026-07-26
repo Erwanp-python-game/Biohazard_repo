@@ -3284,7 +3284,7 @@ def change_game(num):
         docs.insert(0, 'journal.png')
 
 Xmap_, Ymap_ = np.indices((500, 500))
-
+X_zmap=np.moveaxis(np.indices((500,500)),0,-1)
 
 def update_map(level_map, x):  # WARNING correct
     global MAP
@@ -3919,8 +3919,9 @@ def load_level(level_name):
     height_list.sort()
 
     horizon2 = np.full((scrnL[0], len(height_list)), 10000.0)
-
+    global zmap0
     zmap = zmap.T
+    zmap0=zmap.copy()
     thing = []
     if level == 3:
         L0.append(LIZARD(np.array([144, 144]), 0, x, scrnL, ang, zmap, level, 700))
@@ -4354,6 +4355,22 @@ while running == 1:
     # No=np.array([0.,0.])
     # previous=0.5
     # d_collision=3.
+
+    zmap=zmap0.copy()
+    for i in wall:
+        if i.ID in ['274,315', '282,319', '274,323', '267,319', '318,368', '274,319', '268,318']:
+            i.X-=np.array([0,0,0.03*sin(c3/30)])
+            all_X[i.num]=i.X[0,0,:]
+            if i in h_wall:
+                if i.radius<0:
+                    center_p=i.X[0,0,:-1]/2+50
+                    Rzmap=0.5*sqrt(-i.radius)
+                    zmap = np.where((np.linalg.norm(X_zmap - np.array([center_p[1]+Rzmap,center_p[0]-Rzmap]), axis=-1) < Rzmap), cos(c3/30)+zmap, zmap)
+    if key[K_u]:
+        plt.imshow(zmap)
+        plt.show()
+
+
     if trans.any() != np.array([0.0, 0.0]).any():
         # No = np.array([0., 0.])
         # for i in wall[0:20]:
@@ -4393,12 +4410,9 @@ while running == 1:
         trans=trans0_
 
 
-
-
-
-
-        z = zmap[int(x[1] + 100) // 2][int(x[0] + 100) // 2]
         screen[:, :, :3] = screen[:, :, :3] - np.hstack((trans @ Rp, [0.]))
+    if trans.any() != np.array([0.0, 0.0]).any() or zmap[int(x[1] + 100) // 2][int(x[0] + 100) // 2]!=zmap0[int(x[1] + 100) // 2][int(x[0] + 100) // 2]:
+        z = zmap[int(x[1] + 100) // 2][int(x[0] + 100) // 2]
         screen[:, :, 2] = z * 2
         zprev = z
         R_c = np.hstack((x, [2 * z]))
@@ -4430,10 +4444,7 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('calc_norm')
 
-    for i in wall:
-        if i.ID in ['274,315', '282,319', '274,323', '267,319', '318,368', '274,319', '268,318']:
-            i.X-=np.array([0,0,0.3*sin(c3/30)])
-            all_X[i.num]=i.X[0,0,:]
+
 
     CLOSED = 0
     code_show = 0
