@@ -663,3 +663,26 @@ def thing_render(counter, counter2, a0, a1, x_perso, all_x_e, Im, S, all_RA, all
                     Im[i, j, 1] = (Im[i, j, 1] + Im_liquid[i, j, 1]) / 2
                     Im[i, j, 2] = (Im[i, j, 2] + Im_liquid[i, j, 2]) / 2
     return Im, index_e, d
+
+@njit(fastmath=True, cache=True,parallel=True)
+def antialising(Im,index_e):
+    Lx=Im.shape[0]
+    Ly=Im.shape[1]
+
+    Im0 = np.full((Lx, Ly, 3), 0, dtype=np.float32)
+    Im0[:]=Im[:]
+    index_e0=index_e*0
+    for i in prange(Lx):
+        for j in range(Ly):
+            left=index_e[max(i-1,0),j]
+            right = index_e[min(i + 1, Lx-1), j]
+            up=index_e[i,max(j-1,0)]
+            down = index_e[i,min(j + 1, Ly-1)]
+            color_ok1=Im[i,max(j-1,0),0]+Im[i,max(j-1,0),1]+Im[i,max(j-1,0),2]#(Im[i,max(j-1,0),0]!=0 or Im[i,max(j-1,0),1]!=255 or Im[i,max(j-1,0),2]!=255)
+            color_ok2=Im[i,min(j + 1, Ly-1),0]+Im[i,min(j + 1, Ly-1),1]+Im[i,min(j + 1, Ly-1),2]#(Im[i,min(j + 1, Ly-1),0]!=0 or Im[i,min(j + 1, Ly-1),1]!=255 or Im[i,min(j + 1, Ly-1),2]!=255)
+            if ((up==right and down==left and down!=up) or (up==left and down==right and down!=up)) and color_ok1!=510 and color_ok2!=510:
+                Im0[i,j,:]=(Im[i,max(j-1,0),:]+Im[i,min(j + 1, Ly-1),:])/2
+
+                index_e0[i,j]=Im[i,max(j-1,0),0]+Im[i,max(j-1,0),1]+Im[i,max(j-1,0),2]
+
+    return Im0,index_e0

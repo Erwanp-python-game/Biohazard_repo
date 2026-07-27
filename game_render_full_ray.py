@@ -4648,8 +4648,10 @@ while running == 1:
     label_deltat.append('walls')
 
     S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius)
-    if key[K_u]:
 
+    if key[K_u]:
+        plt.imshow(wall_ind_i)
+        plt.show()
 
         fig, ax = plt.subplots(1, 4, figsize=(16, 4))
 
@@ -4722,9 +4724,11 @@ while running == 1:
 
     texture=Im_ray
     Im = texture
-
+    if key[K_i]:
+        plt.imshow(Im/255)
+        plt.show()
+    Im, index = antialising(Im, wall_ind_i)
     POS=POS_l
-
 
 
     if moving_cam == True:
@@ -4854,6 +4858,9 @@ while running == 1:
     label_deltat.append('things')
 
     Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine,Im_liquid,liquid,S_liquid,boss_im,scrnL,TAN1,TAN2)
+
+
+
     Im = np.minimum(Im, 255)
     depth=depth_e[:,:,None]
     milliseconds.append(time.perf_counter()*1000)
