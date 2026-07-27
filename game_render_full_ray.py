@@ -135,12 +135,20 @@ def point_in_parallelogram(P, A, B, D, eps=1e-9):
         (-eps <= v) & (v <= 1 + eps)
     )
 
-# @njit(parallel=True, fastmath=True, cache=True)
-# def update_z_s(zmap,center_p):
-#     for i in range(500):
-#         for j in range(500):
-#             dx=X_zmap[i,j,0] - np.array([center_p[1] + Rzmap, center_p[0] - Rzmap]
-#             if
+@njit(parallel=True, fastmath=True, cache=True)
+def update_z_s(zmap,center_p,Rzmap,X_zmap,dz_mech):
+    zmap1=zmap
+    i0=int(center_p[1]-1)
+    i1=int(center_p[1] + 2*Rzmap+1)
+    j0=int(center_p[0]-1-2*Rzmap)
+    j1=int(center_p[0] +1)
+    for i in prange(i0,i1):
+        for j in range(j0,j1):
+            dx=X_zmap[i,j,0] - (center_p[1] + Rzmap)
+            dy=X_zmap[i,j,1]- (center_p[0] - Rzmap)
+            if dx**2+dy**2<Rzmap**2:
+                zmap1[i,j]+=dz_mech[-1] * 0.5
+    return zmap1
 #     # zmap = np.where((np.linalg.norm(X_zmap - np.array([center_p[1] + Rzmap, center_p[0] - Rzmap]), axis=-1) < Rzmap),
 #     #                 dz_mech[-1] * 0.5 + zmap, zmap)
 def normalize(a):
@@ -4419,12 +4427,14 @@ while running == 1:
                 if i.radius<0:
                     center_p=i.X[0,0,:-1]/2+50
                     Rzmap=0.5*sqrt(-i.radius)
-                    zmap = np.where((np.linalg.norm(X_zmap - np.array([center_p[1]+Rzmap,center_p[0]-Rzmap]), axis=-1) < Rzmap), dz_mech[-1]*0.5+zmap, zmap)
+                    zmap=update_z_s(zmap,center_p,Rzmap,X_zmap,dz_mech)
+
+                    #zmap = np.where((np.linalg.norm(X_zmap - np.array([center_p[1]+Rzmap,center_p[0]-Rzmap]), axis=-1) < Rzmap), dz_mech[-1]*0.5+zmap, zmap)
                 else:
                     A_=np.flip(i.X[0,0,:-1]*0.5+50)
                     B_ =np.flip( i.X[0, 0, :-1] * 0.5 + 50 + i.a[0, 0, :-1] * 0.5)
                     D_ =np.flip( i.X[0, 0, :-1] * 0.5 + 50 + i.b[0, 0, :-1] * 0.5)
-                    zmap = np.where((point_in_parallelogram(X_zmap, A_, B_, D_)), dz_mech[-1]*0.5+zmap, zmap)
+                    #zmap = np.where((point_in_parallelogram(X_zmap, A_, B_, D_)), dz_mech[-1]*0.5+zmap, zmap)
     if key[K_u]:
         plt.imshow(zmap)
         plt.show()
