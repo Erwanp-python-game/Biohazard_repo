@@ -134,7 +134,45 @@ def point_in_parallelogram(P, A, B, D, eps=1e-9):
         (-eps <= u) & (u <= 1 + eps) &
         (-eps <= v) & (v <= 1 + eps)
     )
+@njit( fastmath=True, cache=True)
+def point_in_parallelogram_numba(P, A, B, D, eps=1e-9):
+    """
+    Vectorized check for points inside a parallelogram.
 
+    P: (..., 2)
+    A, B, D: (2,)
+    """
+
+    # Edge vectors
+    abx = B[0] - A[0]
+    aby = B[1] - A[1]
+
+    adx = D[0] - A[0]
+    ady = D[1] - A[1]
+
+    # Determinant of the 2x2 matrix
+    det = abx * ady - adx * aby
+
+    # Coordinates relative to A
+    apx = P[..., 0] - A[0]
+    apy = P[..., 1] - A[1]
+
+    # Solve:
+    #
+    # AP = u * AB + v * AD
+    #
+    # u = (APx * ADy - APy * ADx) / det
+    # v = (ABx * APy - ABy * APx) / det
+
+    u = (apx * ady - apy * adx) / det
+    v = (abx * apy - aby * apx) / det
+
+    return (
+        (u >= -eps) &
+        (u <= 1.0 + eps) &
+        (v >= -eps) &
+        (v <= 1.0 + eps)
+    )
 @njit(parallel=True, fastmath=True, cache=True)
 def update_z_s(zmap,center_p,Rzmap,X_zmap,dz_mech):
     zmap1=zmap
@@ -149,8 +187,20 @@ def update_z_s(zmap,center_p,Rzmap,X_zmap,dz_mech):
             if dx**2+dy**2<Rzmap**2:
                 zmap1[i,j]+=dz_mech[-1] * 0.5
     return zmap1
-#     # zmap = np.where((np.linalg.norm(X_zmap - np.array([center_p[1] + Rzmap, center_p[0] - Rzmap]), axis=-1) < Rzmap),
-#     #                 dz_mech[-1] * 0.5 + zmap, zmap)
+
+@njit(parallel=True, fastmath=True, cache=True)
+def update_z_p(zmap, A_, B_,D_,C_, X_zmap, dz_mech):
+    zmap1=zmap
+    i0=int(min(A_[0],B_[0],D_[0],C_[0]))-1
+    i1=int(max(A_[0],B_[0],D_[0],C_[0]))+1
+    j0=int(min(A_[1],B_[1],D_[1],C_[1]))-1
+    j1=int(max(A_[1],B_[1],D_[1],C_[1]))+1
+    for i in prange(i0,i1):
+        for j in range(j0,j1):
+            if point_in_parallelogram_numba(X_zmap[i,j],A_,B_,D_):
+                zmap1[i,j]+=dz_mech[-1] * 0.5
+    return zmap1
+
 def normalize(a):
     return a*1/np.linalg.norm(a)
 def sweep_sphere_plane(C0, d, plane_point, normal, radius):
@@ -4071,9 +4121,12 @@ def load_level(level_name):
 
     all_destr=np.array([i.type_M in destr  for i in all_things])
 
-    global fire_
+    global fire_,wall_mech
+    wall_mech=[]
     fire_ = []
-
+    for i in wall:
+        if i.ID in ['274,315', '282,319', '274,323', '267,319', '318,368', '274,319', '268,318']:
+            wall_mech.append(i)
 
     if 0 in groupD:
         groupD.remove(0)
@@ -4418,8 +4471,8 @@ while running == 1:
     # d_collision=3.
 
     zmap=zmap0.copy()
-    for i in wall:# speedup that
-        if i.ID in ['274,315', '282,319', '274,323', '267,319', '318,368', '274,319', '268,318']:
+    for i in wall_mech:# speedup that
+        if min(max(0,10*sin(c3/30)),2)!=min(max(0,10*sin((c3-1)/30)),2):
             dz_mech=np.array([0,0,min(max(0,10*sin(c3/30)),2)])
             i.X=i.X_old+dz_mech
             all_X[i.num]=i.X[0,0,:]
@@ -4429,15 +4482,14 @@ while running == 1:
                     Rzmap=0.5*sqrt(-i.radius)
                     zmap=update_z_s(zmap,center_p,Rzmap,X_zmap,dz_mech)
 
-                    #zmap = np.where((np.linalg.norm(X_zmap - np.array([center_p[1]+Rzmap,center_p[0]-Rzmap]), axis=-1) < Rzmap), dz_mech[-1]*0.5+zmap, zmap)
                 else:
                     A_=np.flip(i.X[0,0,:-1]*0.5+50)
                     B_ =np.flip( i.X[0, 0, :-1] * 0.5 + 50 + i.a[0, 0, :-1] * 0.5)
                     D_ =np.flip( i.X[0, 0, :-1] * 0.5 + 50 + i.b[0, 0, :-1] * 0.5)
-                    #zmap = np.where((point_in_parallelogram(X_zmap, A_, B_, D_)), dz_mech[-1]*0.5+zmap, zmap)
-    if key[K_u]:
-        plt.imshow(zmap)
-        plt.show()
+                    C_=np.flip( i.X[0, 0, :-1] * 0.5 + 50 + i.a[0, 0, :-1] * 0.5+i.b[0, 0, :-1] * 0.5)
+                    zmap = update_z_p(zmap, A_, B_,D_,C_, X_zmap, dz_mech)
+
+
 
 
     if trans.any() != np.array([0.0, 0.0]).any():
