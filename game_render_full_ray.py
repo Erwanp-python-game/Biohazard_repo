@@ -4195,7 +4195,7 @@ xg = 0
 logL = []
 C_log = 0
 impact = pygame.image.load('./image/effects/impact0.png')
-averaged_time = np.full((23), 0.)
+averaged_time = np.full((26), 0.)
 elastic_count=0
 Ratio=window[0]/960
 x_d=[(0.,0.)]
@@ -4888,7 +4888,8 @@ while running == 1:
     # if fire:
     #     Im = np.minimum(Im + 100 * TORCHE, 255)
 
-
+    milliseconds.append(time.perf_counter()*1000)
+    label_deltat.append('rendering0')
     Im=np.maximum(Im,0)
 
     fond = pygame.Surface((2*160,2*80))#to improve
@@ -4905,13 +4906,16 @@ while running == 1:
         fond.blit(LAND0_im,(2*int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1])))
         fond.blit(LAND0_im, (
         2*int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi))+LAND0_im.get_width(), -2*int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
-
+        milliseconds.append(time.perf_counter() * 1000)
+        label_deltat.append('rendering0_5')
         if level==6:
             [i.calc_norm() for i in op]
             [i.affiche() for i in op]
     else:
         movement=0
 
+    milliseconds.append(time.perf_counter()*1000)
+    label_deltat.append('rendering1')
     fond0 = pygame.surfarray.make_surface(Im)
 
     fond0.set_colorkey((0, 255, 255))
@@ -4927,7 +4931,7 @@ while running == 1:
         fond = pygame.transform.scale(fond, window)
 
     milliseconds.append(time.perf_counter()*1000)
-    label_deltat.append('rendering')
+    label_deltat.append('rendering2')
 
     for i in Boule:
         KILL = i.update()
@@ -5137,7 +5141,7 @@ while running == 1:
         time_wall=[]
         time_behind = []
         time_tot=[]
-        averaged_time = np.full((23), 0.)
+        averaged_time = np.full((26), 0.)
 
 
     clock.tick_busy_loop(24)

@@ -16,14 +16,16 @@ mecano lezard blood
 ----------------------------------
 SPEEDUP
 
-->flames slowing things
+->calc_norm in numba
+->flames in numba
 ->bleed is slowing things
 ->check walkthing
 ->starting speedup
+->rendering in numba
 
 GAMEPLAY
 
-antialiasing
+check numba types change through time
 mark impacts
 flames_damage
 reload gun
