@@ -1253,7 +1253,7 @@ class Wall():
         V = np.maximum(np.minimum(np.linalg.solve(N, -self.X[0][0] + R_c)[:-1], 1), 0)
         self.norm = np.linalg.norm(self.X[0][0][:-1] + V[0] * self.a[0][0][:-1] + V[1] * self.b[0][0][:-1] - R_c[:-1])
         self.normf = self.norm
-        self.norm3 = np.linalg.norm(self.X[0][0] + V[0] * self.a[0][0] + V[1] * self.b[0][0] - R_c)
+        # self.norm3 = np.linalg.norm(self.X[0][0] + V[0] * self.a[0][0] + V[1] * self.b[0][0] - R_c)
         self.text = text[0]
         self.text2 = text[1]
         self.verrou = pygame.image.load('image/deco/verrouO.png')
@@ -1529,21 +1529,21 @@ class Wall():
         self.norm = np.linalg.norm(
             self.X_old[0][0][:-1] + V[0] * self.a_old[0][0][:-1] + V[1] * self.b_old[0][0][:-1] - R_c[:-1]) - min(self.window,
                                                                                                       1) * 0.001
-        self.norm3 = np.linalg.norm(
-            self.X_middle[0][0] + V[0] * self.a_middle[0][0] + V[1] * self.b_middle[0][0] - (R_c))
-        if self.angle0>0:
-            N = np.stack((self.a_old[0][0], self.b_old[0][0], -self.n), axis=-1)
-            V = np.maximum(np.minimum(np.linalg.solve(N, -self.X_middle[0][0] + R_c)[:-1], 1), 0)
-            self.norm3 = np.linalg.norm(
-                (self.X_middle[0][0] + V[0] * self.a_old[0][0] + V[1] * self.b_old[0][0])[:-1] - (
-                            R_c[:-1] ))
-        if self.sphere!=0:
+        # self.norm3 = np.linalg.norm(
+        #     self.X_middle[0][0] + V[0] * self.a_middle[0][0] + V[1] * self.b_middle[0][0] - (R_c))
+        # if self.angle0>0:
+        #     N = np.stack((self.a_old[0][0], self.b_old[0][0], -self.n), axis=-1)
+        #     V = np.maximum(np.minimum(np.linalg.solve(N, -self.X_middle[0][0] + R_c)[:-1], 1), 0)
+        #     self.norm3 = np.linalg.norm(
+        #         (self.X_middle[0][0] + V[0] * self.a_old[0][0] + V[1] * self.b_old[0][0])[:-1] - (
+        #                     R_c[:-1] ))
+        # if self.sphere!=0:
+        #
+        #     self.norm3=np.linalg.norm(self.X[0,0,:]- (R_c))-self.radius
 
-            self.norm3=np.linalg.norm(self.X[0,0,:]- (R_c))-self.radius
 
-
-        self.inter=V
-        self.interX=self.X[0,0,:]+self.inter[0]*self.a[0,0,:]+self.inter[1]*self.b[0,0,:]
+        # self.inter=V
+        # self.interX=self.X[0,0,:]+self.inter[0]*self.a[0,0,:]+self.inter[1]*self.b[0,0,:]
 
         # if self.sphere!=0:
         #     # print('trans need to be rotated if neeeded')
@@ -1561,7 +1561,7 @@ class Wall():
         #         self.inter=[i_c[0],i_c[0]]
         #         self.rayon=np.array([i_c[1],i_c[2]])
                 #print(self.rayon)
-        self.reset_rend()
+        # self.reset_rend()
         if (shoot == 1 or explo!=0) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco != 0:
             self.breakable()
 
@@ -1948,19 +1948,19 @@ class Thing():
         global all_angle
         self.f0 = (self.x0 - x) @ rot_plan(-ang[0])
         self.norm = np.linalg.norm(self.x0 - x)
-        self.width = self.RA * 2 * scrnL[0] / self.f0[0]
-        self.widthY = self.RA * 2 * scrnL[0] / self.f0[0]
-        self.DX = -self.RA * scrnL[0] / self.f0[0] + scrnL[0] * (self.f0[1] / self.f0[0]) / TAN2
-        self.DY = -(self.RA * scrnL[0] * 1.7 - 5 * scrnL[0]) / self.f0[0] - scrnL[1] * tan(ang[1]) / TAN1 - (
-                    2 * scrnL[1] * (z - self.z) / self.f0[
-                0]) / TAN1  # WARNING DO THE SAME FOR OBJECT AND BOSS + BOULE FOR BOSS
+        # self.width = self.RA * 2 * scrnL[0] / self.f0[0]
+        # self.widthY = self.RA * 2 * scrnL[0] / self.f0[0]
+        # self.DX = -self.RA * scrnL[0] / self.f0[0] + scrnL[0] * (self.f0[1] / self.f0[0]) / TAN2
+        # self.DY = -(self.RA * scrnL[0] * 1.7 - 5 * scrnL[0]) / self.f0[0] - scrnL[1] * tan(ang[1]) / TAN1 - (
+        #             2 * scrnL[1] * (z - self.z) / self.f0[
+        #         0]) / TAN1  # WARNING DO THE SAME FOR OBJECT AND BOSS + BOULE FOR BOSS
         A = 45 * (((atan((self.f0[1] / self.f0[0])) + self.orient - pi / 2 - ang[0] + pi / 8) // (pi / 4)) % 8)
         if A != self.angle:
             self.angle = A
             all_angle[self.num]=self.angle
 
-            self.im = self.im_dict[c // 3][self.angle]
-            self.vis = self.vis_dict[c // 3][self.angle]
+            # self.im = self.im_dict[c // 3][self.angle]
+            # self.vis = self.vis_dict[c // 3][self.angle]
 
 
     def preprocess_walk(self):
@@ -2335,23 +2335,23 @@ class Object():
         global VIE, AMMO, Picked_O, CARTE, logL,all_angle,all_x_e
         self.f0 = (self.x0 - x) @ rot_plan(-ang[0])
         self.norm = np.linalg.norm(self.x0 - x)
-        self.width = self.RA * 2 * scrnL[0] / self.f0[0]
-        self.widthY = self.RA * 2 * scrnL[0] / self.f0[0]
-        self.DX = -self.RA * scrnL[0] / self.f0[0] + scrnL[0] * (self.f0[1] / self.f0[0]) / TAN2
-        self.DY = -(self.RA * scrnL[0] * 1.7 - 5 * scrnL[0]) / self.f0[0] - scrnL[1] * tan(ang[1]) / TAN1 - (
-                    2 * scrnL[1] * (z - self.z) / self.f0[0]) / TAN1
+        # self.width = self.RA * 2 * scrnL[0] / self.f0[0]
+        # self.widthY = self.RA * 2 * scrnL[0] / self.f0[0]
+        # self.DX = -self.RA * scrnL[0] / self.f0[0] + scrnL[0] * (self.f0[1] / self.f0[0]) / TAN2
+        # self.DY = -(self.RA * scrnL[0] * 1.7 - 5 * scrnL[0]) / self.f0[0] - scrnL[1] * tan(ang[1]) / TAN1 - (
+        #             2 * scrnL[1] * (z - self.z) / self.f0[0]) / TAN1
         A = 45 * (((atan((self.f0[1] / self.f0[0])) + self.orient - pi / 2 - ang[0] + pi / 8) // (pi / 4)) % 8)
         if A != self.angle:
             self.angle = A
             all_angle[self.num]=self.angle
 
 
-            self.im=self.im_dict[self.angle]
-            if self.color != 0:
-                u = [0, 0, 0]
-                u[self.color - 1] = 1
-                self.im = u * self.im
-            self.vis=self.vis_dict[self.angle]
+            # self.im=self.im_dict[self.angle]
+            # if self.color != 0:
+            #     u = [0, 0, 0]
+            #     u[self.color - 1] = 1
+            #     self.im = u * self.im
+            # self.vis=self.vis_dict[self.angle]
 
 
         if self.norm < 5:

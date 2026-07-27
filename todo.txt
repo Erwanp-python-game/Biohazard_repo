@@ -15,10 +15,10 @@ mecano lezard blood
 
 ----------------------------------
 SPEEDUP
-->improve zmap update
+
 ->flames slowing things
 ->bleed is slowing things
-->check walkthing and calcnorm
+->check walkthing
 ->starting speedup
 
 GAMEPLAY
