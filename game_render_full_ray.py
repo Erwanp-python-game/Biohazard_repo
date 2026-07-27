@@ -4469,8 +4469,8 @@ while running == 1:
     # No=np.array([0.,0.])
     # previous=0.5
     # d_collision=3.
-
-    zmap=zmap0.copy()
+    if len(wall_mech)>0:
+        zmap[:]=zmap0
     for i in wall_mech:# speedup that
         if min(max(0,10*sin(c3/30)),2)!=min(max(0,10*sin((c3-1)/30)),2):
             dz_mech=np.array([0,0,min(max(0,10*sin(c3/30)),2)])
@@ -4555,7 +4555,7 @@ while running == 1:
 
 
     [i.calc_norm() for i in wall[0:20]]
-    [i.reset_rend() for i in h_wall[0:20]]
+    # [i.reset_rend() for i in h_wall[0:20]]
     if c2 == 0:
         [i.calc_norm() for i in wall]
     [i.calc_norm() for i in thing[0:20] if i.type_M != 'BOSS']
