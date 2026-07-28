@@ -1489,6 +1489,8 @@ class Wall():
             self.opening=True
         else:
             self.opening=False
+        self.shot = []
+        self.d_shot=100.
 
     def opendoor(self, door):
         Imdeco = pygame.image.load(self.text)
@@ -1562,7 +1564,7 @@ class Wall():
         #         self.rayon=np.array([i_c[1],i_c[2]])
                 #print(self.rayon)
         # self.reset_rend()
-        if (shoot == 1 or explo!=0) and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco != 0:
+        if  explo!=0 and levelD[level]['deco'][self.deco - 1] in deco_destruc and self.deco != 0:
             self.breakable()
 
         colorL = [1, 1, 1]
@@ -1755,44 +1757,44 @@ class Wall():
 
     def breakable(self):
         global x_d,all_destruc
-        self.inline=0
-        self.shot = []
-        self.d_shot=100
-        x_d0=[]
-
-        for i in range(len(x_d)):
-            # inline = min(np.sum(self.U[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
-            #                 1)
-            inline_e = wall_ind_i[int(2 * scrnL[0] * (1 + 2 * x_d[i][0]) - gun_width):int(
-                2 * scrnL[0] * (1 + 2 * x_d[i][0]) + gun_width),
-                       int(2 * 2 * scrnL[1] * (1 + 2 * x_d[i][1]) // 2 - gun_width):int(
-                           2 * 2 * scrnL[1] * (1 + 2 * x_d[i][1]) // 2 + gun_width)]
-            inline = (inline_e == self.num).any()
-            self.inline=(self.inline or inline)
-            self.shot.append(i)
-            if not inline:
-                x_d0.append(x_d[i])
-            else:
-                depth_ = depth.shape
-                self.d_shot=min(self.d_shot,depth_cached[int(depth_[0] * (x_d[0][0] + 0.5))][int(depth_[1] * (x_d[0][1] + 0.5))])
-        x_d=x_d0
+        # self.inline=0
+        # self.shot = []
+        # self.d_shot=100
+        # x_d0=[]
+        #
+        # for i in range(len(x_d)):
+        #     # inline = min(np.sum(self.U[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
+        #     #                 1)
+        #     inline_e = wall_ind_i[int(2 * scrnL[0] * (1 + 2 * x_d[i][0]) - gun_width):int(
+        #         2 * scrnL[0] * (1 + 2 * x_d[i][0]) + gun_width),
+        #                int(2 * 2 * scrnL[1] * (1 + 2 * x_d[i][1]) // 2 - gun_width):int(
+        #                    2 * 2 * scrnL[1] * (1 + 2 * x_d[i][1]) // 2 + gun_width)]
+        #     inline = (inline_e == self.num).any()
+        #     self.inline=(self.inline or inline)
+        #     self.shot.append(i)
+        #     if not inline:
+        #         x_d0.append(x_d[i])
+        #     else:
+        #         depth_ = depth.shape
+        #         self.d_shot=min(self.d_shot,depth_cached[int(depth_[0] * (x_d[0][0] + 0.5))][int(depth_[1] * (x_d[0][1] + 0.5))])
+        # x_d=x_d0
 
         if explo==4:
             self.explo=(distance_point_segment(self.X[0,0,:],self.a[0,0,:],explo_pt)<20)
         else:
             self.explo=0
 
-        if self.inline or self.explo:
-            if ((self.d_shot<5 or arme!=0) and arme!=4) or self.explo:
-                self.vie+=1
-                all_destruc[self.num]=min(self.vie,2)
-                s = pygame.mixer.Sound("son/barril.ogg")
-                s.play()
-            if self.vie==3:
-                self.X=self.X*0
-                all_X[self.num]=self.X[0,0,:]
-                self.X_sliced = self.X[::2, ::2]
-                self.X_middle = self.X_middle * 0
+        #if self.inline or self.explo:
+        if ((self.d_shot<5 or arme!=0) and arme!=4) or self.explo:
+            self.vie+=1
+            all_destruc[self.num]=min(self.vie,2)
+            s = pygame.mixer.Sound("son/barril.ogg")
+            s.play()
+        if self.vie==3:
+            self.X=self.X*0
+            all_X[self.num]=self.X[0,0,:]
+            self.X_sliced = self.X[::2, ::2]
+            self.X_middle = self.X_middle * 0
 
 
 
@@ -4121,13 +4123,13 @@ def load_level(level_name):
 
     all_destr=np.array([i.type_M in destr  for i in all_things])
 
-    global fire_,wall_mech
+    global fire_,wall_mech,unsorted_walls
     wall_mech=[]
     fire_ = []
     for i in wall:
         if i.ID in ['274,315', '282,319', '274,323', '267,319', '318,368', '274,319', '268,318']:
             wall_mech.append(i)
-
+    unsorted_walls=wall.copy()
     if 0 in groupD:
         groupD.remove(0)
 
@@ -4648,6 +4650,33 @@ while running == 1:
     label_deltat.append('walls')
 
     S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius)
+    depth = S_i[:, :, -1, None]
+
+    if shoot==1:
+        x_d0 = []
+        for i in range(len(x_d)):
+            # inline = min(np.sum(self.U[int(scrnL[0]*(1+2*x_d[i][0]) - gun_width):int(scrnL[0]*(1+2*x_d[i][0]) + gun_width), int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 - gun_width):int(2 * scrnL[1]*(1+2*x_d[i][1]) // 2 + gun_width)]),
+            #                 1)
+            inline_e = wall_ind_i[int(2 * scrnL[0] * (1 + 2 * x_d[i][0]) - gun_width):int(
+                2 * scrnL[0] * (1 + 2 * x_d[i][0]) + gun_width),
+                       int(2 * 2 * scrnL[1] * (1 + 2 * x_d[i][1]) // 2 - gun_width):int(
+                           2 * 2 * scrnL[1] * (1 + 2 * x_d[i][1]) // 2 + gun_width)]
+            shot_p=S_i[int(2 * scrnL[0] * (1 + 2 * x_d[i][0]) ),
+                       int(2 * 2 * scrnL[1] * (1 + 2 * x_d[i][1]) // 2),:-1]
+            inline_e=list(inline_e.flatten())
+            inline_e=sorted(inline_e,key=inline_e.count)[0]
+
+            wall_hit=unsorted_walls[inline_e]
+
+            wall_hit.shot.append(shot_p)
+            print(wall_hit.shot)
+            depth_ = depth.shape
+            wall_hit.d_shot = min(wall_hit.d_shot,depth[int(depth_[0] * (x_d[0][0] + 0.5))][int(depth_[1] * (x_d[0][1] + 0.5))])
+            if  levelD[level]['deco'][wall_hit.deco - 1] in deco_destruc and wall_hit.deco != 0:
+                wall_hit.breakable()
+                wall_hit.d_shot=100.
+        x_d = x_d0
+
 
     if key[K_u]:
         plt.imshow(wall_ind_i)
@@ -4714,7 +4743,7 @@ while running == 1:
     milliseconds.append(time.perf_counter() * 1000)
 
     label_deltat.append('intersect')
-    depth=S_i[:,:,-1,None]
+
 
     uniq, wall_index = np.unique(wall_ind_i, return_inverse=True)
 
