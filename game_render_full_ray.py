@@ -4669,7 +4669,7 @@ while running == 1:
             wall_hit=unsorted_walls[inline_e]
 
             wall_hit.shot.append(shot_p)
-            print(wall_hit.shot)
+
             depth_ = depth.shape
             wall_hit.d_shot = min(wall_hit.d_shot,depth[int(depth_[0] * (x_d[0][0] + 0.5))][int(depth_[1] * (x_d[0][1] + 0.5))])
             if  levelD[level]['deco'][wall_hit.deco - 1] in deco_destruc and wall_hit.deco != 0:
