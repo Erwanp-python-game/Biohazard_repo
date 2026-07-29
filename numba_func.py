@@ -7,7 +7,7 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
               all_a, all_b, all_X,
               all_aa, all_bb, all_n, all_ab, all_inv_det, all_opening, all_freq, all_phase, all_tile_z, all_trans_im,
               all_format, all_wall_im, all_light, all_light_w, all_wall_len, all_destruc, all_wall_im2, all_side,
-              TORCHE, torch_on, torch_shine, fire, explo, explo_pt, random_explo, all_liquid,all_sphere,all_radius):
+              TORCHE, torch_on, torch_shine, fire, explo, explo_pt, random_explo, all_liquid,all_sphere,all_radius,all_shot_x,all_shot_y,shot_count):
     X0 = screenP[0, 0]
     liquid = False
     origin_x = 0.5 * (X0[0] + 100.0)
@@ -439,6 +439,19 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                     else:
                         im = all_wall_im2[obj1][ind]
                     Cl = all_light_w[obj1]
+
+                    impact=1.
+                    count = shot_count[obj1]
+                    aa = all_aa[obj1]
+                    bb = all_bb[obj1]
+
+                    for ishot in range(count):
+                        dx = (u - all_shot_x[obj1, ishot]) * aa
+                        dy = (v - all_shot_y[obj1, ishot]) * bb
+                        if dx * dx + dy * dy < 1.0:
+                            impact = 0.5
+                            break
+
                     r = im[gu, gv + shift, 0]
 
                     light_x = all_light[obj1]
@@ -481,9 +494,9 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                         if explo != 0:
                             f = 40 * explo
 
-                        Im[i, jj, 0] = r * Cl[0] * torch + f
-                        Im[i, jj, 1] = im[gu, gv + shift, 1] * Cl[1] * torch + f
-                        Im[i, jj, 2] = im[gu, gv + shift, 2] * Cl[2] * torch + f
+                        Im[i, jj, 0] = r * Cl[0]*impact * torch + f
+                        Im[i, jj, 1] = im[gu, gv + shift, 1]*impact * Cl[1] * torch + f
+                        Im[i, jj, 2] = im[gu, gv + shift, 2]*impact * Cl[2] * torch + f
 
                     if explo != 0 and S_explo[i, jj, 2] < S[i, jj, 2]:
                         de = np.sqrt(S_explo[i, jj, 1]) + random_explo[i, jj]

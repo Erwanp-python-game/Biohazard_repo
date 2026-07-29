@@ -3984,7 +3984,7 @@ def load_level(level_name):
     all_inv_det = np.array([1.0 / (all_aa[i]*all_bb[i] - all_ab[i]**2) for i in range(len(all_walls))])
 
 
-    global all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side
+    global shot_count,all_shot_x,all_shot_y,all_shot,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side
     all_opening=np.array([i.opening for i in all_walls])
     all_freq=np.array([i.freq for i in all_walls])
     all_phase = np.array([i.phase_ for i in all_walls])
@@ -3996,11 +3996,18 @@ def load_level(level_name):
     all_wall_im = List()
     all_wall_im2 = List()
     all_light = List()
+    all_shot = List()
+
+    MAX_SHOTS=100
+    all_shot_x = np.empty((len(all_walls), MAX_SHOTS), dtype=np.float32)
+    all_shot_y = np.empty((len(all_walls), MAX_SHOTS), dtype=np.float32)
+    shot_count = np.zeros(len(all_walls), dtype=np.int32)
     for element in all_walls:
         inner = List.empty_list(types.boolean[:, :])
         inner_im = List.empty_list(types.float32[:,:,:])
         inner_im2 = List.empty_list(types.float32[:, :, :])
         inner_light= List.empty_list(types.float32[:])
+        inner_shot = List.empty_list(types.float32[:])
 
         if isinstance(element.trans_im, list) and len(element.trans_im) > 0:
             for arr in element.trans_im:
@@ -4012,7 +4019,9 @@ def load_level(level_name):
         if isinstance(element.wall_im2, list) and len(element.wall_im2) > 0:
             for arr in element.wall_im2:
                 inner_im2.append(arr.astype(np.float32))
-
+        if isinstance(element.shot, list) and len(element.shot) > 0:
+            for arr in element.shot:
+                inner_shot.append(arr.astype(np.float32))
         if element.ID in light_wall.keys():
             for light_x in light_wall[element.ID]:
                 inner_light.append(source_pos(light_x).astype(np.float32))
@@ -4022,6 +4031,7 @@ def load_level(level_name):
         all_wall_im.append(inner_im)
         all_wall_im2.append(inner_im2)
         all_light.append(inner_light)
+        all_shot.append(inner_shot)
 
     all_wall_len=np.array([len(i) for i in all_wall_im])
     all_destruc =np.array([i.vie if levelD[level]['deco'][i.deco - 1] in deco_destruc else -1 for i in all_walls])
@@ -4649,7 +4659,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius,all_shot_x,all_shot_y,shot_count)
     depth = S_i[:, :, -1, None]
 
     if shoot==1:
@@ -4669,6 +4679,12 @@ while running == 1:
             wall_hit=unsorted_walls[inline_e]
 
             wall_hit.shot.append(shot_p)
+            # all_shot[wall_hit.num].append(shot_p)
+            if shot_count<99:
+                shot_count[wall_hit.num]+=1
+
+            all_shot_x[wall_hit.num,(shot_count-1)%100]=shot_p[0]
+            all_shot_y[wall_hit.num, (shot_count - 1)%100] = shot_p[1]
 
             depth_ = depth.shape
             wall_hit.d_shot = min(wall_hit.d_shot,depth[int(depth_[0] * (x_d[0][0] + 0.5))][int(depth_[1] * (x_d[0][1] + 0.5))])
