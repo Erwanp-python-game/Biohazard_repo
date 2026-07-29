@@ -448,7 +448,7 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                     for ishot in range(count):
                         dx = (u - all_shot_x[obj1, ishot]) * aa
                         dy = (v - all_shot_y[obj1, ishot]) * bb
-                        if dx * dx + dy * dy < 1.0:
+                        if dx * dx + dy * dy < 1.5:
                             impact = 0.5
                             break
 
