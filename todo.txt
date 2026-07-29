@@ -25,8 +25,8 @@ SPEEDUP
 
 GAMEPLAY
 
+rendering pixel size with depth (test)
 check numba types change through time
-mark impacts
 flames_damage
 reload gun
 polish mechanism in level editor
