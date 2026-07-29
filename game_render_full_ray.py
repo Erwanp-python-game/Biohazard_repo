@@ -19,6 +19,7 @@ from numba import types
 from numba import njit,prange
 from numba_func import *
 
+var_names=['c3','ang[0]', 'ang[1]','c','screenV','screenP','cell_start', 'cell_count', 'cell_objects','cell_size','all_a','all_b','all_X','all_aa','all_bb','all_n','all_ab','all_inv_det','all_opening','all_freq','all_phase','all_tile_z','all_trans_im','all_format','all_wall_im','all_light_w','all_wall_len','all_destruc','all_wall_im2','all_side','TORCHE3','torch_on','torch_shine','fire,explo','explo_pt','random_explo,all_liquid','all_sphere','all_radius','all_shot_x','all_shot_y','shot_count','light_x','light_y','light_z','light_count','light_start']
 time0=time.perf_counter()*1000
 
 activatedT = []
@@ -203,57 +204,6 @@ def update_z_p(zmap, A_, B_,D_,C_, X_zmap, dz_mech):
 
 def normalize(a):
     return a*1/np.linalg.norm(a)
-def sweep_sphere_plane(C0, d, plane_point, normal, radius):
-
-    n = normalize(normal)
-
-    d0 = np.dot(C0 - plane_point, n)
-    dn = np.dot(d, n)
-
-    # moving away or parallel
-    if dn >= 0:
-        return None
-
-    # already penetrating
-    if d0 <= radius:
-        return 0.0
-
-    t = (radius - d0) / dn
-
-    if 0 <= t <= 1:
-        return t
-
-    return None
-def sweep_sphere_cylinder(C0, d, A0, axis, R):
-
-    a = normalize(axis)
-
-    w = C0 - A0
-
-    w_perp = w - np.dot(w, a) * a
-    v_perp = d - np.dot(d, a) * a
-
-    A = np.dot(v_perp, v_perp)
-    B = 2 * np.dot(w_perp, v_perp)
-    C = np.dot(w_perp, w_perp) - R*R
-
-    if A < 1e-8:
-        return None  # no radial movement
-
-    D = B*B - 4*A*C
-
-    if D < 0:
-        return None  # no hit
-
-    sqrtD = np.sqrt(D)
-
-    t1 = (-B - sqrtD) / (2*A)
-    t2 = (-B + sqrtD) / (2*A)
-
-    # we want first valid hit
-    t = min(t for t in [t1, t2] if 0 <= t <= 1)
-
-    return t if 0 <= t <= 1 else None
 
 
 # If I summarize I need to check which wall is encountered,
@@ -429,11 +379,11 @@ def slide_move(position, move, walls):
 
                     nearest_t=t
                     hit_normals=[n]
-                    posx_l.append(pos[0])
-                    posy_l.append(pos[1])
-                    vecx_l.append(n[0])
-                    vecy_l.append(n[1])
-                    t_l.append(t)
+                    # posx_l.append(pos[0])
+                    # posy_l.append(pos[1])
+                    # vecx_l.append(n[0])
+                    # vecy_l.append(n[1])
+                    # t_l.append(t)
 
 
                 elif abs(t-nearest_t)<CONTACT_EPS:
@@ -481,11 +431,11 @@ def slide_move(position, move, walls):
         if np.linalg.norm(remaining)<STOP_EPS:
             break
 
-        posx_l2.append(pos[0])
-        posy_l2.append(pos[1])
-        if len(posx_l2) > 1:
-            vecx_l2.append(posx_l2[-1]-posx_l2[-2])
-            vecy_l2.append(posy_l2[-1]-posy_l2[-2])
+        # posx_l2.append(pos[0])
+        # posy_l2.append(pos[1])
+        # if len(posx_l2) > 1:
+        #     vecx_l2.append(posx_l2[-1]-posx_l2[-2])
+        #     vecy_l2.append(posy_l2[-1]-posy_l2[-2])
 
     return pos
 # def slide_move(position, move, walls):
@@ -694,7 +644,7 @@ def intersect_circle(center,radius,X0,ray,infinite,sphere_type):
                 #     print(u2,nz2,dz0,radius,C[2],X0[2])
                 #     if not ((u2>=1 or u2 <=0.5) or infinite):
                 #         return (False, 0, 0, 0)
-                print(dz0,r2,r2-dz0,(-dz0+r2)*np.sign(dz0)>0)
+                # print(dz0,r2,r2-dz0,(-dz0+r2)*np.sign(dz0)>0)
                 if (-dz0+r2)*np.sign(dz0)<0:
                     return (False, 0, 0, 0)
                 # else:
@@ -829,10 +779,10 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
                     trans = all_trans_im[obj][ind]
                     open = trans[gu, gv + shift]
                 if open:
-                    edgex_l.append(edge1[0])
-                    edgex_l.append(edge2[0])
-                    edgey_l.append(edge1[1])
-                    edgey_l.append(edge2[1])
+                    # edgex_l.append(edge1[0])
+                    # edgex_l.append(edge2[0])
+                    # edgey_l.append(edge1[1])
+                    # edgey_l.append(edge2[1])
                     return (open,t_,nx,ny)
 
 
@@ -4057,10 +4007,30 @@ def load_level(level_name):
         all_wall_im2.append(inner_im2)
         all_light.append(inner_light)
         all_shot.append(inner_shot)
+    for obj in range(len(all_trans_im)):
+        for ind in range(len(all_trans_im[obj])):
+            _ = all_trans_im[obj][ind][0, 0]
+
+
 
     all_wall_len=np.array([len(i) for i in all_wall_im])
     all_destruc =np.array([i.vie if levelD[level]['deco'][i.deco - 1] in deco_destruc else -1 for i in all_walls])
     all_side=np.array([i.side for i in all_walls])
+
+    # arrays = [
+    #     all_a, all_b, all_X, all_n,
+    #     all_aa, all_bb, all_ab,
+    #     all_inv_det, all_opening,
+    #     all_format, all_tile_z,
+    #     all_freq, all_phase,
+    #     all_destruc, all_trans_im
+    # ]
+    #
+    # for a in arrays:
+    #     try:
+    #         _=a.sum()
+    #     except:
+    #         pass
 
     height_list = [i.X[0][0][2] for i in wall if i.inside ]
     height_list=list(set(height_list))
@@ -4232,7 +4202,7 @@ xg = 0
 logL = []
 C_log = 0
 impact = pygame.image.load('./image/effects/impact0.png')
-averaged_time = np.full((26), 0.)
+averaged_time = np.full((31), 0.)
 elastic_count=0
 Ratio=window[0]/960
 x_d=[(0.,0.)]
@@ -4240,7 +4210,7 @@ nb_wall = []
 time_wall = []
 time_tot=[]
 time_behind = []
-plot_stats=False
+plot_stats=True
 sensitivity=500#500
 movement=0
 render_w_old=0
@@ -4288,7 +4258,10 @@ while running == 1:
     recoil = 0.
 
     milliseconds.append(time.perf_counter()*1000)
+
     label_deltat = ['reset']
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     for j, i in enumerate(stairs):
         if abs(2 * (i[0] - 50) - x[0]) < 5 and abs(2 * (i[1] - 50) - x[1]) < 5:
             if j % 2 == 0:
@@ -4339,6 +4312,8 @@ while running == 1:
         nextL = [0, 0]
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('lifts')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     wall.sort(key=lambda s: s.norm)
     doors.sort(key=lambda s: s.norm)
     h_wall.sort(key=lambda s: s.norm)
@@ -4348,6 +4323,8 @@ while running == 1:
         op.sort(key=lambda s: -s.norm)
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('sorting')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -4378,6 +4355,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('events')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
     if key[K_KP_PLUS] == 1:
         window = [int(window[0] * 1.05), int(window[1] * 1.05)]
@@ -4446,6 +4425,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('clicks_and_keys')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     if attack == 0:
         GUN_im = MG1[arme][0].copy()
         colorGUN = (255., 255., 255.)
@@ -4476,7 +4457,10 @@ while running == 1:
                 draw_AMMO()
 
         coolD = COOLDOWN[arme]
-
+    milliseconds.append(time.perf_counter()*1000)
+    label_deltat.append('gun_clicks_and_keys5')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     if AMMO[arme - 1] <= 0 and arme != 0:
         shoot = 0
     coolD = max(coolD - 1, 0)
@@ -4503,6 +4487,10 @@ while running == 1:
         direction = 'left'
     trans = trans + [recoil, 0.]
     recoil = 0.
+    milliseconds.append(time.perf_counter()*1000)
+    label_deltat.append('gun_clicks_and_keys4')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     # No=np.array([0.,0.])
     # previous=0.5
     # d_collision=3.
@@ -4527,7 +4515,10 @@ while running == 1:
                     zmap = update_z_p(zmap, A_, B_,D_,C_, X_zmap, dz_mech)
 
 
-
+    milliseconds.append(time.perf_counter()*1000)
+    label_deltat.append('gun_clicks_and_keys3')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
     if trans.any() != np.array([0.0, 0.0]).any():
         # No = np.array([0., 0.])
@@ -4569,12 +4560,19 @@ while running == 1:
 
 
         screen[:, :, :3] = screen[:, :, :3] - np.hstack((trans @ Rp, [0.]))
+    milliseconds.append(time.perf_counter()*1000)
+    label_deltat.append('gun_clicks_and_keys2')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     if trans.any() != np.array([0.0, 0.0]).any() or zmap[int(x[1] + 100) // 2][int(x[0] + 100) // 2]!=zmap0[int(x[1] + 100) // 2][int(x[0] + 100) // 2]:
         z = zmap[int(x[1] + 100) // 2][int(x[0] + 100) // 2]
         screen[:, :, 2] = z * 2
         zprev = z
         R_c = np.hstack((x, [2 * z]))
-
+    milliseconds.append(time.perf_counter()*1000)
+    label_deltat.append('gun_clicks_and_keys1')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     if mouse_c == 1:
         rot_a = -(2 * pi * (mouse - m_stock) / sensitivity) * [1, -0.2]  # 1000
         if abs((ang + rot_a)[1]) < pi / 8:
@@ -4588,6 +4586,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('gun_clicks_and_keys')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
 
 
@@ -4601,6 +4601,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('calc_norm')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
 
 
@@ -4664,6 +4666,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('doors')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     wall_count=min(40+elastic_count,70)
     if explo!=0:
         moving_cam=True
@@ -4683,10 +4687,23 @@ while running == 1:
     milliseconds.append(time.perf_counter()*1000)
 
     label_deltat.append('walls')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
     S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius,all_shot_x,all_shot_y,shot_count,light_x,light_y,light_z,light_count,light_start)
     depth = S_i[:, :, -1, None]
+    if c3==1:
+        var_types=[(type(v), v.dtype if isinstance(v, np.ndarray) else None) for v in [c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius,all_shot_x,all_shot_y,shot_count,light_x,light_y,light_z,light_count,light_start]]
 
+    var_types2=[(type(v), v.dtype if isinstance(v, np.ndarray) else None) for v in [c3, ang[0], ang[1], c, screenV, screenP, cell_start, cell_count, cell_objects, cell_size, all_a, all_b, all_X,
+      all_aa, all_bb, all_n, all_ab, all_inv_det, all_opening, all_freq, all_phase, all_tile_z, all_trans_im,
+      all_format, all_wall_im, all_light_w, all_wall_len, all_destruc, all_wall_im2, all_side, TORCHE3, torch_on,
+      torch_shine, fire, explo, explo_pt, random_explo, all_liquid, all_sphere, all_radius, all_shot_x, all_shot_y,
+      shot_count, light_x, light_y, light_z, light_count, light_start]]
+
+    # if var_types2!= var_types:
+    #     for i in range(len(var_types)):
+    #         print(var_types[i],var_types2[i])
     if shoot==1:
         x_d0 = []
         for i in range(len(x_d)):
@@ -4785,6 +4802,8 @@ while running == 1:
     milliseconds.append(time.perf_counter() * 1000)
 
     label_deltat.append('intersect')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
 
     uniq, wall_index = np.unique(wall_ind_i, return_inverse=True)
@@ -4816,6 +4835,8 @@ while running == 1:
         horizon2 = horizon_cached2
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('glob_walls')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
 
 
@@ -4830,6 +4851,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('sky')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
     Im=np.minimum(Im,255)
 
@@ -4839,12 +4862,16 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('lights')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
 
     [i.move() for i in ennemies[0:10]]
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('movethings')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
     if c2 == 23:
         update_map(level_map, x)
@@ -4852,6 +4879,8 @@ while running == 1:
         [i.walk() for i in ennemies[0:20]]
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('walkthings')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     if len(L0) > 0:
         Deg, Boul = L0[0].pattern(x, scrnL, c, ang, TAN1, TAN2, z, authorized_map, horizon, zmap)
         all_angle[L0[0].num]=L0[0].angle
@@ -4871,6 +4900,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('boss')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     if shoot==1 and arme!=0 and arme!=4:
         a_shift=np.random.normal(0,PREC[arme],2)
         x_d=[(a_shift[0]/(pi / 4),a_shift[1]/(atan(1 / 2) * 2))]
@@ -4927,6 +4958,8 @@ while running == 1:
                         label_t_render_o = i.time[1]
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
     Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine,Im_liquid,liquid,S_liquid,boss_im,scrnL,TAN1,TAN2)
 
@@ -4936,6 +4969,8 @@ while running == 1:
     depth=depth_e[:,:,None]
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
     if len(L0) > 0:
         x_d,light_boss=L0[0].render(depth, Xthing, Ything, scrnL, light_array, level_light, TORCHE, torch_on, arme, shoot,
@@ -4961,6 +4996,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('rendering0')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     Im=np.maximum(Im,0)
 
     fond = pygame.Surface((2*160,2*80))#to improve
@@ -4979,6 +5016,8 @@ while running == 1:
         2*int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi))+LAND0_im.get_width(), -2*int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
         milliseconds.append(time.perf_counter() * 1000)
         label_deltat.append('rendering0_5')
+        if milliseconds[-1] - milliseconds[-2] > 100:
+            print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
         if level==6:
             [i.calc_norm() for i in op]
             [i.affiche() for i in op]
@@ -4987,6 +5026,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('rendering1')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     fond0 = pygame.surfarray.make_surface(Im)
 
     fond0.set_colorkey((0, 255, 255))
@@ -5003,6 +5044,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('rendering2')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
     for i in Boule:
         KILL = i.update()
@@ -5011,6 +5054,8 @@ while running == 1:
     [i.affiche() for i in Boule]
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('boule')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
 
     if shoot==1 and arme!=0 and arme!=4:
@@ -5064,6 +5109,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('bleed, explo, effects')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
 
     fenetre.blit(fond, (0, 0))
@@ -5073,6 +5120,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('blit image')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     if incinerate_show:
         if explo_cool==0:
             fenetre.blit(incinerate, (int(0.5 * window[0] - 0.4 * window[1]), int(0.84 * window[1])))
@@ -5126,6 +5175,8 @@ while running == 1:
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('end')
+    if milliseconds[-1]-milliseconds[-2]>100:
+        print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
     if c3 % 500 == 2:
         milliT = np.expand_dims(milliseconds, -1)
@@ -5142,7 +5193,7 @@ while running == 1:
     time_behind.append(np.sum(time_in_behind))
     time_tot.append(milliseconds[-1]-milliseconds[0])
 
-
+    #print(len(intersect.signatures),len(thing_render.signatures),len(update_z_s.signatures),len(update_z_p.signatures))
     if (c3-1) % 500 == 499 :
 
         averaged_time = np.round(averaged_time / 500, 1)
@@ -5212,7 +5263,7 @@ while running == 1:
         time_wall=[]
         time_behind = []
         time_tot=[]
-        averaged_time = np.full((26), 0.)
+        averaged_time = np.full((31), 0.)
 
 
     clock.tick_busy_loop(24)
