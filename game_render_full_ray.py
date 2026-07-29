@@ -3984,7 +3984,7 @@ def load_level(level_name):
     all_inv_det = np.array([1.0 / (all_aa[i]*all_bb[i] - all_ab[i]**2) for i in range(len(all_walls))])
 
 
-    global shot_count,all_shot_x,all_shot_y,all_shot,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side
+    global light_x,light_y,light_z,light_count,light_start,shot_count,all_shot_x,all_shot_y,all_shot,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side
     all_opening=np.array([i.opening for i in all_walls])
     all_freq=np.array([i.freq for i in all_walls])
     all_phase = np.array([i.phase_ for i in all_walls])
@@ -4002,6 +4002,31 @@ def load_level(level_name):
     all_shot_x = np.empty((len(all_walls), MAX_SHOTS), dtype=np.float32)
     all_shot_y = np.empty((len(all_walls), MAX_SHOTS), dtype=np.float32)
     shot_count = np.zeros(len(all_walls), dtype=np.int32)
+
+    light_start=[]
+    light_count=[]
+    light_x=[]
+    light_y = []
+    light_z = []
+    for element in all_walls:
+        light_start.append(len(light_x))
+        if element.ID in light_wall.keys():
+            for light_ in light_wall[element.ID]:
+                light_p=source_pos(light_).astype(np.float32)
+                light_x.append(light_p[0])
+                light_y.append(light_p[1])
+                light_z.append(light_p[2])
+
+
+        light_count.append(len(light_x)-light_start[-1])
+
+    light_start=np.array(light_start)
+    light_count=np.array(light_count)
+    light_x=np.array(light_x,dtype=np.float32)
+    light_y = np.array(light_y,dtype=np.float32)
+    light_z = np.array(light_z,dtype=np.float32)
+    print(light_x)
+
     for element in all_walls:
         inner = List.empty_list(types.boolean[:, :])
         inner_im = List.empty_list(types.float32[:,:,:])
@@ -4023,8 +4048,8 @@ def load_level(level_name):
             for arr in element.shot:
                 inner_shot.append(arr.astype(np.float32))
         if element.ID in light_wall.keys():
-            for light_x in light_wall[element.ID]:
-                inner_light.append(source_pos(light_x).astype(np.float32))
+            for light_ in light_wall[element.ID]:
+                inner_light.append(source_pos(light_).astype(np.float32))
 
         # If element was 0 or empty → just append empty inner list
         all_trans_im.append(inner)
@@ -4659,7 +4684,7 @@ while running == 1:
 
     label_deltat.append('walls')
 
-    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius,all_shot_x,all_shot_y,shot_count)
+    S_i,wall_ind_i,Xl,Im_ray,POS_l,torch_shine,Im2,Im_liquid,liquid,S_liquid=intersect(c3,ang[0], ang[1],c,screenV,screenP,cell_start, cell_count, cell_objects,cell_size,all_a,all_b,all_X,all_aa,all_bb,all_n,all_ab,all_inv_det,all_opening,all_freq,all_phase,all_tile_z,all_trans_im,all_format,all_wall_im,all_light_w,all_wall_len,all_destruc,all_wall_im2,all_side,TORCHE3,torch_on,torch_shine,fire,explo,explo_pt,random_explo,all_liquid,all_sphere,all_radius,all_shot_x,all_shot_y,shot_count,light_x,light_y,light_z,light_count,light_start)
     depth = S_i[:, :, -1, None]
 
     if shoot==1:
@@ -4680,11 +4705,12 @@ while running == 1:
 
             wall_hit.shot.append(shot_p)
             # all_shot[wall_hit.num].append(shot_p)
-            if shot_count<99:
-                shot_count[wall_hit.num]+=1
+            if arme not in [0,4]:
+                if shot_count[wall_hit.num]<99:
+                    shot_count[wall_hit.num]+=1
 
-            all_shot_x[wall_hit.num,(shot_count-1)%100]=shot_p[0]
-            all_shot_y[wall_hit.num, (shot_count - 1)%100] = shot_p[1]
+                all_shot_x[wall_hit.num,(shot_count-1)%100]=shot_p[0]
+                all_shot_y[wall_hit.num, (shot_count - 1)%100] = shot_p[1]
 
             depth_ = depth.shape
             wall_hit.d_shot = min(wall_hit.d_shot,depth[int(depth_[0] * (x_d[0][0] + 0.5))][int(depth_[1] * (x_d[0][1] + 0.5))])

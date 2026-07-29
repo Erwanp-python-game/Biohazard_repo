@@ -6,8 +6,8 @@ from math import *
 def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, cell_objects, cell_size,
               all_a, all_b, all_X,
               all_aa, all_bb, all_n, all_ab, all_inv_det, all_opening, all_freq, all_phase, all_tile_z, all_trans_im,
-              all_format, all_wall_im, all_light, all_light_w, all_wall_len, all_destruc, all_wall_im2, all_side,
-              TORCHE, torch_on, torch_shine, fire, explo, explo_pt, random_explo, all_liquid,all_sphere,all_radius,all_shot_x,all_shot_y,shot_count):
+              all_format, all_wall_im, all_light_w, all_wall_len, all_destruc, all_wall_im2, all_side,
+              TORCHE, torch_on, torch_shine, fire, explo, explo_pt, random_explo, all_liquid,all_sphere,all_radius,all_shot_x,all_shot_y,shot_count,light_x,light_y,light_z,light_count,light_start):
     X0 = screenP[0, 0]
     liquid = False
     origin_x = 0.5 * (X0[0] + 100.0)
@@ -446,24 +446,34 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                     bb = all_bb[obj1]
 
                     for ishot in range(count):
-                        dx = (u - all_shot_x[obj1, ishot]) * aa
-                        dy = (v - all_shot_y[obj1, ishot]) * bb
-                        if dx * dx + dy * dy < 1.5:
+                        dx = (u - all_shot_x[obj1, ishot])
+                        dy = (v - all_shot_y[obj1, ishot])
+                        if dx * dx*aa + dy * dy*bb < 0.025:
                             impact = 0.5
                             break
 
                     r = im[gu, gv + shift, 0]
 
-                    light_x = all_light[obj1]
+                    pxl = Xl[i, jj, 0]
+                    pyl = Xl[i, jj, 1]
+                    pzl = Xl[i, jj, 2]
+
+                    start = light_start[obj1]
+                    end = start + light_count[obj1]
+
                     dm = 1e6
-                    for k in (light_x):
-                        dx2 = k[0] - Xl[i, jj, 0]
-                        dy2 = k[1] - Xl[i, jj, 1]
-                        dz2 = k[2] - Xl[i, jj, 2]
-                        d = dx2 * dx2 + dy2 * dy2 + dz2 * dz2
-                        if dm > d:
+
+                    for k in range(start, end):
+                        dxl = light_x[k] - pxl
+                        dyl = light_y[k] - pyl
+                        dzl = light_z[k] - pzl
+
+                        d = dxl * dxl + dyl * dyl + dzl * dzl
+
+                        if d < dm:
                             dm = d
-                    dd = np.sqrt(dm)
+
+                    dd=sqrt(dm)
                     POS_l[i, jj] = dd
                     if r == -1:
                         Im[i, jj, 0] = 0
@@ -542,14 +552,23 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                         Cl = all_light_w[obj1]
                         r = im[gu, gv + shift, 0]
 
-                        light_x = all_light[obj1]
+                        pxl = Xl[i, jj, 0]
+                        pyl = Xl[i, jj, 1]
+                        pzl = Xl[i, jj, 2]
+
+                        start = light_start[obj1]
+                        end = start + light_count[obj1]
+
                         dm = 1e6
-                        for k in (light_x):
-                            dx2 = k[0] - Xl[i, jj, 0]
-                            dy2 = k[1] - Xl[i, jj, 1]
-                            dz2 = k[2] - Xl[i, jj, 2]
-                            d = dx2 * dx2 + dy2 * dy2 + dz2 * dz2
-                            if dm > d:
+
+                        for k in range(start, end):
+                            dxl = light_x[k] - pxl
+                            dyl = light_y[k] - pyl
+                            dzl = light_z[k] - pzl
+
+                            d = dxl * dxl + dyl * dyl + dzl * dzl
+
+                            if d < dm:
                                 dm = d
                         dd = np.sqrt(dm)
                         POS_l[i, jj] = dd
