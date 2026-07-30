@@ -778,6 +778,7 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
                         ind = all_destruc[obj]
                     trans = all_trans_im[obj][ind]
                     open = trans[gu, gv + shift]
+
                 if open:
                     # edgex_l.append(edge1[0])
                     # edgex_l.append(edge2[0])
@@ -814,10 +815,10 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
                 trans = all_trans_im[obj][ind]
                 open = trans[gu, gv + shift]
             if open:
-                edgex_l.append(edge1[0])
-                edgex_l.append(edge2[0])
-                edgey_l.append(edge1[1])
-                edgey_l.append(edge2[1])
+                # edgex_l.append(edge1[0])
+                # edgex_l.append(edge2[0])
+                # edgey_l.append(edge1[1])
+                # edgey_l.append(edge2[1])
                 return circle1
             else:
                 return (False, 0, 0, 0)
@@ -846,10 +847,10 @@ def intersect_plane(obj,ray,X0,counter_,side,wall):
                 trans = all_trans_im[obj][ind]
                 open = trans[gu, gv + shift]
             if open:
-                edgex_l.append(edge1[0])
-                edgex_l.append(edge2[0])
-                edgey_l.append(edge1[1])
-                edgey_l.append(edge2[1])
+                # edgex_l.append(edge1[0])
+                # edgex_l.append(edge2[0])
+                # edgey_l.append(edge1[1])
+                # edgey_l.append(edge2[1])
                 return circle2
             else:
                 return (False, 0, 0, 0)

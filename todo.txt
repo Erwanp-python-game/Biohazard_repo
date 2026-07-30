@@ -22,11 +22,11 @@ SPEEDUP
 ->check walkthing
 ->starting speedup
 ->rendering in numba
+->background_obj in numba
 
 GAMEPLAY
 
-rendering pixel size with depth (test)
-first collision with transp wall is causing a spike in time
+
 flames_damage
 reload gun
 polish mechanism in level editor
@@ -38,6 +38,7 @@ more destructible obj
 
 BUG
 
+bug ->first collision with transp wall is causing a spike in time
 bug ->flame order of drawing
 bug ->rescaling of guns when hitting +
 bug -> shooting through walls ennemies

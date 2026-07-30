@@ -417,6 +417,7 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                     u = S[i, jj, 0]
                     v = S[i, jj, 1]
                     f = all_format[obj1]
+                    dz = S[i, jj, 2]
 
                     iu = int((1 - u) * f[0])
                     iv = int((1 - v) * f[1])
@@ -495,13 +496,11 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                         if dm == 1e6:
                             if torch_on:
                                 torch_glob[i] = True
-                                dz = S[i, jj, 2]
                                 torch = torch2 * (0.8 * 1 / (0.01 * 16 * dz) + 1 / (0.1 * np.sqrt(dz)) + 0.2)
                             else:
                                 torch = 0.
                         else:
                             if torch_shine and torch_on:
-                                dz = S[i, jj, 2]
                                 torch = torch2 * (0.8 * 1 / (0.01 * 16 * dz) + 1 / (0.1 * np.sqrt(dz)) + 0.2)
                             else:
                                 torch = (0.8 * 1 / (0.01 * 16 * dm) + 1 / (0.1 * dd) + 0.2)
@@ -511,6 +510,21 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                             f = 100 * TORCHE[i, jj, 0]
                         if explo != 0:
                             f = 40 * explo
+
+                        # r1=im[gu, gv + shift, 0]
+                        # g1=im[gu, gv + shift, 1]
+                        # b1=im[gu, gv + shift, 2]
+                        # spread=max(int((120/320)*dz/(10/1.41)),0)
+                        # for i_av in range(-spread,spread+1):
+                        #     for j_av in range(-spread, spread+1):
+                        #         if i_av!=0 or j_av!=0:
+                        #             r1+=im[min(max(gu+i_av,0),120), min(max(gv +j_av,0),119)+ shift, 0]
+                        #             g1 += im[min(max(gu + i_av, 0), 120), min(max(gv + j_av , 0), 119)+ shift, 1]
+                        #             b1 += im[min(max(gu + i_av, 0), 120), min(max(gv + j_av , 0), 119)+ shift, 2]
+                        # window=max(1,(2*spread+1)**2)
+                        # Im[i, jj, 0] = (r1/window) * Cl[0]*impact * torch + f
+                        # Im[i, jj, 1] = (g1/window)*impact * Cl[1] * torch + f
+                        # Im[i, jj, 2] = (b1/window)*impact * Cl[2] * torch + f
 
                         Im[i, jj, 0] = r * Cl[0]*impact * torch + f
                         Im[i, jj, 1] = im[gu, gv + shift, 1]*impact * Cl[1] * torch + f
@@ -536,6 +550,7 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                         u = S_liquid[i, jj, 0]
                         v = S_liquid[i, jj, 1]
                         f = all_format[obj1]
+
 
                         iu = int((1 - u) * f[0] + c3 * 0.5)
                         iv = int((1 - v) * f[1] + c3 * 0.5)
@@ -586,13 +601,13 @@ def intersect(c3, a0, a1, counter_, screenV, screenP, cell_start, cell_count, ce
                         if dm == 1e6:
                             if torch_on:
                                 torch_glob[i] = True
-                                dz = S[i, jj, 2]
+
                                 torch = torch2 * (0.8 * 1 / (0.01 * 16 * dz) + 1 / (0.1 * np.sqrt(dz)) + 0.2)
                             else:
                                 torch = 0.
                         else:
                             if torch_shine and torch_on:
-                                dz = S[i, jj, 2]
+
                                 torch = torch2 * (0.8 * 1 / (0.01 * 16 * dz) + 1 / (0.1 * np.sqrt(dz)) + 0.2)
                             else:
                                 torch = (0.8 * 1 / (0.01 * 16 * dm) + 1 / (0.1 * dd) + 0.2)
