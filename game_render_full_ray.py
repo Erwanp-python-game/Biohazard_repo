@@ -40,7 +40,7 @@ Ang = I_n
 Ang[:, :, 0] = Ang[:, :, 0] * pi / 4
 Ang[:, :, 1] = Ang[:, :, 1] * atan(1 / 2) * 2
 gun_width=1
-shift_a=[0,25,0,10,0]
+shift_a=[0,25,0,10,0,0]
 
 
 screen[:, :, 0] = screen[:, :, 0]
@@ -76,7 +76,7 @@ destr = [0, 4, 6,11]
 level = 6
 level_nameL = ['Level 0: Training', 'Level 1: The Lab', 'Level 2: The Storage', 'Level 3: The Basement',
                'Level 4: The Manor','Level 5: The Caves','Level 6: The Floating Boat']
-level_arme = [1, 2, 2, 2, 3,4,5]  # last 3
+level_arme = [1, 2, 2, 2, 3,4,6]  # last 3
 level_end = [5, 7, 8, 6, 6,10,99]
 level_start = [1, 2, 1, 1, 1,1,1]
 for i in range(100 - len(level_arme)):
@@ -1736,7 +1736,7 @@ class Wall():
             self.explo=0
 
         #if self.inline or self.explo:
-        if ((self.d_shot<5 or arme!=0) and arme!=4) or self.explo:
+        if ((self.d_shot<5 or arme!=0) and arme!=4 and arme!=5) or self.explo:
             self.vie+=1
             all_destruc[self.num]=min(self.vie,2)
             s = pygame.mixer.Sound("son/barril.ogg")
@@ -2663,16 +2663,140 @@ class grenade(pygame.sprite.Sprite):
             self.imb=self.imA.copy()
             self.imb.fill(255*colorT, special_flags=BLEND_RGB_MULT)
 
-            if len(IS)>0:
-                for j,i in enumerate(IS):
-                    if i.U[int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))] and i.X[0,0,-1]/2<self.p[-1]:
-                        colorliquid=IS_rendered[j][int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))]
-                        self.imb.fill(colorliquid, special_flags=BLEND_RGB_MULT)
+            # if len(IS)>0:
+            #     for j,i in enumerate(IS):
+            #         if i.U[int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))] and i.X[0,0,-1]/2<self.p[-1]:
+            #             colorliquid=IS_rendered[j][int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))]
+            #             self.imb.fill(colorliquid, special_flags=BLEND_RGB_MULT)
 
 
             shift = min(int(self.size / self.f0[0]), window[1] // 1) // 2
             fond.blit(self.imb, (int((window[0] // 2) * self.X) - shift, int((window[1] // 2) * self.Y) - shift))
 
+
+
+class flamme_thrower(pygame.sprite.Sprite):
+    def __init__(self, x, y, z, ang1, ang2, v, masse, deg):
+        self.p = np.array([x, y, z+.4])
+        self.ang1 = ang1-pi/6
+        self.vx = v * sin(ang1) * cos(ang2)
+        self.vy = v * sin(ang1) * sin(ang2)
+        self.vz = v * cos(ang1)
+        self.v = np.array([self.vx, self.vy, self.vz])
+        self.p += 2 * np.array([cos(ang2), sin(ang2), 0])
+        self.im = []
+        for i in range(4):
+            self.im.append(pygame.image.load('image/effects/ft%s.png' % str(i+1)))
+        self.D = np.linalg.norm(x - self.p[:-1])
+        self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
+        self.masse = masse
+        self.hit = 0
+        self.lifetime = 0
+
+        self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
+        self.Y = 1 * (self.p[-1] / self.f0[0]) / TAN1 + 1 - 1 * tan(ang[1]) / TAN1
+        self.deg = deg
+        self.cool = 0
+        self.size = 1000
+
+    def update(self):
+        self.lifetime += 1
+        self.v += np.array([0, 0, 0.01]) * self.masse
+        self.p += self.v
+        self.D = np.linalg.norm(x - self.p[:-1])
+        self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
+
+        self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
+        self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
+
+
+
+        self.cool = max(0, self.cool - 1)
+
+        if self.p[-1] >= zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 2.5:
+            self.v[-1] *= -1
+            self.v *= 0.5
+            self.p[-1] = zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 2.4
+        if (authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) or (
+                level_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) and self.cool == 0 and level_w_transp[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2]==0:
+            for i in wall[:20]:
+                if i not in h_wall:
+                    N = np.stack((i.a[0][0], i.b[0][0], -i.n), axis=-1)
+                    V = np.maximum(np.minimum(np.linalg.solve(N, -i.X[0][0] + self.p)[:-1], 1), 0)
+                    norm = np.linalg.norm(i.X[0][0][:-1] + V[0] * i.a[0][0][:-1] + V[1] * i.b[0][0][:-1] - self.p[:-1])
+                    if norm < 4:
+                        # self.v[:-1] *= -1
+
+                        No = i.n[:-1]
+                        No = No / np.linalg.norm(No)
+
+                        x_ = i.X[0][0][0]
+                        y_ = i.X[0][0][1]
+                        a_ = i.b[0][0][0]
+                        b_ = i.b[0][0][1]
+                        side = b_ * self.p[0] - a_ * self.p[1] + a_ * y_ - b_ * x_
+
+                        if side < 0:
+                            self.v[:-1] += +2 * abs(np.dot(self.v[:-1], No)) * No
+                        else:
+                            self.v[:-1] += +2 * abs(np.dot(self.v[:-1], -No)) * -No
+                        self.v *= 0.3
+                        self.cool = 20
+                        break
+
+        # if self.lifetime == 50:
+        #     global explo, Boule, explo_pt, VIE, HIT,explo_type,fc,fire_
+        #     s = pygame.mixer.Sound("son/barril.ogg")
+        #
+        #     fire_.append(foyer(self.p[:-1], zmap[int(self.p[1] + 100) // 2][int(self.p[0] + 100) // 2]))
+        #     for i in range(randint(5, 10)):
+        #         Boule.append(
+        #             boule(self.p[0], self.p[1], self.p[2], pi * random(), 2 * pi * random(), 2 * random() + 0.2, 1,
+        #                   'image/effects/spark.png', 1))
+        #     s.play()
+        #     explo = 5
+        #     explo_pt = self.p
+        #     explo_type=1
+        #     if self.D < 15:
+        #         fc=c3
+        #         VIE = VIE - explo_deg[explo_type]/2
+        #         HIT = 1
+        #         s = pygame.mixer.Sound("son/aie.ogg")
+        #         s.play()
+        # if self.lifetime >= 50 and self.lifetime <= 56:
+        #     self.im = []
+        #     self.size = 5000
+        #     for i in range(4):
+        #         self.im.append(pygame.image.load('image/effects/explo%s.png' % str(self.lifetime - 50)))
+
+        if self.lifetime == 50:
+            return True
+        return False
+
+    def affiche(self):
+        if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and self.D <= \
+                depth[int(self.X * 2*scrnL[0]) % (2*2 * scrnL[0])][int(self.Y *2* scrnL[1] % (2*2 * scrnL[1]))]:
+
+            self.imA = pygame.transform.scale(self.im[min(int(4*self.lifetime/50),3)], (
+                min(int(Ratio*self.size / self.f0[0]), window[1] // 1), min(int(Ratio*self.size / self.f0[0]), window[1] // 1)))
+
+            # colorT = light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2]
+            # if light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2].sum() == 0:
+            #     colorT = np.array([1, 1, 1.])
+            # colorT = light_modif(colorT, level, c3)
+
+            self.imb=self.imA.copy()
+            # self.imb.fill(255*colorT, special_flags=BLEND_RGB_MULT)
+
+            # if len(IS)>0:
+            #     for j,i in enumerate(IS):
+            #         if i.U[int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))] and i.X[0,0,-1]/2<self.p[-1]:
+            #             colorliquid=IS_rendered[j][int(self.X * scrnL[0]) % (2 * scrnL[0])][int(self.Y * scrnL[1] % (2 * scrnL[1]))]
+            #             self.imb.fill(colorliquid, special_flags=BLEND_RGB_MULT)
+
+
+            shift = min(int(self.size / self.f0[0]), window[1] // 1) // 2
+            fond.blit(self.imb, (int((window[0] // 2) * self.X) - shift, int((window[1] // 2) * self.Y) - shift))
 
 font = pygame.font.Font('freesansbold.ttf', 13)
 
@@ -2850,15 +2974,15 @@ shoot = 0
 coolD = 0
 arme = 0
 TotAr = 1
-COOLDOWN = [10, 10, 17, 0, 10]
-REC = [0., 1., 3., 0., 0.]
-DEGAT = [35, 25, 70, 30, 150]
+COOLDOWN = [10, 10, 17, 0, 10,0]
+REC = [0., 1., 3., 0., 0.,0.]
+DEGAT = [35, 25, 70, 30, 150,0]
 explo_deg=[50,DEGAT[4],5000]
-PREC=[0,pi/200,pi/100,pi/100]
-BULLETS=[1,1,5,1,1]
+PREC=[0,pi/200,pi/100,pi/100,pi/100,pi/100]
+BULLETS=[1,1,5,1,1,0]
 clock = pygame.time.Clock()
 colorGUN = (1., 1., 1.)
-AMMO = [0, 0, 0, 0]
+AMMO = [0, 0, 0, 0,0]
 CARTE = [0, 0, 0]
 Trig_liste = []
 dicoTEXT = {}
@@ -3701,11 +3825,12 @@ def load_level(level_name):
     if level > 2:
         torch_on = 1
 
-    AMMO = [0, 0, 0, 0]
+    AMMO = [0, 0, 0, 0,0]
     AMMO[0] = max(min(TotAr - 1, 1) * 20, 0)
     AMMO[1] = max(min(TotAr - 2, 1) * 20, 0)
     AMMO[2] = max(min(TotAr - 3, 1) * 50, 0)
     AMMO[3] = max(min(TotAr - 4, 1) * 5, 0)
+    AMMO[4] = max(min(TotAr - 5, 1) * 100, 0)
     draw_AMMO()
 
     wall = []
@@ -4446,7 +4571,7 @@ while running == 1:
         if shoot == 1:
             s = pygame.mixer.Sound("son/gun%s.ogg" % (arme))
             s.play()
-            if arme != 0 and arme != 4:
+            if arme != 0 and arme != 4 and arme!=5:
                 Accuracy[1] = Accuracy[1] + 1
                 AMMO[arme - 1] = max(AMMO[arme - 1] - 1, 0)
                 draw_AMMO()
@@ -4456,6 +4581,8 @@ while running == 1:
                 Boule.append(grenade(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 1.5,1., 50))
                 AMMO[arme - 1] = max(AMMO[arme - 1] - 1, 0)
                 draw_AMMO()
+            if arme == 5:
+                Boule.append(flamme_thrower(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 0.5,.2, 50))
 
         coolD = COOLDOWN[arme]
     milliseconds.append(time.perf_counter()*1000)
@@ -4903,7 +5030,7 @@ while running == 1:
     label_deltat.append('boss')
     if milliseconds[-1]-milliseconds[-2]>100:
         print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
-    if shoot==1 and arme!=0 and arme!=4:
+    if shoot==1 and arme!=0 and arme!=4 and arme!=5:
         a_shift=np.random.normal(0,PREC[arme],2)
         x_d=[(a_shift[0]/(pi / 4),a_shift[1]/(atan(1 / 2) * 2))]
         if arme==2:
@@ -5059,7 +5186,7 @@ while running == 1:
         print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
 
-    if shoot==1 and arme!=0 and arme!=4:
+    if shoot==1 and arme!=0 and arme!=4 and arme!=5:
         for i in range(len(y_d)):
             depth1=depth[int(depth_[0]*(y_d[i][0]+0.5))][int(depth_[1]*(y_d[i][1]+0.5))]
             impact2=pygame.transform.scale(impact,(int(Ratio*400/depth1),int(Ratio*400/depth1)))

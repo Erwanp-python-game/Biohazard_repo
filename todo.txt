@@ -16,13 +16,13 @@ mecano lezard blood
 ----------------------------------
 SPEEDUP
 
+
 ->calc_norm in numba
 ->flames in numba
-->bleed is slowing things
+->bleed is slowing things (numba)
 ->check walkthing
-->starting speedup
-->rendering in numba
-->background_obj in numba
+->starting speedup (including update zmap)
+->rendering in numba + background_obj in numba
 
 GAMEPLAY
 
