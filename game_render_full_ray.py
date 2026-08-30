@@ -4581,8 +4581,10 @@ while running == 1:
                 Boule.append(grenade(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 1.5,1., 50))
                 AMMO[arme - 1] = max(AMMO[arme - 1] - 1, 0)
                 draw_AMMO()
-            if arme == 5:
-                Boule.append(flamme_thrower(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 0.5,.2, 50))
+        if shoot != 0 and arme == 5:
+            s = pygame.mixer.Sound("son/gun%s.ogg" % (arme))
+            s.play()
+            Boule.append(flamme_thrower(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 0.5,.2, 50))
 
         coolD = COOLDOWN[arme]
     milliseconds.append(time.perf_counter()*1000)

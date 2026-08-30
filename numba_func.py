@@ -741,3 +741,96 @@ def antialising(Im,index_e):
                 index_e0[i,j]=Im[i,max(j-1,0),0]+Im[i,max(j-1,0),1]+Im[i,max(j-1,0),2]
 
     return Im0,index_e0
+
+
+
+@njit(fastmath=True, cache=True)
+def boule_render(counter, counter2, a0, a1, x_perso, all_x_e, Im, S, all_RA, all_im_m, all_im_o, all_obj_mon,
+                 all_types_e, all_angle, all_ima_m, all_mort, all_attack_range, all_range, all_light_e, all_im_o_d,
+                 all_destr, TORCHE3, torch_on, Im_liquid, liquid, S_liquid, boss_im,scrnL,TAN1,TAN2):
+    c0 = np.cos(a0)
+    s0 = np.sin(-a0)
+
+    c1 = np.cos(a1)
+    s1 = np.sin(a1)
+
+    W = scrnL[0] * 2 * 2
+    H = scrnL[1] * 2 * 2
+
+    f1 = scrnL[0] * 2 / TAN2
+    f2 = scrnL[1] * 2 / TAN1
+
+    index_e = np.full((W, H), -1, dtype=np.int64)
+    depth_e = np.full((W, H), 1e6, dtype=np.float64)
+    for i in range(len(all_x_e)):
+        x_e = all_x_e[i]
+        mort = int(all_mort[i])
+        if all_obj_mon[i] == 1:
+
+            if mort == 0:
+                if all_attack_range[i]:
+                    if all_range[i]:
+                        f = counter2 // 8
+                    else:
+                        f = counter // 4
+                    im = all_ima_m[all_types_e[i], f, :, :, :]
+                else:
+                    im = all_im_m[all_types_e[i], counter // 3, int(all_angle[i] // 45), :, :, :]
+            else:
+                im = all_ima_m[all_types_e[i], 4 + mort, :, :, :]
+
+        if all_obj_mon[i] == 0:
+            if mort == 0:
+                im = all_im_o[all_types_e[i], int(all_angle[i] // 45), :, :, :]
+            else:
+                im = all_im_o_d[all_types_e[i], mort, :, :, :]
+        if all_obj_mon[i] == 2:
+            im = boss_im
+
+        d = x_e - x_perso
+        dx, dy, dz = d
+
+        RA = all_RA[i]
+        x1 = c0 * dx + s0 * dy
+        if x1 > 0:
+            y1 = -s0 * dx + c0 * dy
+            z1 = -dz + (0.75 * RA - 5)
+
+            x2 = c1 * x1 - s1 * z1
+            y2 = y1
+            z2 = s1 * x1 + c1 * z1
+
+            sx = int(W * 0.5 + f1 * y2 / x2)
+            sy = int(H * 0.5 - f2 * z2 / x2)
+            width = int(RA * W / x1)
+            if sx + width // 2 > 0 and sx - width // 2 < W and sy + width // 2 > 0 and sy - width // 2 < H:  # and S[sx,sy,2]>x1:
+
+                for gx in range(0, width):
+                    ix = sx - width // 2 + gx
+                    ix_r = int(160 * gx / width)
+                    if ix >= 0 and ix < W and ix_r < 160:
+                        for gy in range(0, width):
+                            iy = sy - width // 2 + gy
+                            iy_r = int(160 * gy / width)
+                            if iy >= 0 and iy < H and S[ix, iy, 2] > x1 and depth_e[ix, iy] > x1 and iy_r < 160:
+                                r = im[ix_r, iy_r, 0]
+                                g = im[ix_r, iy_r, 1]
+                                b = im[ix_r, iy_r, 2]
+                                if r + g + b > 0:
+                                    l = all_light_e[i]
+                                    if torch_on:
+                                        l = l * TORCHE3[ix, iy, 0] / (0.1 * np.sqrt(x1))
+                                    Im[ix, iy, 0] = r * l[0]
+                                    Im[ix, iy, 1] = g * l[1]
+                                    Im[ix, iy, 2] = b * l[2]
+                                    index_e[ix, iy] = i
+                                    depth_e[ix, iy] = x1
+    d = np.minimum(depth_e, S[:, :, 2])
+    if liquid:
+        for i in range(W):
+            for j in range(H):
+                if S_liquid[i, j, 2] < d[i, j] and S_liquid[i, j, 2] != 1e6:
+                    Im[i, j, 0] = (Im[i, j, 0] + Im_liquid[i, j, 0]) / 2
+                    Im[i, j, 1] = (Im[i, j, 1] + Im_liquid[i, j, 1]) / 2
+                    Im[i, j, 2] = (Im[i, j, 2] + Im_liquid[i, j, 2]) / 2
+    return Im, index_e, d
