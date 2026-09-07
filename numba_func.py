@@ -745,9 +745,8 @@ def antialising(Im,index_e):
 
 
 @njit(fastmath=True, cache=True)
-def boule_render(counter, counter2, a0, a1, x_perso, all_x_e, Im, S, all_RA, all_im_m, all_im_o, all_obj_mon,
-                 all_types_e, all_angle, all_ima_m, all_mort, all_attack_range, all_range, all_light_e, all_im_o_d,
-                 all_destr, TORCHE3, torch_on, Im_liquid, liquid, S_liquid, boss_im,scrnL,TAN1,TAN2):
+def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
+                 , TORCHE3, torch_on,scrnL,TAN1,TAN2,Im_liquid, liquid, S_liquid):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -764,33 +763,14 @@ def boule_render(counter, counter2, a0, a1, x_perso, all_x_e, Im, S, all_RA, all
     depth_e = np.full((W, H), 1e6, dtype=np.float64)
     for i in range(len(all_x_e)):
         x_e = all_x_e[i]
-        mort = int(all_mort[i])
-        if all_obj_mon[i] == 1:
 
-            if mort == 0:
-                if all_attack_range[i]:
-                    if all_range[i]:
-                        f = counter2 // 8
-                    else:
-                        f = counter // 4
-                    im = all_ima_m[all_types_e[i], f, :, :, :]
-                else:
-                    im = all_im_m[all_types_e[i], counter // 3, int(all_angle[i] // 45), :, :, :]
-            else:
-                im = all_ima_m[all_types_e[i], 4 + mort, :, :, :]
+        im = all_im_boule[i]
 
-        if all_obj_mon[i] == 0:
-            if mort == 0:
-                im = all_im_o[all_types_e[i], int(all_angle[i] // 45), :, :, :]
-            else:
-                im = all_im_o_d[all_types_e[i], mort, :, :, :]
-        if all_obj_mon[i] == 2:
-            im = boss_im
 
         d = x_e - x_perso
         dx, dy, dz = d
 
-        RA = all_RA[i]
+        RA = all_RA_boule[i]
         x1 = c0 * dx + s0 * dy
         if x1 > 0:
             y1 = -s0 * dx + c0 * dy
@@ -817,7 +797,7 @@ def boule_render(counter, counter2, a0, a1, x_perso, all_x_e, Im, S, all_RA, all
                                 g = im[ix_r, iy_r, 1]
                                 b = im[ix_r, iy_r, 2]
                                 if r + g + b > 0:
-                                    l = all_light_e[i]
+                                    l = all_light_boule[i]
                                     if torch_on:
                                         l = l * TORCHE3[ix, iy, 0] / (0.1 * np.sqrt(x1))
                                     Im[ix, iy, 0] = r * l[0]
