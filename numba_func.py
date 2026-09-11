@@ -746,7 +746,7 @@ def antialising(Im,index_e):
 
 @njit(fastmath=True, cache=True)
 def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
-                 , TORCHE3, torch_on,scrnL,TAN1,TAN2,Im_liquid, liquid, S_liquid):
+                 , TORCHE3, torch_on,scrnL,TAN1,TAN2,Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boul,all_light_boule):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -763,48 +763,48 @@ def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
     depth_e = np.full((W, H), 1e6, dtype=np.float64)
     for i in range(len(all_x_e)):
         x_e = all_x_e[i]
+        if all_alive_boul[i]:
+            im = all_im_boule[all_im_idx_boule[i],0,:,:,:]
 
-        im = all_im_boule[i]
 
+            d = x_e - x_perso
+            dx, dy, dz = d
 
-        d = x_e - x_perso
-        dx, dy, dz = d
+            RA = all_RA_boule[i]
+            x1 = c0 * dx + s0 * dy
+            if x1 > 0:
+                y1 = -s0 * dx + c0 * dy
+                z1 = -dz #+ (0.75 * RA - 5)
 
-        RA = all_RA_boule[i]
-        x1 = c0 * dx + s0 * dy
-        if x1 > 0:
-            y1 = -s0 * dx + c0 * dy
-            z1 = -dz + (0.75 * RA - 5)
+                x2 = c1 * x1 - s1 * z1
+                y2 = y1
+                z2 = s1 * x1 + c1 * z1
 
-            x2 = c1 * x1 - s1 * z1
-            y2 = y1
-            z2 = s1 * x1 + c1 * z1
+                sx = int(W * 0.5 + f1 * y2 / x2)
+                sy = int(H * 0.5 - f2 * z2 / x2)
+                width = int(RA * W / x1)
+                if sx + width // 2 > 0 and sx - width // 2 < W and sy + width // 2 > 0 and sy - width // 2 < H:  # and S[sx,sy,2]>x1:
 
-            sx = int(W * 0.5 + f1 * y2 / x2)
-            sy = int(H * 0.5 - f2 * z2 / x2)
-            width = int(RA * W / x1)
-            if sx + width // 2 > 0 and sx - width // 2 < W and sy + width // 2 > 0 and sy - width // 2 < H:  # and S[sx,sy,2]>x1:
-
-                for gx in range(0, width):
-                    ix = sx - width // 2 + gx
-                    ix_r = int(160 * gx / width)
-                    if ix >= 0 and ix < W and ix_r < 160:
-                        for gy in range(0, width):
-                            iy = sy - width // 2 + gy
-                            iy_r = int(160 * gy / width)
-                            if iy >= 0 and iy < H and S[ix, iy, 2] > x1 and depth_e[ix, iy] > x1 and iy_r < 160:
-                                r = im[ix_r, iy_r, 0]
-                                g = im[ix_r, iy_r, 1]
-                                b = im[ix_r, iy_r, 2]
-                                if r + g + b > 0:
-                                    l = all_light_boule[i]
-                                    if torch_on:
-                                        l = l * TORCHE3[ix, iy, 0] / (0.1 * np.sqrt(x1))
-                                    Im[ix, iy, 0] = r * l[0]
-                                    Im[ix, iy, 1] = g * l[1]
-                                    Im[ix, iy, 2] = b * l[2]
-                                    index_e[ix, iy] = i
-                                    depth_e[ix, iy] = x1
+                    for gx in range(0, width):
+                        ix = sx - width // 2 + gx
+                        ix_r = int(160 * gx / width)
+                        if ix >= 0 and ix < W and ix_r < 160:
+                            for gy in range(0, width):
+                                iy = sy - width // 2 + gy
+                                iy_r = int(160 * gy / width)
+                                if iy >= 0 and iy < H and S[ix, iy, 2] > x1 and depth_e[ix, iy] > x1 and iy_r < 160:
+                                    r = im[ix_r, iy_r, 0]
+                                    g = im[ix_r, iy_r, 1]
+                                    b = im[ix_r, iy_r, 2]
+                                    if r + g + b > 0:
+                                        l = all_light_boule[i]
+                                        if torch_on:
+                                            l = l * TORCHE3[ix, iy, 0] / (0.1 * np.sqrt(x1))
+                                        Im[ix, iy, 0] = r * l[0]
+                                        Im[ix, iy, 1] = g * l[1]
+                                        Im[ix, iy, 2] = b * l[2]
+                                        index_e[ix, iy] = i
+                                        depth_e[ix, iy] = x1
     d = np.minimum(depth_e, S[:, :, 2])
     if liquid:
         for i in range(W):

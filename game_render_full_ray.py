@@ -2676,7 +2676,7 @@ class grenade(pygame.sprite.Sprite):
 
 
 class flamme_thrower(pygame.sprite.Sprite):
-    def __init__(self, x, y, z, ang1, ang2, v, masse, deg):
+    def __init__(self, x, y, z, ang1, ang2, v, masse, deg,idxfl):
         self.p = np.array([x, y, z+.4])
         self.ang1 = ang1-pi/6
         self.vx = v * sin(ang1) * cos(ang2)
@@ -2699,7 +2699,11 @@ class flamme_thrower(pygame.sprite.Sprite):
         self.cool = 0
         self.size = 1000
 
+        self.boule_idx=idxfl
+
     def update(self):
+        global all_x_boule
+
         self.lifetime += 1
         self.v += np.array([0, 0, 0.01]) * self.masse
         self.p += self.v
@@ -2709,6 +2713,7 @@ class flamme_thrower(pygame.sprite.Sprite):
         self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
         self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
 
+        all_x_boule[self.boule_idx] = self.p
 
 
         self.cool = max(0, self.cool - 1)
@@ -2796,7 +2801,7 @@ class flamme_thrower(pygame.sprite.Sprite):
 
 
             shift = min(int(self.size / self.f0[0]), window[1] // 1) // 2
-            fond.blit(self.imb, (int((window[0] // 2) * self.X) - shift, int((window[1] // 2) * self.Y) - shift))
+            #fond.blit(self.imb, (int((window[0] // 2) * self.X) - shift, int((window[1] // 2) * self.Y) - shift))
 
 font = pygame.font.Font('freesansbold.ttf', 13)
 
@@ -4212,6 +4217,16 @@ def load_level(level_name):
 
     all_RA = np.array([i.RA for i in all_things])
 
+    global all_RA_boule,all_x_boule,all_im_idx_boule,all_alive_boule,all_light_boule,all_im_boule
+    all_RA_boule=np.full((100),10.)
+    all_x_boule=np.full((100,3),0.)
+    all_im_idx_boule = np.full((100), 0)
+    all_alive_boule = np.full((100),False)
+    all_light_boule=np.full((100,3),1.)
+    all_im_boule=np.full((1, 4, 50, 50, 3), 0.)
+    for imc in range(4):
+        all_im_boule[0,imc,:,:,:]=np.minimum(pygame.surfarray.pixels3d(pygame.image.load('image/effects/ft%s.png' % str(imc+1))), 255)
+
     types_monst=list(set(levelD[level]['mon']))
     time1=time.perf_counter()*1000
     print((time1-time0)/1000,'declaring_all_ims')
@@ -4584,7 +4599,13 @@ while running == 1:
         if shoot != 0 and arme == 5:
             s = pygame.mixer.Sound("son/gun%s.ogg" % (arme))
             s.play()
-            Boule.append(flamme_thrower(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 0.5,.2, 50))
+            idxfl=0
+            for cfli,fli in enumerate(all_alive_boule):
+                if not(fli):
+                    all_alive_boule[cfli]=True
+                    idxfl=cfli
+                    break
+            Boule.append(flamme_thrower(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 0.5,.2, 50,idxfl))
 
         coolD = COOLDOWN[arme]
     milliseconds.append(time.perf_counter()*1000)
@@ -5093,6 +5114,9 @@ while running == 1:
 
     Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine,Im_liquid,liquid,S_liquid,boss_im,scrnL,TAN1,TAN2)
 
+    print(all_x_boule,all_alive_boule,R_c)
+    Im,index_e,depth_e=boule_render(ang[0], ang[1], R_c, all_x_boule, Im, S_i, all_im_boule, all_RA_boule
+                 , TORCHE3, torch_on, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boule,all_light_boule)
 
 
     Im = np.minimum(Im, 255)
@@ -5123,6 +5147,10 @@ while running == 1:
     #     Im[i.Ub] = IS_rendered[-1][i.Ub]*0.5+Im[i.Ub]*0.5
     # if fire:
     #     Im = np.minimum(Im + 100 * TORCHE, 255)
+
+
+
+
 
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('rendering0')
