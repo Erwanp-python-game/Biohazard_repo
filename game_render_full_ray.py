@@ -2718,10 +2718,10 @@ class flamme_thrower(pygame.sprite.Sprite):
 
         self.cool = max(0, self.cool - 1)
 
-        if self.p[-1] >= zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 2.5:
+        if self.p[-1] >= zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 5:
             self.v[-1] *= -1
             self.v *= 0.5
-            self.p[-1] = zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 2.4
+            self.p[-1] = zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 4.9
         if (authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) or (
                 level_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) and self.cool == 0 and level_w_transp[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2]==0:
             for i in wall[:20]:
@@ -2775,22 +2775,23 @@ class flamme_thrower(pygame.sprite.Sprite):
         #         self.im.append(pygame.image.load('image/effects/explo%s.png' % str(self.lifetime - 50)))
 
         if self.lifetime == 50:
+            all_alive_boule[self.boule_idx]=False
             return True
         return False
 
     def affiche(self):
         if self.f0[0] > 0 and abs(self.f0[1] / self.f0[0]) < TAN2 + 0.5 and self.D <= \
                 depth[int(self.X * 2*scrnL[0]) % (2*2 * scrnL[0])][int(self.Y *2* scrnL[1] % (2*2 * scrnL[1]))]:
-
-            self.imA = pygame.transform.scale(self.im[min(int(4*self.lifetime/50),3)], (
-                min(int(Ratio*self.size / self.f0[0]), window[1] // 1), min(int(Ratio*self.size / self.f0[0]), window[1] // 1)))
+            shift=0
+            # self.imA = pygame.transform.scale(self.im[min(int(4*self.lifetime/50),3)], (
+            #     min(int(Ratio*self.size / self.f0[0]), window[1] // 1), min(int(Ratio*self.size / self.f0[0]), window[1] // 1)))
 
             # colorT = light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2]
             # if light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2].sum() == 0:
             #     colorT = np.array([1, 1, 1.])
             # colorT = light_modif(colorT, level, c3)
 
-            self.imb=self.imA.copy()
+            # self.imb=self.imA.copy()
             # self.imb.fill(255*colorT, special_flags=BLEND_RGB_MULT)
 
             # if len(IS)>0:
@@ -2800,8 +2801,8 @@ class flamme_thrower(pygame.sprite.Sprite):
             #             self.imb.fill(colorliquid, special_flags=BLEND_RGB_MULT)
 
 
-            shift = min(int(self.size / self.f0[0]), window[1] // 1) // 2
-            #fond.blit(self.imb, (int((window[0] // 2) * self.X) - shift, int((window[1] // 2) * self.Y) - shift))
+            # shift = min(int(self.size / self.f0[0]), window[1] // 1) // 2
+            # fond.blit(self.imb, (int((window[0] // 2) * self.X) - shift, int((window[1] // 2) * self.Y) - shift))
 
 font = pygame.font.Font('freesansbold.ttf', 13)
 
@@ -4218,7 +4219,7 @@ def load_level(level_name):
     all_RA = np.array([i.RA for i in all_things])
 
     global all_RA_boule,all_x_boule,all_im_idx_boule,all_alive_boule,all_light_boule,all_im_boule
-    all_RA_boule=np.full((100),10.)
+    all_RA_boule=np.full((100),1.)
     all_x_boule=np.full((100,3),0.)
     all_im_idx_boule = np.full((100), 0)
     all_alive_boule = np.full((100),False)
@@ -4599,11 +4600,11 @@ while running == 1:
         if shoot != 0 and arme == 5:
             s = pygame.mixer.Sound("son/gun%s.ogg" % (arme))
             s.play()
-            idxfl=0
+            idxfl=len(all_alive_boule)-1
             for cfli,fli in enumerate(all_alive_boule):
-                if not(fli):
-                    all_alive_boule[cfli]=True
-                    idxfl=cfli
+                idxfl = len(all_alive_boule) - 1 - cfli
+                if not(all_alive_boule[idxfl]):
+                    all_alive_boule[idxfl] = True
                     break
             Boule.append(flamme_thrower(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 0.5,.2, 50,idxfl))
 
@@ -5114,9 +5115,9 @@ while running == 1:
 
     Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine,Im_liquid,liquid,S_liquid,boss_im,scrnL,TAN1,TAN2)
 
-    print(all_x_boule,all_alive_boule,R_c)
-    Im,index_e,depth_e=boule_render(ang[0], ang[1], R_c, all_x_boule, Im, S_i, all_im_boule, all_RA_boule
-                 , TORCHE3, torch_on, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boule,all_light_boule)
+    #print(all_x_boule,all_alive_boule,R_c,torch_on)
+    Im,index_e,depth_e=boule_render(ang[0], ang[1], R_c, all_x_boule, Im, depth_e, all_im_boule, all_RA_boule
+                 , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boule,all_light_boule)
 
 
     Im = np.minimum(Im, 255)
