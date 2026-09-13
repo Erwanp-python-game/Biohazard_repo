@@ -782,9 +782,9 @@ def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
 
                 sx = int(W * 0.5 + f1 * y2 / x2)
                 sy = int(H * 0.5 - f2 * z2 / x2)
-                width = int(RA * W / x1)
-                if sx + width // 2 > 0 and sx - width // 2 < W and sy + width // 2 > 0 and sy - width // 2 < H:  # and S[sx,sy,2]>x1:
+                width = int(RA * W / max(x1,0.01))
 
+                if (sx + width // 2 > 0) and (sx - width // 2 < W) and (sy + width // 2 > 0) and (sy - width // 2 < H):  # and S[sx,sy,2]>x1:
                     for gx in range(0, width):
                         ix = sx - width // 2 + gx
                         ix_r = int(50 * gx / width)
