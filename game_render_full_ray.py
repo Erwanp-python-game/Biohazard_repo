@@ -4579,7 +4579,8 @@ while running == 1:
         else:
             shoot = (shoot + 0.5) % 3
         GUN_im = MG1[arme][shoot // 2 + 1].copy()
-        if not (np.sum(colorGUN) == 0 and torch_on == 1):
+        # print(np.sum(colorGUN),torch_on)
+        if not (np.sum(colorGUN) == 0 and torch_on == 1) and colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]):# slow down
             GUN_im.fill(colorGUN, special_flags=BLEND_RGB_MULT)
         if shoot == 0:
             attack = 0
