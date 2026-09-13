@@ -2702,7 +2702,7 @@ class flamme_thrower(pygame.sprite.Sprite):
         self.boule_idx=idxfl
 
     def update(self):
-        global all_x_boule
+        global all_x_boule,all_im_idx_boule
 
         self.lifetime += 1
         self.v += np.array([0, 0, 0.01]) * self.masse
@@ -2773,6 +2773,8 @@ class flamme_thrower(pygame.sprite.Sprite):
         #     self.size = 5000
         #     for i in range(4):
         #         self.im.append(pygame.image.load('image/effects/explo%s.png' % str(self.lifetime - 50)))
+
+        all_im_idx_boule[self.boule_idx]=min(int(4*self.lifetime/50),3)
 
         if self.lifetime == 50:
             all_alive_boule[self.boule_idx]=False

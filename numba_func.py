@@ -764,7 +764,7 @@ def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
     for i in range(len(all_x_e)):
         x_e = all_x_e[i]
         if all_alive_boul[i]:
-            im = all_im_boule[all_im_idx_boule[i],0,:,:,:]
+            im = all_im_boule[0,all_im_idx_boule[i],:,:,:]
 
 
             d = x_e - x_perso

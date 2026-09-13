@@ -16,7 +16,7 @@ mecano lezard blood
 ----------------------------------
 SPEEDUP
 
--> when attack pressed something is taking 8 ms : to find
+
 ->calc_norm in numba
 ->flames in numba
 ->bleed is slowing things (numba)
