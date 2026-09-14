@@ -2683,7 +2683,9 @@ class flamme_thrower(pygame.sprite.Sprite):
         self.vy = v * sin(ang1) * sin(ang2)
         self.vz = v * cos(ang1)
         self.v = np.array([self.vx, self.vy, self.vz])
-        self.p += 2 * np.array([cos(ang2), sin(ang2), 0])
+        # self.p += 2 * np.array([cos(ang2), sin(ang2), 0])
+        # self.p +=1*cos(ang1)
+        self.p+=self.v/v
         self.im = []
         for i in range(4):
             self.im.append(pygame.image.load('image/effects/ft%s.png' % str(i+1)))
