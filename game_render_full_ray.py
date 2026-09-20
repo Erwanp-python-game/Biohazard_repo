@@ -2104,6 +2104,18 @@ class Thing():
 
         milliseconds.append(time.perf_counter()*1000)
         label_m.append('attack')
+
+
+        # print((np.concatenate((self.x0, np.array([2 * self.z])))-all_x_boule[all_alive_boule]))
+        d_l=np.concatenate((self.x0, np.array([2 * self.z])))-all_x_boule[all_alive_boule]
+        if d_l.shape[0]>0:
+            print(d_l.shape)
+            d_f=np.amin(np.linalg.norm(d_l,axis=-1))
+            if d_f<1 :
+                print('flamme')
+                self.vie -=15
+
+
         if (self.inline and shoot == 2 and (self.attack_range or arme != 0)) and self.vie > 0 and arme != 4:
 
 
