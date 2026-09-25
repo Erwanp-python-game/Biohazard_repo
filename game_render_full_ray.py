@@ -2097,7 +2097,7 @@ class Thing():
                 s.play()
 
     def render(self):
-        global Killed_E,x_d,all_mort,all_light_e,fc
+        global Killed_E,x_d,all_mort,all_light_e,fc,all_alive_boule
         milliseconds=[time.perf_counter()*1000]
         label_m=[]
 
@@ -2107,13 +2107,21 @@ class Thing():
 
 
         # print((np.concatenate((self.x0, np.array([2 * self.z])))-all_x_boule[all_alive_boule]))
-        d_l=np.concatenate((self.x0, np.array([2 * self.z])))-all_x_boule[all_alive_boule]
-        if d_l.shape[0]>0:
-            print(d_l.shape)
-            d_f=np.amin(np.linalg.norm(d_l,axis=-1))
-            if d_f<1 :
-                print('flamme')
-                self.vie -=15
+        d_l = np.concatenate((self.x0, np.array([2 * self.z]))) - all_x_boule[all_alive_boule]
+
+        if d_l.shape[0] > 0:
+
+            distances = np.linalg.norm(d_l, axis=-1)
+            d_f = np.amin(distances)
+            idx = np.argmin(distances)
+
+            if d_f < 3:
+
+                self.vie -= 5
+
+                alive_indices = np.flatnonzero(all_alive_boule)
+
+                all_alive_boule[alive_indices[idx]] = False
 
 
         if (self.inline and shoot == 2 and (self.attack_range or arme != 0)) and self.vie > 0 and arme != 4:
