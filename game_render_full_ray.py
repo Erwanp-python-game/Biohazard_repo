@@ -2723,10 +2723,8 @@ class flamme_thrower(pygame.sprite.Sprite):
     def __init__(self, x, y, z, ang1, ang2, v, masse, deg,idxfl):
         self.p = np.array([x, y, z+.4])
         #self.ang1 = ang1-pi/6
-        print(trans0_)
         if trans0_.any() != np.array([0.0, 0.0]).any():
             v1=-trans0_*0.2
-            print('a')
         else:
             v1=np.array([0,0.])
         self.ang1=ang1+(random()-0.5)*pi/30
@@ -2737,7 +2735,7 @@ class flamme_thrower(pygame.sprite.Sprite):
         self.v = np.array([self.vx, self.vy, self.vz])
         # self.p += 2 * np.array([cos(ang2), sin(ang2), 0])
         # self.p +=1*cos(ang1)
-        self.p+=self.v/v
+        self.p+=3*self.v/v
         self.im = []
         for i in range(4):
             self.im.append(pygame.image.load('image/effects/ft%s.png' % str(i+1)))
@@ -4408,7 +4406,7 @@ nb_wall = []
 time_wall = []
 time_tot=[]
 time_behind = []
-plot_stats=True
+plot_stats=False
 sensitivity=500#500
 movement=0
 render_w_old=0
