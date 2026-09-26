@@ -2731,8 +2731,8 @@ class flamme_thrower(pygame.sprite.Sprite):
             v1=np.array([0,0.])
         self.ang1=ang1+(random()-0.5)*pi/30
         self.ang2 = ang2+(random() - 0.5) * pi / 30
-        self.vx = (v+v1[0]) * sin(self.ang1) * cos(self.ang2)+(v1[1]) * sin(self.ang1) * sin(self.ang2)
-        self.vy = (v+v1[0]) * sin(self.ang1) * sin(self.ang2)+(v1[1]) * sin(self.ang1) * cos(self.ang2)
+        self.vx = (v+v1[0]) * sin(self.ang1) * cos(self.ang2)#+(v1[1]) * sin(self.ang1) * sin(self.ang2)
+        self.vy = (v+v1[0]) * sin(self.ang1) * sin(self.ang2)#+(v1[1]) * sin(self.ang1) * cos(self.ang2)
         self.vz = v * cos(self.ang1)
         self.v = np.array([self.vx, self.vy, self.vz])
         # self.p += 2 * np.array([cos(ang2), sin(ang2), 0])
