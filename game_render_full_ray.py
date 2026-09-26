@@ -2115,13 +2115,37 @@ class Thing():
             d_f = np.amin(distances)
             idx = np.argmin(distances)
 
-            if d_f < 3:
+            if d_f < 3 and self.vie>0:
 
-                self.vie -= 5
+                self.vie -= DEGAT[5]
 
                 alive_indices = np.flatnonzero(all_alive_boule)
 
                 all_alive_boule[alive_indices[idx]] = False
+                if self.type_M == 6 and self.shield == 0:
+                    self.shield = 1
+                    s = pygame.mixer.Sound("son/shield.ogg")
+                    s.play()
+                else:
+                    for i in range(randint(5, 10)):
+                        if self.type_M <= 4:
+                            Boule.append(
+                                boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(),
+                                      0.2 + 0.1 * random(), 4,
+                                      'image/effects/vert.png', 0))
+                        else:
+                            Boule.append(
+                                boule(self.x0[0], self.x0[1], self.z, pi * random(), 2 * pi * random(),
+                                      0.2 + 0.1 * random(), 4,
+                                      'image/effects/rouge.png', 0))
+                if self.active == 0:
+                    self.active = 1
+                    fc = c3
+                    X0 = nearest_valid(authorized_map, x)
+                    self.track = astar(authorized_map, (int(self.x0[1] + 101) // 2, int(self.x0[0] + 101) // 2),
+                                       (X0[1], X0[0]))
+                    s = pygame.mixer.Sound("son/grognespot%s.ogg" % (self.type_M + 1))
+                    s.play()
 
 
         if (self.inline and shoot == 2 and (self.attack_range or arme != 0)) and self.vie > 0 and arme != 4:
@@ -2698,10 +2722,18 @@ class grenade(pygame.sprite.Sprite):
 class flamme_thrower(pygame.sprite.Sprite):
     def __init__(self, x, y, z, ang1, ang2, v, masse, deg,idxfl):
         self.p = np.array([x, y, z+.4])
-        self.ang1 = ang1-pi/6
-        self.vx = v * sin(ang1) * cos(ang2)
-        self.vy = v * sin(ang1) * sin(ang2)
-        self.vz = v * cos(ang1)
+        #self.ang1 = ang1-pi/6
+        print(trans0_)
+        if trans0_.any() != np.array([0.0, 0.0]).any():
+            v1=-trans0_*0
+            print('a')
+        else:
+            v1=np.array([0,0.])
+        self.ang1=ang1+(random()-0.5)*pi/30
+        self.ang2 = ang2+(random() - 0.5) * pi / 30
+        self.vx = (v+v1[0]) * sin(self.ang1) * cos(self.ang2)+(v1[1]) * sin(self.ang1) * sin(self.ang2)
+        self.vy = (v+v1[0]) * sin(self.ang1) * sin(self.ang2)+(v1[1]) * sin(self.ang1) * cos(self.ang2)
+        self.vz = v * cos(self.ang1)
         self.v = np.array([self.vx, self.vy, self.vz])
         # self.p += 2 * np.array([cos(ang2), sin(ang2), 0])
         # self.p +=1*cos(ang1)
@@ -3006,7 +3038,7 @@ arme = 0
 TotAr = 1
 COOLDOWN = [10, 10, 17, 0, 10,0]
 REC = [0., 1., 3., 0., 0.,0.]
-DEGAT = [35, 25, 70, 30, 150,0]
+DEGAT = [35, 25, 70, 30, 150,10]
 explo_deg=[50,DEGAT[4],5000]
 PREC=[0,pi/200,pi/100,pi/100,pi/100,pi/100]
 BULLETS=[1,1,5,1,1,0]
@@ -5141,12 +5173,12 @@ while running == 1:
     Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine,Im_liquid,liquid,S_liquid,boss_im,scrnL,TAN1,TAN2)
 
     #print(all_x_boule,all_alive_boule,R_c,torch_on)
-    Im,index_e,depth_e=boule_render(ang[0], ang[1], R_c, all_x_boule, Im, depth_e, all_im_boule, all_RA_boule
+    Im,index_b,depth_b=boule_render(ang[0], ang[1], R_c, all_x_boule, Im, depth_e, all_im_boule, all_RA_boule
                  , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boule,all_light_boule)
 
 
     Im = np.minimum(Im, 255)
-    depth=depth_e[:,:,None]
+    depth=depth_b[:,:,None]
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('things_parallel')
     if milliseconds[-1]-milliseconds[-2]>100:
