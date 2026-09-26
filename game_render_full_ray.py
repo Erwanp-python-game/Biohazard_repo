@@ -2725,7 +2725,7 @@ class flamme_thrower(pygame.sprite.Sprite):
         #self.ang1 = ang1-pi/6
         print(trans0_)
         if trans0_.any() != np.array([0.0, 0.0]).any():
-            v1=-trans0_*0
+            v1=-trans0_*0.2
             print('a')
         else:
             v1=np.array([0,0.])
@@ -4666,6 +4666,7 @@ while running == 1:
             Boule.append(flamme_thrower(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 0.5,.2, 50,idxfl))
 
         coolD = COOLDOWN[arme]
+    trans0_=np.array([0.,0.])
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('gun_clicks_and_keys5')
     if milliseconds[-1]-milliseconds[-2]>100:
