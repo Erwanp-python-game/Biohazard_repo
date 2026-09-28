@@ -19,6 +19,8 @@ SPEEDUP
 
 ->calc_norm in numba
 ->flames in numba
+->boule in numba
+->grenade in numba
 ->bleed is slowing things (numba)
 ->check walkthing
 ->starting speedup (including update zmap)
@@ -26,14 +28,16 @@ SPEEDUP
 
 GAMEPLAY
 
-
-flames_damage
 reload gun
 polish mechanism in level editor
 armor
-fire thrower
 biolance as final weapon
 more destructible obj
+
+DISPLAY
+
+flammethrower gauge
+symbol flamme when burned
 
 
 BUG

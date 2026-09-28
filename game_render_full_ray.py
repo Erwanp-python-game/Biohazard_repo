@@ -4423,7 +4423,7 @@ torch_shine=False
 amp=1
 breath=-2
 prev_res=0
-
+brule=0
 while running == 1:
 
     moving_cam = True
@@ -5306,6 +5306,18 @@ while running == 1:
     for ff in fire_:
         ff.update()
         ff.parcours()
+        for fl in ff.liste:
+
+            if fl.D<4:
+                brule=20
+                break
+
+    if brule>0 and c==1:
+        VIE=VIE-1
+        brule = max(brule - 1, 0)
+        s = pygame.mixer.Sound("son/aie.ogg")
+        s.play()
+        draw_vie()
 
     fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+resp0))))
 
