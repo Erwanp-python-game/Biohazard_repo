@@ -2868,15 +2868,21 @@ def draw_vie():
                      (int(0.11 * window[0] + 0.1 * window[0] * max(VIE, 0) / 100), int(1.05 * window[1])), int(10*window[0]/960))
 
 def draw_ft():
-
+    pygame.draw.line(fenetre, (80, 80, 80), (int(0.11 * window[0]-10*window[0]/960), int(1.1 * window[1])),
+                     (int(0.11 * window[0] + 0.1 * window[0]+10*window[0]/960), int(1.1 * window[1])), int(15*window[0]/960))
     pygame.draw.line(fenetre, (0, 0, 0), (int(0.11 * window[0]-1.5*window[0]/960), int(1.1 * window[1])),
                      (int(0.11 * window[0] + 0.1 * window[0]+1.5*window[0]/960), int(1.1 * window[1])), int(10*window[0]/960))
+    pygame.draw.line(fenetre, (100, 70, 30), (int(0.11 * window[0]), int(1.1 * window[1])),
+                     (int(0.11 * window[0] + 0.1 * window[0]), int(1.1 * window[1])),
+                     int(7 * window[0] / 960))
+
     if AMMO[4] > 0:
         pygame.draw.line(fenetre, (255, 30, 30), (int(0.11 * window[0]), int(1.1 * window[1])),
                          (int(0.11 * window[0] + 0.1 * window[0] * max(AMMO[4], 0) / 100), int(1.1 * window[1])), int(7*window[0]/960))
-
+    fenetre.blit(ft, (int(0.11 * window[0] + 0.1 * window[0] * max(AMMO[4], 0) / 100 - 0.5 * 0.025 * window[1]),
+                      int(1.1 * window[1] - 0.5 * 0.025 * window[1])))
 def draw_hud():
-    global back, font, code1, code2, fontC,incinerate,incinerate2
+    global back, font, code1, code2, fontC,incinerate,incinerate2,ft
     fontC = pygame.font.Font('freesansbold.ttf', int(32 * window[0] / (12 * scrnL[0])))
     code1 = pygame.transform.scale(code01, (int(0.8 * window[1]), int(0.16 * window[1])))
     code2 = pygame.transform.scale(code02, (int(0.8 * window[1]), int(0.16 * window[1])))
@@ -2892,7 +2898,7 @@ def draw_hud():
     fenetre.blit(pygame.transform.scale(pygame.image.load('image/Interface/text.png'),
                                         (int(0.8 * window[1]), int(0.18 * window[1]))),
                  (int(0.45 * window[1]), int(1.01 * window[1])))
-
+    ft=pygame.transform.scale(pygame.image.load('image/effects/ft.png'),(int(0.025 * window[1]), int(0.025 * window[1])))
 
 def draw_AMMO():
     for i in range(3):
