@@ -2867,6 +2867,13 @@ def draw_vie():
     pygame.draw.line(fenetre, (0, 255, 0), (int(0.11 * window[0]), int(1.05 * window[1])),
                      (int(0.11 * window[0] + 0.1 * window[0] * max(VIE, 0) / 100), int(1.05 * window[1])), int(10*window[0]/960))
 
+def draw_ft():
+
+    pygame.draw.line(fenetre, (0, 0, 0), (int(0.11 * window[0]-1.5*window[0]/960), int(1.1 * window[1])),
+                     (int(0.11 * window[0] + 0.1 * window[0]+1.5*window[0]/960), int(1.1 * window[1])), int(10*window[0]/960))
+    if AMMO[4] > 0:
+        pygame.draw.line(fenetre, (255, 30, 30), (int(0.11 * window[0]), int(1.1 * window[1])),
+                         (int(0.11 * window[0] + 0.1 * window[0] * max(AMMO[4], 0) / 100), int(1.1 * window[1])), int(7*window[0]/960))
 
 def draw_hud():
     global back, font, code1, code2, fontC,incinerate,incinerate2
@@ -4653,6 +4660,11 @@ while running == 1:
                 AMMO[arme - 1] = max(AMMO[arme - 1] - 1, 0)
                 draw_AMMO()
         if shoot != 0 and arme == 5:
+            AMMO[arme - 1] = max(AMMO[arme - 1] - 1, 0)
+            if AMMO[arme - 1]==0:
+                shoot=0
+                attack=0
+            draw_ft()
             s = pygame.mixer.Sound("son/gun%s.ogg" % (arme))
             s.play()
             idxfl=len(all_alive_boule)-1
@@ -4664,6 +4676,10 @@ while running == 1:
             Boule.append(flamme_thrower(x[0], x[1], z, -ang[1] + pi / 2, -ang[0], 0.5,.2, 50,idxfl))
 
         coolD = COOLDOWN[arme]
+    if c==1 and TotAr>5 and shoot==0:
+        AMMO[4] = min(AMMO[4] + 1, 100)
+        draw_ft()
+
     trans0_=np.array([0.,0.])
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('gun_clicks_and_keys5')
