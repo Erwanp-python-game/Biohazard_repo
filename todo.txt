@@ -54,4 +54,5 @@ bug ->grenade not always visible
 
 gain 
 1.5ms with Gun in numba
+3.8ms with blood in numba
 

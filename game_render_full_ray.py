@@ -4442,7 +4442,8 @@ for i in range(20):
     bl_= BLOOD.copy()
     bl_.fill((255, 255, 255, 255 * i / 20), special_flags=BLEND_RGBA_MULT)
     BLOOD0.append(bl_)
-
+BLOOD0_A=pygame.surfarray.pixels3d(BLOOD.copy())
+BLOOD0_A_alpha=pygame.surfarray.array_alpha(BLOOD.copy())
 torch_shine=False
 amp=1
 breath=-2
@@ -5312,6 +5313,13 @@ while running == 1:
 
     Im,depth=render_gun(Im, scrnL, 2*2 * scrnL[0], 2*2 * scrnL[1], Gun_A, Gun_A.shape[0], Gun_A.shape[1],depth,xgun,ygun,np.array(colorGUN)*1/255)
 
+
+
+    if bleed != 0:
+        bleed = max(bleed - 1, 0)
+        Im=render_blood(Im, scrnL, 2*2 * scrnL[0], 2*2 * scrnL[1], BLOOD0_A,BLOOD0_A_alpha*1/255, BLOOD0_A.shape[0], BLOOD0_A.shape[1],bleed/19)
+
+
     fond0 = pygame.surfarray.make_surface(Im)
 
     fond0.set_colorkey((0, 255, 255))
@@ -5369,15 +5377,15 @@ while running == 1:
 
     #fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+resp0))))
 
-
     if HIT:
         bleed = 20
         draw_vie()
-    if bleed != 0:
-        #BLOOD0 = BLOOD.copy()
-        #BLOOD0.fill((255, 255, 255, 255 * bleed / 20), special_flags=BLEND_RGBA_MULT)
-        bleed = max(bleed - 1, 0)
-        fond.blit(BLOOD0[bleed], (0, 0))
+
+    # if bleed != 0:
+    #     #BLOOD0 = BLOOD.copy()
+    #     #BLOOD0.fill((255, 255, 255, 255 * bleed / 20), special_flags=BLEND_RGBA_MULT)
+    #     bleed = max(bleed - 1, 0)
+    #     fond.blit(BLOOD0[bleed], (0, 0))
 
     if explo != 0:
         explo = max(explo - 1, 0)

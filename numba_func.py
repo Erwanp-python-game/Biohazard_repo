@@ -847,3 +847,35 @@ def render_gun(Im,scrnL,widthx,widthy,im,im_widthx,im_widthy,depth,xgun,ygun,col
 
 
     return Im,depth
+
+
+
+@njit(fastmath=True, cache=True)
+def render_blood(Im,scrnL,widthx,widthy,im,im_alpha,im_widthx,im_widthy,transp):
+
+
+    W = scrnL[0] * 2 * 2
+    H = scrnL[1] * 2 * 2
+
+    sx = int(W * 0.5)
+    sy = int(H * 0.5)
+
+    for gx in range(0, widthx):
+        ix = sx - widthx // 2 + gx
+        ix_r = int(im_widthx * gx / widthx)
+        if ix >= 0 and ix < W and ix_r < im_widthx:
+            for gy in range(0, widthy):
+                iy = sy - widthy // 2 + gy
+                iy_r = int(im_widthy * gy / widthy)
+                if iy >= 0 and iy < H and iy_r < im_widthy:
+                    r = im[ix_r, iy_r, 0]
+                    g = im[ix_r, iy_r, 1]
+                    b = im[ix_r, iy_r, 2]
+                    if r+g+b>0:
+                        Im[ix, iy, 0] =Im[ix, iy, 0]*(1-transp*im_alpha[ix_r, iy_r])+ r*transp*im_alpha[ix_r, iy_r]
+                        Im[ix, iy, 1] =Im[ix, iy, 1]*(1-transp*im_alpha[ix_r, iy_r])+ g*transp*im_alpha[ix_r, iy_r]
+                        Im[ix, iy, 2] =Im[ix, iy, 2]*(1-transp*im_alpha[ix_r, iy_r])+ b*transp*im_alpha[ix_r, iy_r]
+
+
+
+    return Im
