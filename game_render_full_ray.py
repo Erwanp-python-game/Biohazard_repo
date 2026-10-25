@@ -3029,8 +3029,10 @@ f.close()
 f = open("image/gunD", "rb")
 MG0 = pickle.load(f)
 MG1 = []
+AG1 = []
 for i in MG0:
     MG2 = {}
+    AG2 = {}
     for j in i.keys():
         if setting['smooth'] == False:
             MG2[j] = pygame.transform.scale(
@@ -3038,10 +3040,19 @@ for i in MG0:
         else:
             MG2[j] = pygame.transform.smoothscale(
                 pygame.transform.scale(pygame.image.load('image/gun/' + i[j]), (2*2 * scrnL[0], 2*2 * scrnL[1])), window)
+
+        AG2[j]=pygame.surfarray.pixels3d(MG2[j])
+
     MG1.append(MG2)
+    AG1.append(AG2)
 f.close()
+
+
+
+
+
 VIE = 100
-GUN_im = MG1[0][0]
+# GUN_im = MG1[0][0]
 attack = 0
 shoot = 0
 coolD = 0
@@ -4546,7 +4557,8 @@ while running == 1:
                     pygame.display.flip()
                 else:
                     arme = (arme + 1) % TotAr
-                    GUN_im = MG1[arme][0].copy()
+                    # GUN_im = MG1[arme][0].copy()
+                    Gun_A=AG1[arme][0].copy()
                     colorGUN = (255., 255., 255.)
             if event.button == 5:
                 if mouse_c == 0:
@@ -4555,7 +4567,8 @@ while running == 1:
                     pygame.display.flip()
                 else:
                     arme = (arme - 1) % TotAr
-                    GUN_im = MG1[arme][0].copy()
+                    # GUN_im = MG1[arme][0].copy()
+                    Gun_A = AG1[arme][0].copy()
                     colorGUN = (255., 255., 255.)
     clic = pygame.mouse.get_pressed()
     mouse = pygame.mouse.get_pos()
@@ -4637,7 +4650,8 @@ while running == 1:
     if milliseconds[-1]-milliseconds[-2]>100:
         print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     if attack == 0:
-        GUN_im = MG1[arme][0].copy()
+        # GUN_im = MG1[arme][0].copy()
+        Gun_A = AG1[arme][0].copy()
         colorGUN = (255., 255., 255.)
     if attack and (AMMO[arme - 1] > 0 or arme == 0):
         moving_cam = True
@@ -4645,10 +4659,11 @@ while running == 1:
             shoot = (shoot + 1) % 3
         else:
             shoot = (shoot + 0.5) % 3
-        GUN_im = MG1[arme][shoot // 2 + 1].copy()
+        # GUN_im = MG1[arme][shoot // 2 + 1].copy()
+        Gun_A = AG1[arme][shoot // 2 + 1].copy()
         # print(np.sum(colorGUN),torch_on)
-        if not (np.sum(colorGUN) == 0 and torch_on == 1) and colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]):# slow down
-            GUN_im.fill(colorGUN, special_flags=BLEND_RGB_MULT)
+        # if not (np.sum(colorGUN) == 0 and torch_on == 1) and colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]):# slow down
+        #     GUN_im.fill(colorGUN, special_flags=BLEND_RGB_MULT)
         if shoot == 0:
             attack = 0
 
@@ -5210,14 +5225,15 @@ while running == 1:
                                   explo, explo_pt, DEGAT, c3,x_d,index_e,gun_width)
         all_light_e[L0[0].num] = light_boss
 
-    if colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]):
+    if colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]) and np.sum(light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2])>0:
         colorGUN = tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2])
-        GUN_im = MG1[arme][0].copy()
-        if not (np.sum(colorGUN) == 0 and torch_on == 1):
-
-
-
-            GUN_im.fill(colorGUN, special_flags=BLEND_RGB_MULT)
+        # GUN_im = MG1[arme][0].copy()
+        Gun_A = AG1[arme][0].copy()
+        # if not (np.sum(colorGUN) == 0 and torch_on == 1):
+        #
+        #
+        #
+        #     GUN_im.fill(colorGUN, special_flags=BLEND_RGB_MULT)
 
     # IS_rendered=[]
     # for i in IS:
@@ -5265,6 +5281,37 @@ while running == 1:
     label_deltat.append('rendering1')
     if milliseconds[-1]-milliseconds[-2]>100:
         print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
+
+
+
+    resp=5 * (-max(chirp(c3-fc,3/75,1/75,75*6),0)+1)
+    amp=chirp_decay(c3-fc,75*6)
+    if resp<0.01 and breath==2:
+        breath=1
+    if resp <= 5. and resp>0.01 and breath==-2 and resp-prev_res<0:
+        breath=-1
+    if breath==1:
+        s = pygame.mixer.Sound("son/expi.ogg")
+        s.play()  #
+        s.set_volume(0.2+amp)
+        breath=-2
+    if breath == -1:
+        s = pygame.mixer.Sound("son/inspi.ogg")
+        s.play()  #
+        s.set_volume(0.2+amp)
+        breath = 2
+    prev_res=resp
+    if np.sum(trans) == 0:
+        resp0=resp
+    else:
+        resp0=0
+
+    xgun=1/3 * shift_a[arme] + -10 * 1/3 * (cos(2 * pi * xg / 20)) ** 2
+    ygun=10 * 1/3 * (cos(2 * pi * (yg / 20)) ** 2) + resp0/3
+
+
+    Im,depth=render_gun(Im, scrnL, 2*2 * scrnL[0], 2*2 * scrnL[1], Gun_A, Gun_A.shape[0], Gun_A.shape[1],depth,xgun,ygun,np.array(colorGUN)*1/255)
+
     fond0 = pygame.surfarray.make_surface(Im)
 
     fond0.set_colorkey((0, 255, 255))
@@ -5301,30 +5348,9 @@ while running == 1:
             impact2=pygame.transform.scale(impact,(int(Ratio*400/depth1),int(Ratio*400/depth1)))
             impact2=pygame.transform.rotate(impact2,360*random())
             fond.blit(impact2,(int(window[0]//2-Ratio*200/depth1+y_d[i][0]*window[0]),int(window[1]//2-Ratio*200/depth1+y_d[i][1]*window[1])))
-    GUN_im.set_colorkey((0,0,0))
+    #GUN_im.set_colorkey((0,0,0))
 
 
-    resp=5*Ratio * (-max(chirp(c3-fc,3/75,1/75,75*6),0)+1)
-    amp=chirp_decay(c3-fc,75*6)
-    if resp<0.01 and breath==2:
-        breath=1
-    if resp <= 5. and resp>0.01 and breath==-2 and resp-prev_res<0:
-        breath=-1
-    if breath==1:
-        s = pygame.mixer.Sound("son/expi.ogg")
-        s.play()  #
-        s.set_volume(0.2+amp)
-        breath=-2
-    if breath == -1:
-        s = pygame.mixer.Sound("son/inspi.ogg")
-        s.play()  #
-        s.set_volume(0.2+amp)
-        breath = 2
-    prev_res=resp
-    if np.sum(trans) == 0:
-        resp0=resp
-    else:
-        resp0=0
     for ff in fire_:
         ff.update()
         ff.parcours()
@@ -5341,7 +5367,7 @@ while running == 1:
         s.play()
         draw_vie()
 
-    fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+resp0))))
+    #fond.blit(GUN_im.convert(), ((int(Ratio*shift_a[arme]+-10*Ratio * (cos(2 * pi * xg / 20)) ** 2), int(10*Ratio * (cos(2 * pi * (yg / 20)) ** 2)+resp0))))
 
 
     if HIT:

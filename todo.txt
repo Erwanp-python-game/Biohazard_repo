@@ -36,7 +36,6 @@ more destructible obj
 
 DISPLAY
 
-flammethrower gauge
 symbol flamme when burned
 
 
@@ -53,5 +52,6 @@ bug ->grenade not always visible
 
 
 
-
+gain 
+1.5ms with Gun in numba
 
