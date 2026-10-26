@@ -746,7 +746,7 @@ def antialising(Im,index_e):
 
 @njit(fastmath=True, cache=True)
 def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
-                 , TORCHE3, torch_on,scrnL,TAN1,TAN2,Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boul,all_light_boule):
+                 , TORCHE3, torch_on,scrnL,TAN1,TAN2,Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boul,all_light_boule,width_im):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -787,12 +787,12 @@ def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
                 if (sx + width // 2 > 0) and (sx - width // 2 < W) and (sy + width // 2 > 0) and (sy - width // 2 < H):  # and S[sx,sy,2]>x1:
                     for gx in range(0, width):
                         ix = sx - width // 2 + gx
-                        ix_r = int(50 * gx / width)
-                        if ix >= 0 and ix < W and ix_r < 50:
+                        ix_r = int(width_im * gx / width)
+                        if ix >= 0 and ix < W and ix_r < width_im:
                             for gy in range(0, width):
                                 iy = sy - width // 2 + gy
-                                iy_r = int(50 * gy / width)
-                                if iy >= 0 and iy < H and S[ix, iy] > x1 and depth_e[ix, iy] > x1 and iy_r < 50:
+                                iy_r = int(width_im * gy / width)
+                                if iy >= 0 and iy < H and S[ix, iy] > x1 and depth_e[ix, iy] > x1 and iy_r < width_im:
                                     r = im[ix_r, iy_r, 0]
                                     g = im[ix_r, iy_r, 1]
                                     b = im[ix_r, iy_r, 2]
@@ -879,3 +879,9 @@ def render_blood(Im,scrnL,widthx,widthy,im,im_alpha,im_widthx,im_widthy,transp):
 
 
     return Im
+
+
+
+
+
+

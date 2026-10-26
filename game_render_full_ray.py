@@ -2527,6 +2527,16 @@ class Object_parallax():
 
 class boule(pygame.sprite.Sprite):
     def __init__(self, x, y, z, ang1, ang2, v, masse, name, deg):
+        global all_alive_boule1
+        idxfl = len(all_alive_boule1) - 1
+        for cfli, fli in enumerate(all_alive_boule1):
+            idxfl = len(all_alive_boule1) - 1 - cfli
+            if not (all_alive_boule1[idxfl]):
+                all_alive_boule1[idxfl] = True
+                break
+        self.boule_idx = idxfl
+
+
         self.p = np.array([x, y, z])
         self.ang1 = ang1
         self.vx = v * sin(ang1) * cos(ang2)
@@ -2546,10 +2556,21 @@ class boule(pygame.sprite.Sprite):
         self.Y = 1 * (self.p[-1] / self.f0[0]) / TAN1 + 1 - 1 * tan(ang[1]) / TAN1
         self.deg = deg
 
+        global all_RA_boule1,all_x_boule1,all_im_idx_boule1
+
+        all_RA_boule1[self.boule_idx]=0.25
+        all_x_boule1[self.boule_idx,:]=self.p
+        all_im_idx_boule1[self.boule_idx]=0
+        # all_light_boule1[self.boule_idx]=
+
+
     def update(self):
+        global all_x_boule1,all_alive_boule1
+
         self.lifetime += 1
         self.v += np.array([0, 0, 0.01]) * self.masse
         self.p += self.v
+        all_x_boule1[self.boule_idx, :] = self.p
         self.D = np.linalg.norm(x - self.p[:-1])
         self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
 
@@ -2563,6 +2584,7 @@ class boule(pygame.sprite.Sprite):
             HIT = 1
             s = pygame.mixer.Sound("son/aie.ogg")
             s.play()
+            all_alive_boule1[self.boule_idx]=False
             return True
 
         if (authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 0 or (
@@ -2570,7 +2592,7 @@ class boule(pygame.sprite.Sprite):
                 authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 2 and level_w_transp[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2]==0)) or (self.p[-1] - z) > 5 + \
                 hmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] or (
                 self.p[-1] - z) < -5 or self.lifetime > 500:
-
+            all_alive_boule1[self.boule_idx] = False
             return True
         else:
             return False
@@ -4306,6 +4328,48 @@ def load_level(level_name):
     for imc in range(4):
         all_im_boule[0,imc,:,:,:]=np.minimum(pygame.surfarray.pixels3d(pygame.image.load('image/effects/ft%s.png' % str(imc+1))), 255)
 
+
+    global all_RA_boule1,all_x_boule1,all_im_idx_boule1,all_alive_boule1,all_light_boule1,all_im_boule1
+
+    all_alive_boule1 = np.full((100), False)
+    all_RA_boule1=np.full((100),1.)
+    all_x_boule1=np.full((100,3),0.)
+    all_im_idx_boule1 = np.full((100), 0)
+    all_light_boule1=np.full((100,3),1.)
+    all_im_boule1=np.full((1,6, 10, 10, 3), 0.)
+    all_im_boule1[0, 0, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/effects/hurt.png')), 255)
+    all_im_boule1[0, 1, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/effects/hurt2.png')), 255)
+    all_im_boule1[0, 2, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/effects/hurt3.png')), 255)
+    all_im_boule1[0, 3, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/effects/spark.png')), 255)
+    all_im_boule1[0, 4, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/effects/vert.png')), 255)
+    all_im_boule1[0, 5, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/effects/rouge.png')), 255)
+
+    # boule im 10x10
+    # hurt
+    # hurt2
+    # hurt3
+    # spark
+    # vert
+    # rouge
+
+    # boule im 150x150
+    # grenade0
+    # grenade1
+    # grenade2
+    # grenade3
+    # explo0 up to explo 6
+
+    # for imc in range(4):
+    #     all_im_boule1[0,imc,:,:,:]=np.minimum(pygame.surfarray.pixels3d(pygame.image.load('image/effects/ft%s.png' % str(imc+1))), 255)
+
+
+
     types_monst=list(set(levelD[level]['mon']))
     time1=time.perf_counter()*1000
     print((time1-time0)/1000,'declaring_all_ims')
@@ -4652,7 +4716,7 @@ while running == 1:
         print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
     if attack == 0:
         # GUN_im = MG1[arme][0].copy()
-        Gun_A = AG1[arme][0].copy()
+        Gun_A = AG1[arme][0]
         colorGUN = (255., 255., 255.)
     if attack and (AMMO[arme - 1] > 0 or arme == 0):
         moving_cam = True
@@ -4661,7 +4725,7 @@ while running == 1:
         else:
             shoot = (shoot + 0.5) % 3
         # GUN_im = MG1[arme][shoot // 2 + 1].copy()
-        Gun_A = AG1[arme][shoot // 2 + 1].copy()
+        Gun_A = AG1[arme][shoot // 2 + 1]
         # print(np.sum(colorGUN),torch_on)
         # if not (np.sum(colorGUN) == 0 and torch_on == 1) and colorGUN != tuple(255 * light_array[int(x[0] + 100) // 2][int(x[1] + 100) // 2]):# slow down
         #     GUN_im.fill(colorGUN, special_flags=BLEND_RGB_MULT)
@@ -5211,7 +5275,11 @@ while running == 1:
 
     #print(all_x_boule,all_alive_boule,R_c,torch_on)
     Im,index_b,depth_b=boule_render(ang[0], ang[1], R_c, all_x_boule, Im, depth_e, all_im_boule, all_RA_boule
-                 , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boule,all_light_boule)
+                 , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boule,all_light_boule,50)
+
+
+    Im,index_b,depth_b=boule_render(ang[0], ang[1], R_c, all_x_boule1, Im, depth_b, all_im_boule1, all_RA_boule1
+                 , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule1,all_alive_boule1,all_light_boule1,10)
 
 
     Im = np.minimum(Im, 255)
@@ -5343,7 +5411,7 @@ while running == 1:
         KILL = i.update()
         if KILL:
             Boule.remove(i)
-    [i.affiche() for i in Boule]
+    #[i.affiche() for i in Boule]
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('boule')
     if milliseconds[-1]-milliseconds[-2]>100:
