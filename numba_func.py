@@ -746,7 +746,7 @@ def antialising(Im,index_e):
 
 @njit(fastmath=True, cache=True)
 def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
-                 , TORCHE3, torch_on,scrnL,TAN1,TAN2,Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boul,all_light_boule,width_im):
+                 , TORCHE3, torch_on,scrnL,TAN1,TAN2,Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boul,all_light_boule,width_im,all_im_trans_boule):
     c0 = np.cos(a0)
     s0 = np.sin(-a0)
 
@@ -765,7 +765,7 @@ def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
         x_e = all_x_e[i]
         if all_alive_boul[i]:
             im = all_im_boule[0,all_im_idx_boule[i],:,:,:]
-
+            transp= all_im_trans_boule[0, all_im_idx_boule[i], :, :]
 
             d = x_e - x_perso
             dx, dy, dz = d
@@ -800,9 +800,9 @@ def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
                                         l = all_light_boule[i]
                                         if torch_on:
                                             l = l * TORCHE3[ix, iy, 0] / (0.1 * np.sqrt(x1))
-                                        Im[ix, iy, 0] = r * l[0]
-                                        Im[ix, iy, 1] = g * l[1]
-                                        Im[ix, iy, 2] = b * l[2]
+                                        Im[ix, iy, 0] =Im[ix, iy, 0]*(1-transp[ix_r, iy_r])+ r * l[0]*transp[ix_r, iy_r]
+                                        Im[ix, iy, 1] =Im[ix, iy, 1]*(1-transp[ix_r, iy_r])+ g * l[1]*transp[ix_r, iy_r]
+                                        Im[ix, iy, 2] =Im[ix, iy, 2]*(1-transp[ix_r, iy_r])+ b * l[2]*transp[ix_r, iy_r]
                                         index_e[ix, iy] = i
                                         depth_e[ix, iy] = x1
     d = np.minimum(depth_e, S[:, :])
