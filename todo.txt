@@ -19,7 +19,7 @@ SPEEDUP
 
 ->calc_norm in numba
 ->flames in numba
-->boule in numba
+->boule in numba, transparency remaining to do
 ->grenade in numba
 ->check walkthing
 ->starting speedup (including update zmap)
@@ -54,4 +54,6 @@ bug ->grenade not always visible
 gain 
 1.5ms with Gun in numba
 3.8ms with blood in numba
+0.2ms with boule in numba
+4.2ms without GunA copy
 

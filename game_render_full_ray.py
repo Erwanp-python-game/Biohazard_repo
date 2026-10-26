@@ -2561,11 +2561,22 @@ class boule(pygame.sprite.Sprite):
         all_RA_boule1[self.boule_idx]=0.25
         all_x_boule1[self.boule_idx,:]=self.p
         all_im_idx_boule1[self.boule_idx]=0
-        # all_light_boule1[self.boule_idx]=
 
+        if 'image/effects/hurt.png' == name:
+            all_im_idx_boule1[self.boule_idx] =0
+        if 'image/effects/hurt2.png' == name:
+            all_im_idx_boule1[self.boule_idx] =1
+        if 'image/effects/hurt3.png' == name:
+            all_im_idx_boule1[self.boule_idx] =2
+        if 'image/effects/spark.png' == name:
+            all_im_idx_boule1[self.boule_idx] =3
+        if 'image/effects/vert.png' == name:
+            all_im_idx_boule1[self.boule_idx] =4
+        if 'image/effects/rouge.png' == name:
+            all_im_idx_boule1[self.boule_idx] =5
 
     def update(self):
-        global all_x_boule1,all_alive_boule1
+        global all_x_boule1,all_alive_boule1,all_light_boule1
 
         self.lifetime += 1
         self.v += np.array([0, 0, 0.01]) * self.masse
@@ -2576,6 +2587,12 @@ class boule(pygame.sprite.Sprite):
 
         self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
         self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
+
+        colorT = light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2]
+        if light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2].sum() == 0:
+            colorT = np.array([1, 1, 1.])
+        colorT = light_modif(colorT, level, c3)
+        all_light_boule1[self.boule_idx] =colorT
 
         global VIE, HIT,fc
         if np.linalg.norm((self.p[:-1] - x)) < 2 and self.hit == 1:
@@ -4325,8 +4342,10 @@ def load_level(level_name):
     all_alive_boule = np.full((100),False)
     all_light_boule=np.full((100,3),1.)
     all_im_boule=np.full((1, 4, 50, 50, 3), 0.)
+    all_im_trans_boule = np.full((1, 4, 50, 50), 0.)
     for imc in range(4):
         all_im_boule[0,imc,:,:,:]=np.minimum(pygame.surfarray.pixels3d(pygame.image.load('image/effects/ft%s.png' % str(imc+1))), 255)
+        all_im_trans_boule[0,imc,:,:,:]=pygame.surfarray.array_alpha(pygame.image.load('image/effects/ft%s.png' % str(imc+1)))
 
 
     global all_RA_boule1,all_x_boule1,all_im_idx_boule1,all_alive_boule1,all_light_boule1,all_im_boule1
@@ -4349,6 +4368,15 @@ def load_level(level_name):
         pygame.surfarray.pixels3d(pygame.image.load('image/effects/vert.png')), 255)
     all_im_boule1[0, 5, :, :, :] = np.minimum(
         pygame.surfarray.pixels3d(pygame.image.load('image/effects/rouge.png')), 255)
+
+    all_im_trans_boule1 = np.full((1, 6, 10, 10), 0.)
+
+    all_im_trans_boule1[0, 0, :, :, :] =pygame.surfarray.array_alpha(pygame.image.load('image/effects/hurt.png'))
+    all_im_trans_boule1[0, 1, :, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/effects/hurt2.png'))
+    all_im_trans_boule1[0, 2, :, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/effects/hurt3.png'))
+    all_im_trans_boule1[0, 3, :, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/effects/spark.png'))
+    all_im_trans_boule1[0, 4, :, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/effects/vert.png'))
+    all_im_trans_boule1[0, 5, :, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/effects/rouge.png'))
 
     # boule im 10x10
     # hurt
