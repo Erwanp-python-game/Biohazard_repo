@@ -17,9 +17,8 @@ mecano lezard blood
 SPEEDUP
 
 
-->calc_norm in numba
+->calc_norm in numba (3.3 ms, 3ms from wall, 2ms from norm computation)
 ->flames in numba
-->boule in numba, transparency remaining to do
 ->grenade in numba
 ->check walkthing
 ->starting speedup (including update zmap)

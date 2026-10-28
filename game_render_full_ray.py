@@ -1477,11 +1477,14 @@ class Wall():
 
         if len(self.wall_im)>1 or len(self.wall_im2)>1:
             moving_cam=True
-        N = np.stack((self.a_old[0][0], self.b_old[0][0], -self.n), axis=-1)
-        V = np.maximum(np.minimum(np.linalg.solve(N, -self.X_old[0][0] + R_c)[:-1], 1), 0)
-        self.norm = np.linalg.norm(
-            self.X_old[0][0][:-1] + V[0] * self.a_old[0][0][:-1] + V[1] * self.b_old[0][0][:-1] - R_c[:-1]) - min(self.window,
-                                                                                                      1) * 0.001
+        # N = np.stack((self.a_old[0][0], self.b_old[0][0], -self.n), axis=-1)
+        # V = np.maximum(np.minimum(np.linalg.solve(N, -self.X_old[0][0] + R_c)[:-1], 1), 0)
+        # self.norm = np.linalg.norm(
+        #     self.X_old[0][0][:-1] + V[0] * self.a_old[0][0][:-1] + V[1] * self.b_old[0][0][:-1] - R_c[:-1]) - min(self.window,
+        #                                                                                               1) * 0.001
+
+        self.norm=distance_point_parallelogramme(R_c, all_X[self.num], all_a[self.num], all_b[self.num],all_aa[self.num],all_bb[self.num],all_ab[self.num],all_inv_det[self.num])
+
         # self.norm3 = np.linalg.norm(
         #     self.X_middle[0][0] + V[0] * self.a_middle[0][0] + V[1] * self.b_middle[0][0] - (R_c))
         # if self.angle0>0:

@@ -885,3 +885,60 @@ def render_blood(Im,scrnL,widthx,widthy,im,im_alpha,im_widthx,im_widthy,transp):
 
 
 
+
+
+@njit(fastmath=True, cache=True)
+def distance_point_parallelogramme(R, X, a, b,aa,bb,ab,inv_det):
+    # Vecteur entre l'origine du parallélogramme et R
+    d = R - X
+
+
+    ad = np.dot(a, d)
+    bd = np.dot(b, d)
+
+
+
+    dmin2 = np.inf
+
+
+    # Projection orthogonale sur le plan :
+    # on la conserve si elle est dans le parallélogramme
+    if inv_det < 1e15 * max(aa * bb, 1.0):
+        u = (ad * bb - bd * ab) * inv_det
+        v = (bd * aa - ad * ab) * inv_det
+
+        if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
+            err = d - u * a - v * b
+            dmin2 = np.dot(err, err)
+
+
+    # Bord u = 0
+    v = max(min(bd / bb, 1.0),0.) if bb > 0.0 else 0.0
+    err = d - v * b
+    dist2 = np.dot(err, err)
+    if dist2 < dmin2:
+        dmin2, umin, vmin = dist2, 0.0, v
+
+    # Bord u = 1
+    v = max(min((bd - ab) / bb, 1.0),0.) if bb > 0.0 else 0.0
+    err = d - a - v * b
+    dist2 = np.dot(err, err)
+    if dist2 < dmin2:
+        dmin2, umin, vmin = dist2, 1.0, v
+
+    # Bord v = 0
+    u = max(min(ad / aa, 1.0),0.) if aa > 0.0 else 0.0
+    err = d - u * a
+    dist2 = np.dot(err, err)
+    if dist2 < dmin2:
+        dmin2, umin, vmin = dist2, u, 0.0
+
+    # Bord v = 1
+    u = max(min((ad - ab) / aa, 1.0),0.) if aa > 0.0 else 0.0
+    err = d - u * a - b
+    dist2 = np.dot(err, err)
+    if dist2 < dmin2:
+        dmin2, umin, vmin = dist2, u, 1.0
+
+    return np.sqrt(dmin2)
+
