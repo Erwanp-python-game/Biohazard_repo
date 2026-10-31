@@ -942,3 +942,107 @@ def distance_point_parallelogramme(R, X, a, b,aa,bb,ab,inv_det):
 
     return np.sqrt(dmin2)
 
+
+@njit(fastmath=True, cache=True)
+def distance_point_parallelogramme_all(R, X_, a_, b_,aa_,bb_,ab_,inv_det_):
+    # Vecteur entre l'origine du parallélogramme et R
+    norm=np.full((X_.shape[0]), 1e6, dtype=np.int64)
+    for i in range(X_.shape[0]):
+        X=X_[i]
+        a=a_[i]
+        b=b_[i]
+        aa=aa_[i]
+        bb=bb_[i]
+        ab=ab_[i]
+        inv_det=inv_det_[i]
+        d = R - X
+
+
+        ad = np.dot(a, d)
+        bd = np.dot(b, d)
+
+
+
+        dmin2 = np.inf
+
+
+        # Projection orthogonale sur le plan :
+        # on la conserve si elle est dans le parallélogramme
+        if inv_det < 1e15 * max(aa * bb, 1.0):
+            u = (ad * bb - bd * ab) * inv_det
+            v = (bd * aa - ad * ab) * inv_det
+
+            if 0.0 <= u <= 1.0 and 0.0 <= v <= 1.0:
+                err = d - u * a - v * b
+                dmin2 = np.dot(err, err)
+
+
+        # Bord u = 0
+        v = max(min(bd / bb, 1.0),0.) if bb > 0.0 else 0.0
+        err = d - v * b
+        dist2 = np.dot(err, err)
+        if dist2 < dmin2:
+            dmin2, umin, vmin = dist2, 0.0, v
+
+        # Bord u = 1
+        v = max(min((bd - ab) / bb, 1.0),0.) if bb > 0.0 else 0.0
+        err = d - a - v * b
+        dist2 = np.dot(err, err)
+        if dist2 < dmin2:
+            dmin2, umin, vmin = dist2, 1.0, v
+
+        # Bord v = 0
+        u = max(min(ad / aa, 1.0),0.) if aa > 0.0 else 0.0
+        err = d - u * a
+        dist2 = np.dot(err, err)
+        if dist2 < dmin2:
+            dmin2, umin, vmin = dist2, u, 0.0
+
+        # Bord v = 1
+        u = max(min((ad - ab) / aa, 1.0),0.) if aa > 0.0 else 0.0
+        err = d - u * a - b
+        dist2 = np.dot(err, err)
+        if dist2 < dmin2:
+            dmin2, umin, vmin = dist2, u, 1.0
+        norm[i]=dmin2
+    return norm
+
+
+
+@njit(fastmath=True, cache=True)
+def render_sky(Im,scrnL,im,im_widthx,im_widthy,x_s,y_s,im2,im_widthx2,im_widthy2,x_s2,y_s2,alpha_im2):
+
+
+    W = scrnL[0] * 2 * 2
+    H = scrnL[1] * 2 * 2
+
+
+    for gx in range(0, W):
+        # ix_r = int(0.25*im_widthx * gx / W-0.5*x_s)%im_widthx
+        # ix_r2 = int(0.5*0.25 * im_widthx2 * gx / W - 0.5 * x_s2) % im_widthx2
+        ix_r = int(0.5*gx-0.5*x_s)%im_widthx
+        ix_r2 = int(0.5*gx- 0.5 * x_s2) % im_widthx2
+        if ix_r < im_widthx and ix_r >= 0:
+            for gy in range(0, H):
+                # iy_r = int(0.5*im_widthy * gy / H-0.5*y_s)%im_widthy
+                # iy_r2 = int(0.5 * im_widthy2 * gy / H - 0.5 * y_s2) % im_widthy2
+                iy_r = int(0.5* gy -0.5*y_s)%im_widthy
+                iy_r2 = int(0.5 * gy - 0.5 * y_s2) % im_widthy2
+                if iy_r < im_widthy and iy_r>=0 and Im[gx, gy, 0]==0 and Im[gx, gy, 1]==255 and Im[gx, gy, 2]==255:
+                    r = im[ix_r, iy_r, 0]
+                    g = im[ix_r, iy_r, 1]
+                    b = im[ix_r, iy_r, 2]
+
+                    r2 = im2[ix_r2, iy_r2, 0]
+                    g2 = im2[ix_r2, iy_r2, 1]
+                    b2 = im2[ix_r2, iy_r2, 2]
+
+                    alpha=alpha_im2[ix_r2, iy_r2]
+                    if r+g+b>0:
+                        Im[gx, gy, 0] =r*(1-alpha)+r2*alpha
+                        Im[gx, gy, 1] =g*(1-alpha)+g2*alpha
+                        Im[gx, gy, 2] =b*(1-alpha)+b2*alpha
+
+
+
+    return Im

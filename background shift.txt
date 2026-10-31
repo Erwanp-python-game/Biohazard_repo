@@ -1,0 +1,7 @@
+size SKY 960 320
+shift= angle*960/2*pi
+
+size LAND 1940 320
+shift= angle*1940/2*pi
+
+window=320

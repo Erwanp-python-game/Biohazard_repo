@@ -17,12 +17,12 @@ mecano lezard blood
 SPEEDUP
 
 
-->calc_norm in numba (3.3 ms, 3ms from wall, 2ms from norm computation)
+->calc_norm in numba, only side remaining
 ->flames in numba
 ->grenade in numba
 ->check walkthing
 ->starting speedup (including update zmap)
-->rendering in numba + background_obj in numba
+->rendering in numba background_obj in numba
 
 GAMEPLAY
 
@@ -55,4 +55,5 @@ gain
 3.8ms with blood in numba
 0.2ms with boule in numba
 4.2ms without GunA copy
-
+0.6ms with better wall mech (wall mech gets recompiled each modif of main file as it's there, no issue but adding 2.3ms at first thing)
+1ms rendering background in numba

@@ -175,7 +175,7 @@ def point_in_parallelogram_numba(P, A, B, D, eps=1e-9):
         (v <= 1.0 + eps)
     )
 @njit(parallel=True, fastmath=True, cache=True)
-def update_z_s(zmap,center_p,Rzmap,X_zmap,dz_mech):
+def update_z_s(zmap,zmap0,center_p,Rzmap,X_zmap,dz_mech):
     zmap1=zmap
     i0=int(center_p[1]-1)
     i1=int(center_p[1] + 2*Rzmap+1)
@@ -186,11 +186,11 @@ def update_z_s(zmap,center_p,Rzmap,X_zmap,dz_mech):
             dx=X_zmap[i,j,0] - (center_p[1] + Rzmap)
             dy=X_zmap[i,j,1]- (center_p[0] - Rzmap)
             if dx**2+dy**2<Rzmap**2:
-                zmap1[i,j]+=dz_mech[-1] * 0.5
+                zmap1[i,j]=zmap0[i,j]+dz_mech[-1] * 0.5
     return zmap1
 
 @njit(parallel=True, fastmath=True, cache=True)
-def update_z_p(zmap, A_, B_,D_,C_, X_zmap, dz_mech):
+def update_z_p(zmap,zmap0, A_, B_,D_,C_, X_zmap, dz_mech):
     zmap1=zmap
     i0=int(min(A_[0],B_[0],D_[0],C_[0]))-1
     i1=int(max(A_[0],B_[0],D_[0],C_[0]))+1
@@ -199,7 +199,7 @@ def update_z_p(zmap, A_, B_,D_,C_, X_zmap, dz_mech):
     for i in prange(i0,i1):
         for j in range(j0,j1):
             if point_in_parallelogram_numba(X_zmap[i,j],A_,B_,D_):
-                zmap1[i,j]+=dz_mech[-1] * 0.5
+                zmap1[i,j]=zmap0[i,j]+dz_mech[-1] * 0.5
     return zmap1
 
 def normalize(a):
@@ -1405,7 +1405,7 @@ class Wall():
 
         self.a_sliced = self.a[::2, ::2]* self.overlap
         self.b_sliced = self.b[::2, ::2]* self.overlap
-        self.X_sliced = self.X[::2, ::2]
+        # self.X_sliced = self.X[::2, ::2]
         h, w, _ = self.a_sliced.shape
         if not hasattr(self, "_M"):
             h, w, _ = self.a_sliced.shape
@@ -1483,7 +1483,8 @@ class Wall():
         #     self.X_old[0][0][:-1] + V[0] * self.a_old[0][0][:-1] + V[1] * self.b_old[0][0][:-1] - R_c[:-1]) - min(self.window,
         #                                                                                               1) * 0.001
 
-        self.norm=distance_point_parallelogramme(R_c, all_X[self.num], all_a[self.num], all_b[self.num],all_aa[self.num],all_bb[self.num],all_ab[self.num],all_inv_det[self.num])
+        self.norm=norm_[self.num]
+        #distance_point_parallelogramme(R_c, all_X[self.num], all_a[self.num], all_b[self.num],all_aa[self.num],all_bb[self.num],all_ab[self.num],all_inv_det[self.num])
 
         # self.norm3 = np.linalg.norm(
         #     self.X_middle[0][0] + V[0] * self.a_middle[0][0] + V[1] * self.b_middle[0][0] - (R_c))
@@ -1747,7 +1748,7 @@ class Wall():
         if self.vie==3:
             self.X=self.X*0
             all_X[self.num]=self.X[0,0,:]
-            self.X_sliced = self.X[::2, ::2]
+            # self.X_sliced = self.X[::2, ::2]
             self.X_middle = self.X_middle * 0
 
 
@@ -3868,7 +3869,7 @@ def check_trigger():
 def load_level(level_name):
     time1=time.perf_counter()*1000
     print((time1-time0)/1000,'load_level')
-    global all_radius,all_sphere,all_liquid,cell_start, cell_count, cell_objects,cell_array_z,cell_array_N,all_inv_det,all_ab,all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
+    global LAND0,LAND0_a,all_radius,all_sphere,all_liquid,cell_start, cell_count, cell_objects,cell_array_z,cell_array_N,all_inv_det,all_ab,all_aa,all_bb,all_n,all_a,all_b,all_X,all_walls,cell_size,cell_array,CARTE,horizon2,height_list,op,level_w_transp,SKY0_im,LAND0_im,SKY0,LAND0,stairs, torch_on, lifts, activatedT, TotAr, MAP, v, tuto, level, groupD, indk, startmsg, activatedT, queueT, linenumber, back, dicoTEXT, Trig_liste, AMMO, level_w, level_h, level_map, zmap, light_wall, hmap, authorized_map, M_liste, light_color, light_array, ratio, level_light, wall, doors, h_wall, thing, ennemies
     CARTE = [0, 0, 0]
     level = int(level_name)
     if level==5:
@@ -3879,10 +3880,12 @@ def load_level(level_name):
         SKY0_im = pygame.transform.scale(SKY0_im, (SKY0_im.get_width() * 2, SKY0_im.get_height() * 2))
         LAND0_im = pygame.image.load('image/ciel/lanscape1.png')
         LAND0_im = pygame.transform.scale(LAND0_im, (LAND0_im.get_width() * 2, LAND0_im.get_height() * 2))
+        LAND0_a = pygame.surfarray.array_alpha(pygame.image.load('image/ciel/lanscape1.png'))
     if level==6:
-        # SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel2.png'))
-        # LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape2.png'))
-        # LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
+        SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel2.png'))
+        LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape2.png'))
+        LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
+        LAND0_a = pygame.surfarray.array_alpha(pygame.image.load('image/ciel/lanscape2.png'))
         SKY0_im = pygame.image.load('image/ciel/ciel2.png')
         SKY0_im = pygame.transform.scale(SKY0_im, (SKY0_im.get_width() * 2, SKY0_im.get_height() * 2))
         LAND0_im = pygame.image.load('image/ciel/lanscape2.png')
@@ -4171,6 +4174,7 @@ def load_level(level_name):
     # ax[2].imshow(cell_array_z[:,:,0])
     # ax[3].imshow(cell_array_z[:, :, 1])
     # plt.show()
+    global norm_
     cell_start, cell_count, cell_objects = build_cell_csr(cell_array)
     all_walls=wall.copy()
     all_a=np.array([i.a[0,0,:] for i in all_walls])
@@ -4178,6 +4182,7 @@ def load_level(level_name):
     all_radius = np.array([i.radius for i in all_walls])
     all_b = np.array([i.b[0, 0, :] for i in all_walls])
     all_X = np.array([i.X[0, 0, :] for i in all_walls])
+    norm_ = np.array([1. for i in all_walls])
     all_liquid= np.array([i.text[11:-3] in liquid_floor for i in all_walls])
     all_ab=np.array([np.dot(i.a[0, 0, :],i.b[0, 0, :]) for i in all_walls])
     all_aa = np.array([np.dot(i.a[0, 0, :],i.a[0, 0, :]) for i in all_walls])
@@ -4471,7 +4476,7 @@ MG1=MG3
 SKY0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/ciel0.png'))
 LAND0 = pygame.surfarray.pixels3d(pygame.image.load('image/ciel/lanscape0.png'))
 LAND0 = np.where(np.expand_dims(((LAND0 - np.array([0, 255, 255])) == 0).all(-1), -1), -2, LAND0)
-
+LAND0_a=pygame.surfarray.array_alpha(pygame.image.load('image/ciel/lanscape0.png'))
 
 SKY0_im=pygame.image.load('image/ciel/ciel0.png')
 SKY0_im=pygame.transform.scale(SKY0_im,(SKY0_im.get_width()*2,SKY0_im.get_height()*2))
@@ -4835,8 +4840,8 @@ while running == 1:
     # No=np.array([0.,0.])
     # previous=0.5
     # d_collision=3.
-    if len(wall_mech)>0:
-        zmap[:]=zmap0
+    # if len(wall_mech)>0:
+    #     zmap[:]=zmap0
     for i in wall_mech:# speedup that
         if min(max(0,10*sin(c3/30)),2)!=min(max(0,10*sin((c3-1)/30)),2):
             dz_mech=np.array([0,0,min(max(0,10*sin(c3/30)),2)])
@@ -4846,14 +4851,14 @@ while running == 1:
                 if i.radius<0:
                     center_p=i.X[0,0,:-1]/2+50
                     Rzmap=0.5*sqrt(-i.radius)
-                    zmap=update_z_s(zmap,center_p,Rzmap,X_zmap,dz_mech)
+                    zmap=update_z_s(zmap,zmap0,center_p,Rzmap,X_zmap,dz_mech)
 
                 else:
                     A_=np.flip(i.X[0,0,:-1]*0.5+50)
                     B_ =np.flip( i.X[0, 0, :-1] * 0.5 + 50 + i.a[0, 0, :-1] * 0.5)
                     D_ =np.flip( i.X[0, 0, :-1] * 0.5 + 50 + i.b[0, 0, :-1] * 0.5)
                     C_=np.flip( i.X[0, 0, :-1] * 0.5 + 50 + i.a[0, 0, :-1] * 0.5+i.b[0, 0, :-1] * 0.5)
-                    zmap = update_z_p(zmap, A_, B_,D_,C_, X_zmap, dz_mech)
+                    zmap = update_z_p(zmap,zmap0, A_, B_,D_,C_, X_zmap, dz_mech)
 
 
     milliseconds.append(time.perf_counter()*1000)
@@ -4931,7 +4936,7 @@ while running == 1:
         print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
 
 
-
+    norm_=distance_point_parallelogramme_all(R_c, all_X, all_a, all_b,all_aa,all_bb,all_ab,all_inv_det)
     [i.calc_norm() for i in wall[0:20]]
     # [i.reset_rend() for i in h_wall[0:20]]
     if c2 == 0:
@@ -4978,7 +4983,7 @@ while running == 1:
 
             i.X = np.maximum(Ri - [0., 0., 3], [-10000, -10000, -14.5 + shift])
             all_X[i.num]=i.X[0,0,:]
-            i.X_sliced = i.X[::2, ::2]
+            # i.X_sliced = i.X[::2, ::2]
             if i.closed:
                 porteson.play()
             i.closed = 0
@@ -4986,7 +4991,7 @@ while running == 1:
             if (Ri)[0][0][-1] < -5. + shift:
                 i.X = np.minimum(Ri + [0., 0., 3], [10000, 10000, -5 + shift])
                 all_X[i.num] = i.X[0, 0, :]
-                i.X_sliced = i.X[::2, ::2]
+                # i.X_sliced = i.X[::2, ::2]
             if (Ri)[0][0][-1] < -4.5 + shift:
                 i.closed = 1
         for j in ennemies[0:5]:
@@ -4997,7 +5002,7 @@ while running == 1:
                 if ((j.x0[0] - (0.5 * i.b[0][0][0] + i.X[0][0][0])) ** 2 + (j.x0[1] - (0.5 * i.b[0][0][1] + i.X[0][0][
                     1])) ** 2) ** 0.5 < 10:  # LIMITATION PORTE TAILLE 2 FULL CASES EDITEUR ET DISTANCE D'UNE FULL CASE ENTRE DEUX PORTES
                     i.X = np.maximum(Ri - [0., 0., 9], [-10000, -10000, -14.5 + shift])
-                    i.X_sliced = i.X[::2, ::2]
+                    # i.X_sliced = i.X[::2, ::2]
                     all_X[i.num] = i.X[0, 0, :]
                     # if i.closed:
                     # porteson.play()
@@ -5361,12 +5366,12 @@ while running == 1:
         else:
             movement=0
 
-        fond.blit(SKY0_im,(2*int(-((-ang[0])%(2*pi)) * 6 * scrnL[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1])))
-        fond.blit(SKY0_im, (
-        2*int(-((-ang[0])%(2*pi)) * 6 * scrnL[0] / (2 * pi))+SKY0_im.get_width(), -2*int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
-        fond.blit(LAND0_im,(2*int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1])))
-        fond.blit(LAND0_im, (
-        2*int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi))+LAND0_im.get_width(), -2*int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
+        # fond.blit(SKY0_im,(2*int(-((-ang[0])%(2*pi)) * 6 * scrnL[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1])))
+        # fond.blit(SKY0_im, (
+        # 2*int(-((-ang[0])%(2*pi)) * 6 * scrnL[0] / (2 * pi))+SKY0_im.get_width(), -2*int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
+        # fond.blit(LAND0_im,(2*int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1])))
+        # fond.blit(LAND0_im, (
+        # 2*int(-((-ang[0]+movement)%(2*pi)) * 12 * scrnL[0] / (2 * pi))+LAND0_im.get_width(), -2*int(tan(ang[1] ) * scrnL[1] / TAN1 + scrnL[1])))
         milliseconds.append(time.perf_counter() * 1000)
         label_deltat.append('rendering0_5')
         if milliseconds[-1] - milliseconds[-2] > 100:
@@ -5412,7 +5417,7 @@ while running == 1:
 
     Im,depth=render_gun(Im, scrnL, 2*2 * scrnL[0], 2*2 * scrnL[1], Gun_A, Gun_A.shape[0], Gun_A.shape[1],depth,xgun,ygun,np.array(colorGUN)*1/255)
 
-
+    Im=render_sky(Im,scrnL,SKY0,SKY0.shape[0],SKY0.shape[1],2*int(-((-ang[0])%(2*pi)) * SKY0.shape[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]),LAND0,LAND0.shape[0],LAND0.shape[1],2*int(-((-ang[0]+movement)%(2*pi)) * LAND0.shape[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]),LAND0_a/255)
 
     if bleed != 0:
         bleed = max(bleed - 1, 0)

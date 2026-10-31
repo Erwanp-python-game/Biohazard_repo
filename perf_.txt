@@ -1,0 +1,8 @@
+Top contribution [('intersect', '7.0 ms', '33.5 %'), ('rendering0_5', '2.6 ms', '12.4 %'), ('glob_walls', '2.1 ms', '10.0 %')]
+average,framerate 47.8 /s | average time 20.9 ms
+[('intersect', '7.0 ms', '33.5 %'), ('rendering0_5', '2.6 ms', '12.4 %'), ('glob_walls', '2.1 ms', '10.0 %'), ('rendering2', '2.0 ms', '9.6 %'), ('calc_norm', '1.6 ms', '7.7 %'), ('rendering1', '1.4 ms', '6.7 %'), ('things_parallel', '0.7 ms', '3.3 %'), ('gun_clicks_and_keys3', '0.7 ms', '3.3 %'), ('reset', '0.6 ms', '2.9 %'), ('things', '0.4 ms', '1.9 %'), ('gun_clicks_and_keys', '0.4 ms', '1.9 %'), ('walkthings', '0.3 ms', '1.4 %'), ('end', '0.3 ms', '1.4 %'), ('sorting', '0.2 ms', '1.0 %'), ('movethings', '0.2 ms', '1.0 %'), ('lights', '0.1 ms', '0.5 %'), ('events', '0.1 ms', '0.5 %'), ('doors', '0.1 ms', '0.5 %'), ('blit image', '0.1 ms', '0.5 %'), ('walls', '0.0 ms', '0.0 %'), ('sky', '0.0 ms', '0.0 %'), ('rendering0', '0.0 ms', '0.0 %'), ('lifts', '0.0 ms', '0.0 %'), ('gun_clicks_and_keys5', '0.0 ms', '0.0 %'), ('gun_clicks_and_keys4', '0.0 ms', '0.0 %'), ('gun_clicks_and_keys2', '0.0 ms', '0.0 %'), ('gun_clicks_and_keys1', '0.0 ms', '0.0 %'), ('clicks_and_keys', '0.0 ms', '0.0 %'), ('boule', '0.0 ms', '0.0 %'), ('boss', '0.0 ms', '0.0 %'), ('bleed, explo, effects', '0.0 ms', '0.0 %')]
+detail on ennemies rendering 0.0 ['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', '0.0', '0.0', '0.0', '0.0'] ['none']
+per_ennemies 0.0 1
+detail on object rendering 0.0 ['0.0'] ['none']
+per_object 0.0 1
+*-----------*
