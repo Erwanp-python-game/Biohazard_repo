@@ -2465,8 +2465,20 @@ class Object():
 
 class Object_parallax():
     def __init__(self, x0, type_M):
+        
+        global all_alive_parallax
+        idxfl = len(all_alive_parallax) - 1
+        for cfli, fli in enumerate(all_alive_parallax):
+            idxfl = len(all_alive_parallax) - 1 - cfli
+            if not (all_alive_parallax[idxfl]):
+                all_alive_parallax[idxfl] = True
+                break
+        self.boule_idx = idxfl
+        
+        
         self.RA = 500.
         self.x0 = x0[:-1]
+        self.p=np.array([self.x0[0],self.x0[1],0.])
         self.decal=0.
         self.norm = np.linalg.norm(self.x0 - x + [1, 0])
         self.width = 2 * scrnL[0] / self.norm
@@ -2480,9 +2492,15 @@ class Object_parallax():
             self.im3 = pygame.image.load('./image/obj_parallax/O_%s.2.png' % str(self.type_M)).convert_alpha()
         self.z = x0[-1]
         self.erupt=0
+        
+        global all_RA_parallax,all_x_parallax,all_im_idx_parallax
+        all_RA_parallax[self.boule_idx]=5000
+        all_x_parallax[self.boule_idx,:]=self.p
+        all_im_idx_parallax[self.boule_idx]=0
 
 
     def calc_norm(self):
+        global all_x_parallax
         if x[1]<600 and x[1]>300 and self.decal==0:
             self.x0=self.x0+x
             self.decal=1
@@ -2495,6 +2513,8 @@ class Object_parallax():
                     2 * scrnL[1] * (z - self.z) / self.f0[0]) / TAN1
 
         self.x0+=np.array([10,0])
+        self.p = np.array([self.x0[0], self.x0[1], 0.])
+        all_x_parallax[self.boule_idx, :] = self.p
 
         if self.x0[0]>10000:
             self.x0[0]=self.x0[0]-20000
@@ -3892,13 +3912,7 @@ def load_level(level_name):
         LAND0_im = pygame.transform.scale(LAND0_im, (LAND0_im.get_width() * 2, LAND0_im.get_height() * 2))
         #LAND0_im.set_colorkey((0, 255, 255))
 
-        op = []
-        for i in range(30):
-            xra = np.random.randint(-10000, 10000)
-            yra = np.random.randint(200, 10000)
-            signra = (-1) ** randint(0, 1)
-            rr=1-min(randint(0,5),1)
-            op.append(Object_parallax([ xra, yra * signra, 200], rr))
+
 
     TotAr = level_arme[level]
     v = 0.
@@ -4401,10 +4415,38 @@ def load_level(level_name):
     # grenade3
     # explo0 up to explo 6
 
-    # for imc in range(4):
-    #     all_im_boule1[0,imc,:,:,:]=np.minimum(pygame.surfarray.pixels3d(pygame.image.load('image/effects/ft%s.png' % str(imc+1))), 255)
+    global all_RA_parallax,all_x_parallax,all_im_idx_parallax,all_alive_parallax,all_light_parallax,all_im_parallax,all_im_trans_parallax
 
+    all_alive_parallax = np.full((100), False)
+    all_RA_parallax=np.full((100),1.)
+    all_x_parallax=np.full((100,3),0.)
+    all_im_idx_parallax = np.full((100), 0)
+    all_light_parallax=np.full((100,3),1.)
+    all_im_parallax=np.full((1,4, 160, 160, 3), 0.)
+    all_im_parallax[0, 0, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/obj_parallax/O_0.png')), 255)
+    all_im_parallax[0, 1, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/obj_parallax/O_1.png')), 255)
+    all_im_parallax[0, 2, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/obj_parallax/O_1.1.png')), 255)
+    all_im_parallax[0, 3, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/obj_parallax/O_1.2.png')), 255)
 
+    all_im_trans_parallax = np.full((1, 4, 160, 160), 0.)
+
+    all_im_trans_parallax[0, 0, :, :] =pygame.surfarray.array_alpha(pygame.image.load('image/obj_parallax/O_0.png'))*1/255
+    all_im_trans_parallax[0, 1, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/obj_parallax/O_1.png'))*1/255
+    all_im_trans_parallax[0, 2, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/obj_parallax/O_1.1.png'))*1/255
+    all_im_trans_parallax[0, 3, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/obj_parallax/O_1.2.png'))*1/255
+
+    if level==6:
+        op = []
+        for i in range(30):
+            xra = np.random.randint(-10000, 10000)
+            yra = np.random.randint(200, 10000)
+            signra = (-1) ** randint(0, 1)
+            rr=1-min(randint(0,5),1)
+            op.append(Object_parallax([ xra, yra * signra, 200], rr))
 
     types_monst=list(set(levelD[level]['mon']))
     time1=time.perf_counter()*1000
@@ -5316,6 +5358,9 @@ while running == 1:
 
     Im,index_b,depth_b=boule_render(ang[0], ang[1], R_c, all_x_boule1, Im, depth_b, all_im_boule1, all_RA_boule1
                  , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule1,all_alive_boule1,all_light_boule1,10,all_im_trans_boule1)
+    # put option to draw parallax on blue part
+    Im,index_b,depth_drop=boule_render(ang[0], ang[1], R_c, all_x_parallax, Im, depth_b, all_im_parallax, all_RA_parallax
+                 , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_parallax,all_alive_parallax,all_light_parallax,160,all_im_trans_parallax)
 
 
     Im = np.minimum(Im, 255)
