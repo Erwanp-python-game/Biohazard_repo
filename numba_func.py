@@ -1015,7 +1015,7 @@ def render_sky(Im,scrnL,im,im_widthx,im_widthy,x_s,y_s,im2,im_widthx2,im_widthy2
 
     W = scrnL[0] * 2 * 2
     H = scrnL[1] * 2 * 2
-
+    blue_ = np.full((W, H), False, dtype=bool)
 
     for gx in range(0, W):
         # ix_r = int(0.25*im_widthx * gx / W-0.5*x_s)%im_widthx
@@ -1039,10 +1039,79 @@ def render_sky(Im,scrnL,im,im_widthx,im_widthy,x_s,y_s,im2,im_widthx2,im_widthy2
 
                     alpha=alpha_im2[ix_r2, iy_r2]
                     if r+g+b>0:
+                        blue_[gx, gy]=True
                         Im[gx, gy, 0] =r*(1-alpha)+r2*alpha
                         Im[gx, gy, 1] =g*(1-alpha)+g2*alpha
                         Im[gx, gy, 2] =b*(1-alpha)+b2*alpha
 
 
+
+    return Im,blue_
+
+
+
+
+@njit(fastmath=True, cache=True)
+def parallax_render( a0, a1, x_perso, all_x_e, Im, blue_,all_im_boule,all_RA_boule
+                 , TORCHE3, torch_on,scrnL,TAN1,TAN2,all_im_idx_boule,all_alive_boul,all_light_boule,width_im,all_im_trans_boule):
+    c0 = np.cos(a0)
+    s0 = np.sin(-a0)
+
+    c1 = np.cos(a1)
+    s1 = np.sin(a1)
+
+    W = scrnL[0] * 2 * 2
+    H = scrnL[1] * 2 * 2
+
+    f1 = scrnL[0] * 2 / TAN2
+    f2 = scrnL[1] * 2 / TAN1
+
+
+    depth_e = np.full((W, H), 1e20, dtype=np.float64)
+    for i in range(len(all_x_e)):
+        x_e = all_x_e[i]
+        if all_alive_boul[i]:
+            im = all_im_boule[0,all_im_idx_boule[i],:,:,:]
+            transp= all_im_trans_boule[0, all_im_idx_boule[i], :, :]
+
+            d = x_e - x_perso
+            dx, dy, dz = d
+
+            RA = all_RA_boule[i]
+            x1 = c0 * dx + s0 * dy
+            if x1 > 0:
+                y1 = -s0 * dx + c0 * dy
+                z1 = -dz #+ (0.75 * RA - 5)
+
+                x2 = c1 * x1 - s1 * z1
+                y2 = y1
+                z2 = s1 * x1 + c1 * z1
+
+                sx = int(W * 0.5 + f1 * y2 / x2)
+                sy = int(H * 0.7 - f2 * z2 / x2)
+                width = int(RA * W / max(x1,0.01))
+
+                if (sx + width // 2 > 0) and (sx - width // 2 < W) and (sy + width // 2 > 0) and (sy - width // 2 < H):  # and S[sx,sy,2]>x1:
+                    for gx in range(0, width):
+                        ix = sx - width // 2 + gx
+                        ix_r = int(width_im * gx / width)
+                        if ix >= 0 and ix < W and ix_r < width_im:
+                            for gy in range(0, width):
+                                iy = sy - width // 2 + gy
+                                iy_r = int(width_im * gy / width)
+                                if iy >= 0 and iy < H and blue_[ix, iy] and depth_e[ix, iy] > x1 and iy_r < width_im:
+                                    r = im[ix_r, iy_r, 0]
+                                    g = im[ix_r, iy_r, 1]
+                                    b = im[ix_r, iy_r, 2]
+                                    transp_=max(min(1,3000/x1),0)
+                                    if r + g + b > 0:
+                                        l = all_light_boule[i]
+                                        if torch_on:
+                                            l = l * TORCHE3[ix, iy, 0] / (0.1 * np.sqrt(x1))
+                                        Im[ix, iy, 0] =Im[ix, iy, 0]*(1-transp_)+ r * l[0]*transp_
+                                        Im[ix, iy, 1] =Im[ix, iy, 1]*(1-transp_)+ g * l[1]*transp_
+                                        Im[ix, iy, 2] =Im[ix, iy, 2]*(1-transp_)+ b * l[2]*transp_
+
+                                        depth_e[ix, iy] = x1
 
     return Im

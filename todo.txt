@@ -21,7 +21,6 @@ SPEEDUP
 ->flames in numba
 ->grenade in numba
 ->check walkthing
-->rendering in numba background_obj in numba
 ->starting speedup (including update zmap)
 
 GAMEPLAY
@@ -57,3 +56,4 @@ gain
 4.2ms without GunA copy
 0.6ms with better wall mech (wall mech gets recompiled each modif of main file as it's there, no issue but adding 2.3ms at first thing)
 1ms rendering background in numba
+1.5ms with obj parallax

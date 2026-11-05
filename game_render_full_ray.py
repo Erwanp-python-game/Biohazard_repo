@@ -2494,9 +2494,10 @@ class Object_parallax():
         self.erupt=0
         
         global all_RA_parallax,all_x_parallax,all_im_idx_parallax
-        all_RA_parallax[self.boule_idx]=5000
+        all_RA_parallax[self.boule_idx]=500
         all_x_parallax[self.boule_idx,:]=self.p
         all_im_idx_parallax[self.boule_idx]=0
+
 
 
     def calc_norm(self):
@@ -2504,13 +2505,13 @@ class Object_parallax():
         if x[1]<600 and x[1]>300 and self.decal==0:
             self.x0=self.x0+x
             self.decal=1
-        self.f0 = (self.x0 - x) @ rot_plan(-ang[0])
-        self.norm = np.linalg.norm(self.x0 - x)
-        self.width = self.RA * 2 * scrnL[0] / self.f0[0]
-        self.widthY = self.RA * 2 * scrnL[0] / self.f0[0]
-        self.DX = -self.RA * scrnL[0] / self.f0[0] + scrnL[0] * (self.f0[1] / self.f0[0]) / TAN2
-        self.DY = -(self.RA * scrnL[0] * 1.7 - 5 * scrnL[0]) / self.f0[0] - scrnL[1] * tan(ang[1]) / TAN1 - (
-                    2 * scrnL[1] * (z - self.z) / self.f0[0]) / TAN1
+        #self.f0 = (self.x0 - x) @ rot_plan(-ang[0])
+        #self.norm = np.linalg.norm(self.x0 - x)
+        #self.width = self.RA * 2 * scrnL[0] / self.f0[0]
+        #self.widthY = self.RA * 2 * scrnL[0] / self.f0[0]
+        #self.DX = -self.RA * scrnL[0] / self.f0[0] + scrnL[0] * (self.f0[1] / self.f0[0]) / TAN2
+        #self.DY = -(self.RA * scrnL[0] * 1.7 - 5 * scrnL[0]) / self.f0[0] - scrnL[1] * tan(ang[1]) / TAN1 - (
+        #            2 * scrnL[1] * (z - self.z) / self.f0[0]) / TAN1
 
         self.x0+=np.array([10,0])
         self.p = np.array([self.x0[0], self.x0[1], 0.])
@@ -2518,6 +2519,17 @@ class Object_parallax():
 
         if self.x0[0]>10000:
             self.x0[0]=self.x0[0]-20000
+
+        if self.type_M == 1:
+            if randint(0, 100) == 0:
+                self.erupt = 2
+            if self.erupt == 0:
+                all_im_idx_parallax[self.boule_idx] = 1
+            if self.erupt == 1:
+                all_im_idx_parallax[self.boule_idx] = 2
+            if self.erupt == 2:
+                all_im_idx_parallax[self.boule_idx] = 3
+            self.erupt = max(0, self.erupt - 0.5)
 
 
     def test_behind(self):
@@ -2680,8 +2692,31 @@ class grenade(pygame.sprite.Sprite):
         self.deg = deg
         self.cool = 0
         self.size = 1000
+        
+        
+        global all_alive_grenade
+        idxfl = len(all_alive_grenade) - 1
+        for cfli, fli in enumerate(all_alive_grenade):
+            idxfl = len(all_alive_grenade) - 1 - cfli
+            if not (all_alive_grenade[idxfl]):
+                all_alive_grenade[idxfl] = True
+                break
+        self.boule_idx = idxfl
+        
+        
+        global all_RA_grenade,all_x_grenade,all_im_idx_grenade
+
+        all_RA_grenade[self.boule_idx]=1.
+        all_x_grenade[self.boule_idx,:]=self.p
+        all_im_idx_grenade[self.boule_idx]=0
+
+
+        all_im_idx_grenade[self.boule_idx] =0
+
+        
 
     def update(self):
+        global all_x_grenade, all_alive_grenade, all_light_grenade
         self.lifetime += 1
         self.v += np.array([0, 0, 0.01]) * self.masse
         self.p += self.v
@@ -2691,7 +2726,7 @@ class grenade(pygame.sprite.Sprite):
         self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
         self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
 
-
+        all_x_grenade[self.boule_idx, :] = self.p
 
         self.cool = max(0, self.cool - 1)
 
@@ -2699,6 +2734,7 @@ class grenade(pygame.sprite.Sprite):
             self.v[-1] *= -1
             self.v *= 0.5
             self.p[-1] = zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 2.4
+            all_x_grenade[self.boule_idx, :] = self.p
         if (authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) or (
                 level_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) and self.cool == 0 and level_w_transp[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2]==0:
             for i in wall[:20]:
@@ -4439,6 +4475,30 @@ def load_level(level_name):
     all_im_trans_parallax[0, 2, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/obj_parallax/O_1.1.png'))*1/255
     all_im_trans_parallax[0, 3, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/obj_parallax/O_1.2.png'))*1/255
 
+
+    global all_RA_grenade,all_x_grenade,all_im_idx_grenade,all_alive_grenade,all_light_grenade,all_im_grenade,all_im_trans_grenade
+
+    all_alive_grenade = np.full((100), False)
+    all_RA_grenade=np.full((100),1.)
+    all_x_grenade=np.full((100,3),0.)
+    all_im_idx_grenade = np.full((100), 0)
+    all_light_grenade=np.full((100,3),1.)
+    all_im_grenade=np.full((1,11, 160, 160, 3), 0.)
+    all_im_trans_grenade = np.full((1, 11, 160, 160), 0.)
+    for i_ in range(4):
+        all_im_grenade[0, i_, :, :, :] = np.minimum(
+            pygame.surfarray.pixels3d(pygame.image.load('image/effects/grenade%s.png'%str(i_)), 255))
+        all_im_trans_grenade[0, i_, :, :] =pygame.surfarray.array_alpha(pygame.image.load('image/effects/grenade%s.png'%str(i_)))*1/255
+
+    for i_ in range(7):
+        all_im_grenade[0, i_+4, :, :, :] = np.minimum(
+            pygame.surfarray.pixels3d(pygame.image.load('image/effects/explo%s.png'%str(i_)), 255))
+        all_im_trans_grenade[0, i_+4, :, :] =pygame.surfarray.array_alpha(pygame.image.load('image/effects/explo%s.png'%str(i_)))*1/255
+
+
+
+
+
     if level==6:
         op = []
         for i in range(30):
@@ -4682,8 +4742,8 @@ while running == 1:
     h_wall.sort(key=lambda s: s.norm)
     thing.sort(key=lambda s: s.norm)
     ennemies.sort(key=lambda s: s.norm)
-    if level==6:
-        op.sort(key=lambda s: -s.norm)
+    # if level==6:
+    #     op.sort(key=lambda s: -s.norm)
     milliseconds.append(time.perf_counter()*1000)
     label_deltat.append('sorting')
     if milliseconds[-1]-milliseconds[-2]>100:
@@ -5359,9 +5419,6 @@ while running == 1:
     Im,index_b,depth_b=boule_render(ang[0], ang[1], R_c, all_x_boule1, Im, depth_b, all_im_boule1, all_RA_boule1
                  , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule1,all_alive_boule1,all_light_boule1,10,all_im_trans_boule1)
     # put option to draw parallax on blue part
-    Im,index_b,depth_drop=boule_render(ang[0], ang[1], R_c, all_x_parallax, Im, depth_b, all_im_parallax, all_RA_parallax
-                 , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_parallax,all_alive_parallax,all_light_parallax,160,all_im_trans_parallax)
-
 
     Im = np.minimum(Im, 255)
     depth=depth_b[:,:,None]
@@ -5423,7 +5480,7 @@ while running == 1:
             print(label_deltat[-1],c,c3,milliseconds[-1]-milliseconds[-2])
         if level==6:
             [i.calc_norm() for i in op]
-            [i.affiche() for i in op]
+            #[i.affiche() for i in op]
     else:
         movement=0
 
@@ -5462,7 +5519,11 @@ while running == 1:
 
     Im,depth=render_gun(Im, scrnL, 2*2 * scrnL[0], 2*2 * scrnL[1], Gun_A, Gun_A.shape[0], Gun_A.shape[1],depth,xgun,ygun,np.array(colorGUN)*1/255)
 
-    Im=render_sky(Im,scrnL,SKY0,SKY0.shape[0],SKY0.shape[1],2*int(-((-ang[0])%(2*pi)) * SKY0.shape[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]),LAND0,LAND0.shape[0],LAND0.shape[1],2*int(-((-ang[0]+movement)%(2*pi)) * LAND0.shape[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]),LAND0_a/255)
+    Im,blue_=render_sky(Im,scrnL,SKY0,SKY0.shape[0],SKY0.shape[1],2*int(-((-ang[0])%(2*pi)) * SKY0.shape[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]),LAND0,LAND0.shape[0],LAND0.shape[1],2*int(-((-ang[0]+movement)%(2*pi)) * LAND0.shape[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]),LAND0_a/255)
+
+    Im=parallax_render(ang[0], ang[1], R_c, all_x_parallax, Im, blue_, all_im_parallax, all_RA_parallax
+                 , TORCHE3, False, scrnL, TAN1, TAN2,all_im_idx_parallax,all_alive_parallax,all_light_parallax,160,all_im_trans_parallax)
+
 
     if bleed != 0:
         bleed = max(bleed - 1, 0)
