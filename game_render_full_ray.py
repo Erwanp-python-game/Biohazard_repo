@@ -2716,15 +2716,15 @@ class grenade(pygame.sprite.Sprite):
         
 
     def update(self):
-        global all_x_grenade, all_alive_grenade, all_light_grenade
+        global all_x_grenade, all_alive_grenade, all_light_grenade,all_im_idx_grenade,all_light_grenade
         self.lifetime += 1
         self.v += np.array([0, 0, 0.01]) * self.masse
         self.p += self.v
         self.D = np.linalg.norm(x - self.p[:-1])
-        self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
-
-        self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
-        self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
+        # self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
+        #
+        # self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
+        # self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
 
         all_x_grenade[self.boule_idx, :] = self.p
 
@@ -2761,7 +2761,12 @@ class grenade(pygame.sprite.Sprite):
                         self.v *= 0.3
                         self.cool = 20
                         break
-
+        all_im_idx_grenade[self.boule_idx] =c%4
+        colorT = light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2]
+        if light_array[int(self.p[0] + 101) // 2][int(self.p[1] + 101) // 2].sum() == 0:
+            colorT = np.array([1, 1, 1.])
+        colorT = light_modif(colorT, level, c3)
+        all_light_grenade[self.boule_idx] =colorT
         if self.lifetime == 50:
             global explo, Boule, explo_pt, VIE, HIT,explo_type,fc,fire_
             s = pygame.mixer.Sound("son/barril.ogg")
@@ -2782,10 +2787,12 @@ class grenade(pygame.sprite.Sprite):
                 s = pygame.mixer.Sound("son/aie.ogg")
                 s.play()
         if self.lifetime >= 50 and self.lifetime <= 56:
-            self.im = []
-            self.size = 5000
-            for i in range(4):
-                self.im.append(pygame.image.load('image/effects/explo%s.png' % str(self.lifetime - 50)))
+            # self.im = []
+            # self.size = 5000
+            all_im_idx_grenade[self.boule_idx] = self.lifetime-50+4
+            all_RA_grenade[self.boule_idx]=10.
+            # for i in range(4):
+            #     self.im.append(pygame.image.load('image/effects/explo%s.png' % str(self.lifetime - 50)))
 
         if self.lifetime == 57:
             all_alive_grenade[self.boule_idx] = False
