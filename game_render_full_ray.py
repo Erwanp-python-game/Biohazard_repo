@@ -917,6 +917,22 @@ class flamme():
         self.D = np.linalg.norm(x - self.p[:-1])
         self.dY=2 * (2.5 / self.f0[0]) / TAN1
 
+        global all_alive_boule1
+        idxfl = len(all_alive_boule1) - 1
+        for cfli, fli in enumerate(all_alive_boule1):
+            idxfl = len(all_alive_boule1) - 1 - cfli
+            if not (all_alive_boule1[idxfl]):
+                all_alive_boule1[idxfl] = True
+                break
+        self.boule_idx = idxfl
+
+        global all_RA_boule1,all_x_boule1,all_im_idx_boule1
+
+        all_RA_boule1[self.boule_idx]=0.25
+        all_x_boule1[self.boule_idx,:]=self.p
+        all_im_idx_boule1[self.boule_idx]=0
+        all_x_boule1[self.boule_idx, :] = self.p
+
     def update(self):
         self.vie=max(self.vie-1,0)
         if self.vie==24*5:

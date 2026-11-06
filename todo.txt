@@ -19,7 +19,6 @@ SPEEDUP
 
 ->calc_norm in numba, only side remaining
 ->flames in numba
-->grenade in numba
 ->check walkthing
 ->starting speedup (including update zmap)
 
