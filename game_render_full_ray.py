@@ -2730,10 +2730,10 @@ class grenade(pygame.sprite.Sprite):
 
         self.cool = max(0, self.cool - 1)
 
-        if self.p[-1] >= zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 2.5:
+        if self.p[-1] >= zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 5:
             self.v[-1] *= -1
             self.v *= 0.5
-            self.p[-1] = zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 2.4
+            self.p[-1] = zmap[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] + 4.9
             all_x_grenade[self.boule_idx, :] = self.p
         if (authorized_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) or (
                 level_map[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2] == 1) and self.cool == 0 and level_w_transp[int(self.p[1] + 101) // 2][int(self.p[0] + 101) // 2]==0:
@@ -2788,7 +2788,9 @@ class grenade(pygame.sprite.Sprite):
                 self.im.append(pygame.image.load('image/effects/explo%s.png' % str(self.lifetime - 50)))
 
         if self.lifetime == 57:
+            all_alive_grenade[self.boule_idx] = False
             return True
+        
         return False
 
     def affiche(self):
@@ -4487,12 +4489,12 @@ def load_level(level_name):
     all_im_trans_grenade = np.full((1, 11, 160, 160), 0.)
     for i_ in range(4):
         all_im_grenade[0, i_, :, :, :] = np.minimum(
-            pygame.surfarray.pixels3d(pygame.image.load('image/effects/grenade%s.png'%str(i_)), 255))
+            pygame.surfarray.pixels3d(pygame.image.load('image/effects/grenade%s.png'%str(i_))), 255)
         all_im_trans_grenade[0, i_, :, :] =pygame.surfarray.array_alpha(pygame.image.load('image/effects/grenade%s.png'%str(i_)))*1/255
 
     for i_ in range(7):
         all_im_grenade[0, i_+4, :, :, :] = np.minimum(
-            pygame.surfarray.pixels3d(pygame.image.load('image/effects/explo%s.png'%str(i_)), 255))
+            pygame.surfarray.pixels3d(pygame.image.load('image/effects/explo%s.png'%str(i_))), 255)
         all_im_trans_grenade[0, i_+4, :, :] =pygame.surfarray.array_alpha(pygame.image.load('image/effects/explo%s.png'%str(i_)))*1/255
 
 
@@ -5418,6 +5420,11 @@ while running == 1:
 
     Im,index_b,depth_b=boule_render(ang[0], ang[1], R_c, all_x_boule1, Im, depth_b, all_im_boule1, all_RA_boule1
                  , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule1,all_alive_boule1,all_light_boule1,10,all_im_trans_boule1)
+    
+    Im, index_b, depth_b = boule_render(ang[0], ang[1], R_c, all_x_grenade, Im, depth_b, all_im_grenade, all_RA_grenade
+                                        , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,
+                                        all_im_idx_grenade, all_alive_grenade, all_light_grenade, 160, all_im_trans_grenade)
+
     # put option to draw parallax on blue part
 
     Im = np.minimum(Im, 255)
