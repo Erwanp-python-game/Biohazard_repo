@@ -909,7 +909,7 @@ class flamme():
         self.dx=[]
         for i in range(self.n):
             self.dx.append(np.random.uniform(-10, 10))
-        self.p = self.p = np.array([x, y, z])
+        self.p = self.p = np.array([x, y, z+5])
         self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
         self.im = pygame.image.load("image/effects/fire3.png").convert_alpha()
         self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
@@ -918,20 +918,23 @@ class flamme():
         self.dY=2 * (2.5 / self.f0[0]) / TAN1
 
         global all_alive_boule1
-        idxfl = len(all_alive_boule1) - 1
-        for cfli, fli in enumerate(all_alive_boule1):
-            idxfl = len(all_alive_boule1) - 1 - cfli
-            if not (all_alive_boule1[idxfl]):
-                all_alive_boule1[idxfl] = True
-                break
-        self.boule_idx = idxfl
+        self.boule_idx_l=[]
+        for k in range(self.n):
+            idxfl = len(all_alive_boule1) - 1
+            for cfli, fli in enumerate(all_alive_boule1):
+                idxfl = len(all_alive_boule1) - 1 - cfli
+                if not (all_alive_boule1[idxfl]):
+                    all_alive_boule1[idxfl] = True
+                    break
+            self.boule_idx_l.append(idxfl)
 
         global all_RA_boule1,all_x_boule1,all_im_idx_boule1
+        for c_idx,idx in enumerate(self.boule_idx_l):
 
-        all_RA_boule1[self.boule_idx]=0.25
-        all_x_boule1[self.boule_idx,:]=self.p
-        all_im_idx_boule1[self.boule_idx]=0
-        all_x_boule1[self.boule_idx, :] = self.p
+            all_x_boule1[idx,:]=self.p-np.array([0,0,5*2.5*np.sqrt(c_idx)/12])
+            all_im_idx_boule1[idx]=6
+            all_RA_boule1[idx] = 0.5*0.25*(10-9*c_idx/len(self.boule_idx_l))
+
 
     def update(self):
         self.vie=max(self.vie-1,0)
@@ -939,11 +942,18 @@ class flamme():
             self.n0=self.n
         if self.vie < 24 * 5:
             self.n=1+int((self.n0-1)*(self.vie/(24  * 5)))
-        self.D = np.linalg.norm(R_c - self.p)
+        self.D = np.linalg.norm(R_c[:-1] - self.p[:-1])
         self.f0 = (self.p[:-1] - x) @ rot_plan(-ang[0])
         self.dY = 2 * (2.5 / self.f0[0]) / TAN1
         self.X = 1 * (self.f0[1] / self.f0[0]) / TAN2 + 1
         self.Y = 2 * ((self.p[-1] - z) / self.f0[0]) / TAN1 + 1 - tan(ang[1]) / TAN1
+
+
+        global all_RA_boule1,all_x_boule1,all_im_idx_boule1
+
+        for c_idx,idx in enumerate(self.boule_idx_l):
+            if c_idx>0:
+                all_x_boule1[idx,:-1]=all_x_boule1[self.boule_idx_l[c_idx-1],:-1]+(np.random.random(2)-0.5)*0.2
 
     def affiche(self):
         c0 = np.cos(ang[0])
@@ -4438,7 +4448,7 @@ def load_level(level_name):
     all_x_boule1=np.full((100,3),0.)
     all_im_idx_boule1 = np.full((100), 0)
     all_light_boule1=np.full((100,3),1.)
-    all_im_boule1=np.full((1,6, 10, 10, 3), 0.)
+    all_im_boule1=np.full((1,7, 10, 10, 3), 0.)
     all_im_boule1[0, 0, :, :, :] = np.minimum(
         pygame.surfarray.pixels3d(pygame.image.load('image/effects/hurt.png')), 255)
     all_im_boule1[0, 1, :, :, :] = np.minimum(
@@ -4451,8 +4461,9 @@ def load_level(level_name):
         pygame.surfarray.pixels3d(pygame.image.load('image/effects/vert.png')), 255)
     all_im_boule1[0, 5, :, :, :] = np.minimum(
         pygame.surfarray.pixels3d(pygame.image.load('image/effects/rouge.png')), 255)
-
-    all_im_trans_boule1 = np.full((1, 6, 10, 10), 0.)
+    all_im_boule1[0, 6, :, :, :] = np.minimum(
+        pygame.surfarray.pixels3d(pygame.image.load('image/effects/fire3.png')), 255)
+    all_im_trans_boule1 = np.full((1, 7, 10, 10), 0.)
 
     all_im_trans_boule1[0, 0, :, :] =pygame.surfarray.array_alpha(pygame.image.load('image/effects/hurt.png'))*1/255
     all_im_trans_boule1[0, 1, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/effects/hurt2.png'))*1/255
@@ -4460,6 +4471,7 @@ def load_level(level_name):
     all_im_trans_boule1[0, 3, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/effects/spark.png'))*1/255
     all_im_trans_boule1[0, 4, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/effects/vert.png'))*1/255
     all_im_trans_boule1[0, 5, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/effects/rouge.png'))*1/255
+    all_im_trans_boule1[0, 6, :, :] = pygame.surfarray.array_alpha(pygame.image.load('image/effects/fire3.png'))*1/255
 
     # boule im 10x10
     # hurt
@@ -5436,6 +5448,12 @@ while running == 1:
 
     Im,index_e,depth_e = thing_render(c,c2,ang[0], ang[1], R_c, all_x_e, Im, S_i,all_RA,all_im_m,all_im_o,all_obj_mon,all_types_e,all_angle,all_ima_m,all_mort,all_attack_range,all_range,all_light_e,all_im_o_d,all_destr,TORCHE3,torch_shine,Im_liquid,liquid,S_liquid,boss_im,scrnL,TAN1,TAN2)
 
+    Im,blue_=render_sky(Im,scrnL,SKY0,SKY0.shape[0],SKY0.shape[1],2*int(-((-ang[0])%(2*pi)) * SKY0.shape[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]),LAND0,LAND0.shape[0],LAND0.shape[1],2*int(-((-ang[0]+movement)%(2*pi)) * LAND0.shape[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]),LAND0_a/255)
+
+    Im=parallax_render(ang[0], ang[1], R_c, all_x_parallax, Im, blue_, all_im_parallax, all_RA_parallax
+                 , TORCHE3, False, scrnL, TAN1, TAN2,all_im_idx_parallax,all_alive_parallax,all_light_parallax,160,all_im_trans_parallax)
+
+
     #print(all_x_boule,all_alive_boule,R_c,torch_on)
     Im,index_b,depth_b=boule_render(ang[0], ang[1], R_c, all_x_boule, Im, depth_e, all_im_boule, all_RA_boule
                  , TORCHE3, False, scrnL, TAN1, TAN2, Im_liquid, liquid, S_liquid,all_im_idx_boule,all_alive_boule,all_light_boule,50,all_im_trans_boule)
@@ -5549,10 +5567,6 @@ while running == 1:
 
     Im,depth=render_gun(Im, scrnL, 2*2 * scrnL[0], 2*2 * scrnL[1], Gun_A, Gun_A.shape[0], Gun_A.shape[1],depth,xgun,ygun,np.array(colorGUN)*1/255)
 
-    Im,blue_=render_sky(Im,scrnL,SKY0,SKY0.shape[0],SKY0.shape[1],2*int(-((-ang[0])%(2*pi)) * SKY0.shape[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]),LAND0,LAND0.shape[0],LAND0.shape[1],2*int(-((-ang[0]+movement)%(2*pi)) * LAND0.shape[0] / (2 * pi)),-2*int(tan(ang[1]) * scrnL[1] / TAN1 + scrnL[1]),LAND0_a/255)
-
-    Im=parallax_render(ang[0], ang[1], R_c, all_x_parallax, Im, blue_, all_im_parallax, all_RA_parallax
-                 , TORCHE3, False, scrnL, TAN1, TAN2,all_im_idx_parallax,all_alive_parallax,all_light_parallax,160,all_im_trans_parallax)
 
 
     if bleed != 0:
@@ -5601,7 +5615,7 @@ while running == 1:
 
     for ff in fire_:
         ff.update()
-        ff.parcours()
+        # ff.parcours()
         for fl in ff.liste:
 
             if fl.D<4:

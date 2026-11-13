@@ -792,7 +792,7 @@ def boule_render( a0, a1, x_perso, all_x_e, Im, S,all_im_boule,all_RA_boule
                             for gy in range(0, width):
                                 iy = sy - width // 2 + gy
                                 iy_r = int(width_im * gy / width)
-                                if iy >= 0 and iy < H and S[ix, iy] > x1 and depth_e[ix, iy] > x1 and iy_r < width_im:
+                                if iy >= 0 and iy < H and S[ix, iy] > x1  and iy_r < width_im:
                                     r = im[ix_r, iy_r, 0]
                                     g = im[ix_r, iy_r, 1]
                                     b = im[ix_r, iy_r, 2]
